@@ -91,9 +91,10 @@ class Simulator:
             trade_id: the trade to settle
             winning_side: "Up" or "Down" — the resolved market outcome
         """
-        rows = self._conn.execute(
-            "SELECT * FROM trades WHERE id = ?", (trade_id,)
-        ).fetchall()
+        import psycopg2.extras
+        with self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM trades WHERE id = %s", (trade_id,))
+            rows = cur.fetchall()
         if not rows:
             logger.error(f"Trade {trade_id} not found for settlement")
             return

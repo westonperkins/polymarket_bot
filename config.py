@@ -1,5 +1,13 @@
 """Configuration constants for the Polymarket paper trading bot."""
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ── Database ─────────────────────────────────────────────────────────
+DATABASE_URL = os.environ["DATABASE_URL"]
+
 # ── Portfolio ──────────────────────────────────────────────────────────
 STARTING_BALANCE = 10_000.00  # virtual USDC
 
@@ -66,5 +74,3 @@ ASIAN_CLOSE_ET = 6.0       # 6:00 AM
 WEB_PORT = 8080
 WEB_REFRESH_INTERVAL = 5  # seconds between frontend polls
 
-# ── Database ───────────────────────────────────────────────────────────
-DATABASE_PATH = "polymarket_bot.db"

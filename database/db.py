@@ -1,6 +1,7 @@
-"""SQLite database connection and query functions."""
+"""PostgreSQL database connection and query functions (via Supabase)."""
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -10,21 +11,26 @@ import config
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
 
-def get_connection() -> sqlite3.Connection:
-    """Return a connection to the SQLite database, creating tables if needed."""
-    conn = sqlite3.connect(config.DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
+def get_connection():
+    """Return a connection to the PostgreSQL database, creating tables if needed."""
+    conn = psycopg2.connect(config.DATABASE_URL)
+    conn.autocommit = False
     with open(SCHEMA_PATH) as f:
-        conn.executescript(f.read())
+        with conn.cursor() as cur:
+            cur.execute(f.read())
+        conn.commit()
     return conn
+
+
+def _cursor(conn):
+    """Return a RealDictCursor for dict-like row access."""
+    return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 
 # ── Trades ─────────────────────────────────────────────────────────────
 
 def insert_trade(
-    conn: sqlite3.Connection,
+    conn,
     market_id: str,
     side: str,
     entry_odds: Optional[float],
@@ -36,69 +42,75 @@ def insert_trade(
     portfolio_balance_after: Optional[float] = None,
 ) -> int:
     """Insert a trade record and return its id."""
-    cur = conn.execute(
-        """INSERT INTO trades
-           (timestamp, market_id, side, entry_odds, position_size,
-            payout_rate, confidence_level, outcome, pnl, portfolio_balance_after)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            datetime.now(timezone.utc).isoformat(),
-            market_id,
-            side,
-            entry_odds,
-            position_size,
-            payout_rate,
-            confidence_level,
-            outcome,
-            pnl,
-            portfolio_balance_after,
-        ),
-    )
+    with _cursor(conn) as cur:
+        cur.execute(
+            """INSERT INTO trades
+               (timestamp, market_id, side, entry_odds, position_size,
+                payout_rate, confidence_level, outcome, pnl, portfolio_balance_after)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING id""",
+            (
+                datetime.now(timezone.utc).isoformat(),
+                market_id,
+                side,
+                entry_odds,
+                position_size,
+                payout_rate,
+                confidence_level,
+                outcome,
+                pnl,
+                portfolio_balance_after,
+            ),
+        )
+        trade_id = cur.fetchone()["id"]
     conn.commit()
-    return cur.lastrowid
+    return trade_id
 
 
 def update_trade_outcome(
-    conn: sqlite3.Connection,
+    conn,
     trade_id: int,
     outcome: str,
     pnl: float,
     portfolio_balance_after: float,
 ) -> None:
     """Update a trade with its resolution result."""
-    conn.execute(
-        """UPDATE trades
-           SET outcome = ?, pnl = ?, portfolio_balance_after = ?
-           WHERE id = ?""",
-        (outcome, pnl, portfolio_balance_after, trade_id),
-    )
+    with _cursor(conn) as cur:
+        cur.execute(
+            """UPDATE trades
+               SET outcome = %s, pnl = %s, portfolio_balance_after = %s
+               WHERE id = %s""",
+            (outcome, pnl, portfolio_balance_after, trade_id),
+        )
     conn.commit()
 
 
-def get_recent_trades(conn: sqlite3.Connection, limit: int = 10) -> list[sqlite3.Row]:
+def get_recent_trades(conn, limit: int = 10) -> list[dict]:
     """Return the most recent trades, newest first."""
-    return conn.execute(
-        "SELECT * FROM trades ORDER BY id DESC LIMIT ?", (limit,)
-    ).fetchall()
+    with _cursor(conn) as cur:
+        cur.execute("SELECT * FROM trades ORDER BY id DESC LIMIT %s", (limit,))
+        return cur.fetchall()
 
 
-def get_pending_trades(conn: sqlite3.Connection) -> list[sqlite3.Row]:
+def get_pending_trades(conn) -> list[dict]:
     """Return all trades awaiting resolution."""
-    return conn.execute(
-        "SELECT * FROM trades WHERE outcome = 'pending'"
-    ).fetchall()
+    with _cursor(conn) as cur:
+        cur.execute("SELECT * FROM trades WHERE outcome = 'pending'")
+        return cur.fetchall()
 
 
-def get_trade_stats(conn: sqlite3.Connection) -> dict:
+def get_trade_stats(conn) -> dict:
     """Return aggregate trade statistics."""
-    row = conn.execute(
-        """SELECT
-               COUNT(*) AS total,
-               SUM(CASE WHEN outcome = 'win' THEN 1 ELSE 0 END) AS wins,
-               SUM(CASE WHEN outcome = 'loss' THEN 1 ELSE 0 END) AS losses,
-               SUM(CASE WHEN outcome = 'skip' THEN 1 ELSE 0 END) AS skips
-           FROM trades"""
-    ).fetchone()
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT
+                   COUNT(*) AS total,
+                   SUM(CASE WHEN outcome = 'win' THEN 1 ELSE 0 END) AS wins,
+                   SUM(CASE WHEN outcome = 'loss' THEN 1 ELSE 0 END) AS losses,
+                   SUM(CASE WHEN outcome = 'skip' THEN 1 ELSE 0 END) AS skips
+               FROM trades"""
+        )
+        row = cur.fetchone()
     total = row["total"]
     wins = row["wins"] or 0
     losses = row["losses"] or 0
@@ -115,7 +127,7 @@ def get_trade_stats(conn: sqlite3.Connection) -> dict:
 # ── Signals ────────────────────────────────────────────────────────────
 
 def insert_signals(
-    conn: sqlite3.Connection,
+    conn,
     trade_id: int,
     chainlink_price: Optional[float] = None,
     spot_price: Optional[float] = None,
@@ -135,49 +147,52 @@ def insert_signals(
     final_vote: Optional[str] = None,
 ) -> int:
     """Insert a signal snapshot for a trade and return its id."""
-    cur = conn.execute(
-        """INSERT INTO signals
-           (trade_id, chainlink_price, spot_price, chainlink_spot_divergence,
-            candle_position_dollars, momentum_60s, momentum_120s, cvd,
-            order_book_ratio, liquidation_signal, round_number_distance,
-            time_regime, candle_streak, momentum_vote, reversion_vote,
-            structure_vote, final_vote)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            trade_id,
-            chainlink_price,
-            spot_price,
-            chainlink_spot_divergence,
-            candle_position_dollars,
-            momentum_60s,
-            momentum_120s,
-            cvd,
-            order_book_ratio,
-            liquidation_signal,
-            round_number_distance,
-            time_regime,
-            candle_streak,
-            momentum_vote,
-            reversion_vote,
-            structure_vote,
-            final_vote,
-        ),
-    )
+    with _cursor(conn) as cur:
+        cur.execute(
+            """INSERT INTO signals
+               (trade_id, chainlink_price, spot_price, chainlink_spot_divergence,
+                candle_position_dollars, momentum_60s, momentum_120s, cvd,
+                order_book_ratio, liquidation_signal, round_number_distance,
+                time_regime, candle_streak, momentum_vote, reversion_vote,
+                structure_vote, final_vote)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING id""",
+            (
+                trade_id,
+                chainlink_price,
+                spot_price,
+                chainlink_spot_divergence,
+                candle_position_dollars,
+                momentum_60s,
+                momentum_120s,
+                cvd,
+                order_book_ratio,
+                liquidation_signal,
+                round_number_distance,
+                time_regime,
+                candle_streak,
+                momentum_vote,
+                reversion_vote,
+                structure_vote,
+                final_vote,
+            ),
+        )
+        signal_id = cur.fetchone()["id"]
     conn.commit()
-    return cur.lastrowid
+    return signal_id
 
 
-def get_signals_for_trade(conn: sqlite3.Connection, trade_id: int) -> Optional[sqlite3.Row]:
+def get_signals_for_trade(conn, trade_id: int) -> Optional[dict]:
     """Return the signal snapshot for a given trade."""
-    return conn.execute(
-        "SELECT * FROM signals WHERE trade_id = ?", (trade_id,)
-    ).fetchone()
+    with _cursor(conn) as cur:
+        cur.execute("SELECT * FROM signals WHERE trade_id = %s", (trade_id,))
+        return cur.fetchone()
 
 
 # ── Portfolio ──────────────────────────────────────────────────────────
 
 def insert_portfolio_snapshot(
-    conn: sqlite3.Connection,
+    conn,
     balance: float,
     total_trades: int,
     wins: int,
@@ -187,39 +202,44 @@ def insert_portfolio_snapshot(
     daily_pnl: float,
 ) -> int:
     """Insert a portfolio snapshot and return its id."""
-    cur = conn.execute(
-        """INSERT INTO portfolio
-           (timestamp, balance, total_trades, wins, losses, skips, win_rate, daily_pnl)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            datetime.now(timezone.utc).isoformat(),
-            balance,
-            total_trades,
-            wins,
-            losses,
-            skips,
-            win_rate,
-            daily_pnl,
-        ),
-    )
+    with _cursor(conn) as cur:
+        cur.execute(
+            """INSERT INTO portfolio
+               (timestamp, balance, total_trades, wins, losses, skips, win_rate, daily_pnl)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING id""",
+            (
+                datetime.now(timezone.utc).isoformat(),
+                balance,
+                total_trades,
+                wins,
+                losses,
+                skips,
+                win_rate,
+                daily_pnl,
+            ),
+        )
+        snapshot_id = cur.fetchone()["id"]
     conn.commit()
-    return cur.lastrowid
+    return snapshot_id
 
 
-def get_latest_portfolio(conn: sqlite3.Connection) -> Optional[sqlite3.Row]:
+def get_latest_portfolio(conn) -> Optional[dict]:
     """Return the most recent portfolio snapshot."""
-    return conn.execute(
-        "SELECT * FROM portfolio ORDER BY id DESC LIMIT 1"
-    ).fetchone()
+    with _cursor(conn) as cur:
+        cur.execute("SELECT * FROM portfolio ORDER BY id DESC LIMIT 1")
+        return cur.fetchone()
 
 
-def get_last_n_outcomes(conn: sqlite3.Connection, n: int = 5) -> list[str]:
+def get_last_n_outcomes(conn, n: int = 5) -> list[str]:
     """Return the last N trade outcomes (for candle streak tracking).
     Only includes resolved trades (win/loss), newest first."""
-    rows = conn.execute(
-        """SELECT side FROM trades
-           WHERE outcome IN ('win', 'loss')
-           ORDER BY id DESC LIMIT ?""",
-        (n,),
-    ).fetchall()
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT side FROM trades
+               WHERE outcome IN ('win', 'loss')
+               ORDER BY id DESC LIMIT %s""",
+            (n,),
+        )
+        rows = cur.fetchall()
     return [row["side"] for row in rows]

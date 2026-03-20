@@ -157,8 +157,8 @@ async def start_web_server(
 
     runner = web.AppRunner(app, access_log=None)
     await runner.setup()
-    site = web.TCPSite(runner, "localhost", config.WEB_PORT)
+    site = web.TCPSite(runner, "0.0.0.0", config.WEB_PORT)
     await site.start()
 
-    logger.info(f"Web dashboard running at http://localhost:{config.WEB_PORT}")
+    logger.info(f"Web dashboard running at http://0.0.0.0:{config.WEB_PORT}")
     return runner
