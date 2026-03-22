@@ -1,6 +1,7 @@
 """Fetch BTC 5-minute Up/Down market metadata from Polymarket Gamma API."""
 
 import json
+import logging
 import math
 import time
 from dataclasses import dataclass
@@ -9,6 +10,8 @@ from datetime import datetime, timezone
 import aiohttp
 
 import config
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -117,15 +120,25 @@ async def fetch_next_market(session: aiohttp.ClientSession | None = None) -> Mar
 async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
     """Find the currently active (not yet closed) BTC 5-minute market.
 
-    Checks the current 5-minute window first, then the next one.
+    Checks the current 5-minute window and adjacent windows to ensure
+    we never skip a candle. Markets close every 5 minutes, so we check
+    the current boundary and the next few.
     """
     now = time.time()
-    # Current window: close time is the next boundary
     current_close = _next_5min_close_timestamp(now)
-    slug = _build_slug(current_close)
-    market = await fetch_market_by_slug(slug, session=session)
-    if market and not market.closed:
+
+    # Check current and next boundaries to find the earliest open market
+    for offset in range(4):
+        close_ts = current_close + (offset * 300)
+        slug = _build_slug(close_ts)
+        market = await fetch_market_by_slug(slug, session=session)
+        if market is None:
+            logger.info(f"Market discovery: {slug} not found on API")
+            continue
+        if market.closed:
+            logger.info(f"Market discovery: {slug} already closed, skipping")
+            continue
+        logger.info(f"Market discovery: {slug} is open — selecting")
         return market
 
-    # If current window is already closed, try next
-    return await fetch_next_market(session=session)
+    return None
