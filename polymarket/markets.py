@@ -30,10 +30,14 @@ class MarketInfo:
     closed: bool
 
 
-def _next_5min_close_timestamp(now_unix: float | None = None) -> int:
-    """Return the Unix timestamp of the next 5-minute boundary (close time)."""
+def _current_candle_start(now_unix: float | None = None) -> int:
+    """Return the Unix timestamp of the current candle's start time.
+
+    Polymarket slugs use the candle START time (not close time).
+    E.g. the 5:40-5:45 candle has slug btc-updown-5m-{5:40 unix}.
+    """
     now = now_unix or time.time()
-    return int(math.ceil(now / 300) * 300)
+    return int(now // 300) * 300
 
 
 def _build_slug(close_unix: int) -> str:
@@ -108,37 +112,43 @@ async def fetch_next_market(session: aiohttp.ClientSession | None = None) -> Mar
     isn't listed yet.
     """
     now = time.time()
-    for offset in range(0, 4):
-        close_ts = _next_5min_close_timestamp(now) + (offset * 300)
-        slug = _build_slug(close_ts)
+    now_utc = datetime.now(timezone.utc)
+    candle_start = _current_candle_start(now)
+    for offset in range(1, 5):
+        start_ts = candle_start + (offset * 300)
+        slug = _build_slug(start_ts)
         market = await fetch_market_by_slug(slug, session=session)
-        if market and not market.closed:
+        if market and market.end_time > now_utc:
             return market
     return None
 
 
 async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
-    """Find the currently active (not yet closed) BTC 5-minute market.
+    """Find the currently active (not yet ended) BTC 5-minute market.
 
-    Checks the current 5-minute window and adjacent windows to ensure
-    we never skip a candle. Markets close every 5 minutes, so we check
-    the current boundary and the next few.
+    Polymarket slugs use the candle START time. So at 5:42, the current
+    candle started at 5:40 and its slug is btc-updown-5m-{5:40 unix}.
+    We check the current candle and the next few in case the current one
+    has already ended.
     """
     now = time.time()
-    current_close = _next_5min_close_timestamp(now)
+    now_utc = datetime.now(timezone.utc)
+    candle_start = _current_candle_start(now)
 
-    # Check current and next boundaries to find the earliest open market
     for offset in range(4):
-        close_ts = current_close + (offset * 300)
-        slug = _build_slug(close_ts)
+        start_ts = candle_start + (offset * 300)
+        slug = _build_slug(start_ts)
         market = await fetch_market_by_slug(slug, session=session)
         if market is None:
             logger.info(f"Market discovery: {slug} not found on API")
             continue
-        if market.closed:
-            logger.info(f"Market discovery: {slug} already closed, skipping")
+        if market.end_time <= now_utc:
+            logger.info(f"Market discovery: {slug} already ended, skipping")
             continue
-        logger.info(f"Market discovery: {slug} is open — selecting")
+        logger.info(
+            f"Market discovery: {slug} selected "
+            f"(closed={market.closed}, ends={market.end_time.isoformat()})"
+        )
         return market
 
     return None

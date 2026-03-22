@@ -134,6 +134,12 @@ def _default_for(func):
         return None if name.startswith("insert_") else []
     if name == "get_trade_stats":
         return {"total": 0, "wins": 0, "losses": 0, "skips": 0, "win_rate": 0.0}
+    if name == "get_daily_pnl":
+        return 0.0
+    if name == "get_best_worst_trades":
+        return {"best_pnl": 0.0, "worst_pnl": 0.0}
+    if name == "get_peak_balance":
+        return 0.0
     if name in ("get_recent_trades", "get_pending_trades", "get_last_n_outcomes"):
         return []
     if name in ("get_latest_portfolio", "get_signals_for_trade"):
@@ -241,6 +247,53 @@ def get_trade_stats(conn) -> dict:
         "skips": row["skips"] or 0,
         "win_rate": (wins / decided * 100) if decided > 0 else 0.0,
     }
+
+
+@_retry
+def get_daily_pnl(conn) -> float:
+    """Return total P&L for trades settled today (UTC)."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT COALESCE(SUM(pnl), 0) AS daily_pnl
+               FROM trades
+               WHERE outcome IN ('win', 'loss')
+               AND timestamp >= %s""",
+            (today,),
+        )
+        row = cur.fetchone()
+    return float(row["daily_pnl"])
+
+
+@_retry
+def get_best_worst_trades(conn) -> dict:
+    """Return the best and worst single trades by P&L."""
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT
+                   MAX(pnl) AS best_pnl,
+                   MIN(pnl) AS worst_pnl
+               FROM trades
+               WHERE outcome IN ('win', 'loss')"""
+        )
+        row = cur.fetchone()
+    return {
+        "best_pnl": float(row["best_pnl"]) if row["best_pnl"] is not None else 0.0,
+        "worst_pnl": float(row["worst_pnl"]) if row["worst_pnl"] is not None else 0.0,
+    }
+
+
+@_retry
+def get_peak_balance(conn) -> float:
+    """Return the highest portfolio balance ever recorded."""
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT COALESCE(MAX(portfolio_balance_after), 0) AS peak
+               FROM trades
+               WHERE portfolio_balance_after IS NOT NULL"""
+        )
+        row = cur.fetchone()
+    return float(row["peak"]) if row["peak"] else 0.0
 
 
 # ── Signals ────────────────────────────────────────────────────────────

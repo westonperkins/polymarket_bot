@@ -152,6 +152,10 @@
     <div class="stat-row"><span class="stat-label">Trades</span><span class="stat-value" id="total-trades">0</span></div>
     <div class="stat-row"><span class="stat-label">Record</span><span class="stat-value" id="record">0W / 0L / 0S</span></div>
     <div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-value" id="win-rate">0.0%</span></div>
+    <div style="border-top: 1px solid var(--border); margin: 8px 0;"></div>
+    <div class="stat-row"><span class="stat-label">Peak Balance</span><span class="stat-value" id="peak-balance">$0.00</span></div>
+    <div class="stat-row"><span class="stat-label">Best Trade</span><span class="stat-value" id="best-trade">$0.00</span></div>
+    <div class="stat-row"><span class="stat-label">Worst Trade</span><span class="stat-value" id="worst-trade">$0.00</span></div>
   </div>
 
   <!-- Market -->
@@ -225,6 +229,16 @@ function render(s) {
   document.getElementById('record').innerHTML =
     `<span class="positive">${p.wins}W</span> / <span class="negative">${p.losses}L</span> / ${p.skips}S`;
   document.getElementById('win-rate').textContent = fmt(p.win_rate, 1) + '%';
+
+  document.getElementById('peak-balance').textContent = '$' + fmt(p.peak_balance);
+
+  const btEl = document.getElementById('best-trade');
+  btEl.textContent = '$+' + fmt(p.best_trade);
+  btEl.className = 'stat-value positive';
+
+  const wtEl = document.getElementById('worst-trade');
+  wtEl.textContent = '$' + fmt(p.worst_trade);
+  wtEl.className = 'stat-value negative';
 
   // Market
   const mc = document.getElementById('market-content');

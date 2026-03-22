@@ -29,6 +29,9 @@ def build_state_dict(
 ) -> dict:
     """Assemble the full dashboard state as a JSON-serializable dict."""
     stats = db.get_trade_stats(conn)
+    daily_pnl = db.get_daily_pnl(conn)
+    best_worst = db.get_best_worst_trades(conn)
+    peak_balance = db.get_peak_balance(conn)
 
     # Portfolio
     state = {
@@ -36,12 +39,15 @@ def build_state_dict(
             "balance": portfolio.balance,
             "starting_balance": config.STARTING_BALANCE,
             "pnl_pct": portfolio.pnl_pct,
-            "daily_pnl": portfolio.daily_pnl,
+            "daily_pnl": daily_pnl,
             "total_trades": stats["total"],
             "wins": stats["wins"],
             "losses": stats["losses"],
             "skips": stats["skips"],
             "win_rate": stats["win_rate"],
+            "best_trade": best_worst["best_pnl"],
+            "worst_trade": best_worst["worst_pnl"],
+            "peak_balance": peak_balance,
         },
         "market": None,
         "signals": dashboard.last_signals,
