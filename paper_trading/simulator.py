@@ -92,9 +92,13 @@ class Simulator:
             winning_side: "Up" or "Down" — the resolved market outcome
         """
         import psycopg2.extras
-        with self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("SELECT * FROM trades WHERE id = %s", (trade_id,))
-            rows = cur.fetchall()
+        try:
+            with self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("SELECT * FROM trades WHERE id = %s", (trade_id,))
+                rows = cur.fetchall()
+        except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+            logger.error(f"DB error fetching trade {trade_id} for settlement: {e}")
+            return
         if not rows:
             logger.error(f"Trade {trade_id} not found for settlement")
             return
