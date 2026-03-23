@@ -2,9 +2,9 @@
 
 Provides:
 - Live spot price from Binance.com
-- Rolling price history (sampled every ~30s by the timing engine)
+- Rolling price history (every 5s in the 2-min active window, every 60s idle)
 - Momentum calculation over 60s and 120s windows
-- Cached spot price with 30s TTL to survive transient failures
+- Cached spot price with 90s TTL to survive transient failures
 """
 
 import asyncio
@@ -41,7 +41,8 @@ class PriceSample:
 class SpotTracker:
     """Tracks Binance BTC/USDT spot price and computes momentum.
 
-    Call `record_price()` every ~5 seconds during the market window.
+    Samples arrive every 5s during the 2-min active window before close,
+    and every 60s during idle periods (cache warming only).
     Call `get_momentum()` at T-30 to get the momentum signals.
     Call `reset()` between markets.
     """
@@ -108,7 +109,10 @@ class SpotTracker:
     def _find_price_at(self, target_ts: float) -> Optional[float]:
         """Find the price closest to the target timestamp.
 
-        Returns None if no sample exists within 15s of the target.
+        Returns None if no sample exists within 35s of the target.
+        The tolerance accommodates the 60s idle polling interval — the
+        worst-case gap between samples is ~60s, so 35s ensures at least
+        the nearest idle sample is matched.
         """
         best = None
         best_diff = float("inf")
@@ -117,7 +121,7 @@ class SpotTracker:
             if diff < best_diff:
                 best_diff = diff
                 best = sample.price
-        if best_diff > 15.0:  # no sample within 15s of target
+        if best_diff > 35.0:  # no sample within 35s of target
             return None
         return best
 
@@ -139,7 +143,8 @@ async def fetch_spot_price(
 
     close_session = session is None
     if close_session:
-        session = aiohttp.ClientSession()
+        connector = aiohttp.TCPConnector(limit=10)
+        session = aiohttp.ClientSession(connector=connector)
     try:
         price = await _fetch_binance(session)
         if price:
@@ -173,7 +178,7 @@ async def fetch_spot_price(
 
 async def _fetch_binance(session: aiohttp.ClientSession) -> Optional[float]:
     """Fetch from Binance.com API."""
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
+    timeout = aiohttp.ClientTimeout(total=15)
     try:
         async with session.get(config.BINANCE_SPOT_URL, timeout=timeout) as resp:
             if resp.status != 200:
@@ -188,5 +193,5 @@ async def _fetch_binance(session: aiohttp.ClientSession) -> Optional[float]:
             return None
     except Exception as e:
         health.record("Binance", False)
-        logger.warning(f"Binance spot fetch failed: {e}")
+        logger.warning(f"Binance spot fetch failed: {type(e).__name__}: {e}")
         return None

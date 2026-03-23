@@ -31,9 +31,11 @@ ENTRY_SECONDS_BEFORE_CLOSE = 30    # trigger signal analysis at T-30s
 SIGNAL_FETCH_TIMEOUT = 10          # max seconds per API call
 SIGNAL_FETCH_BUDGET = 5            # total seconds allowed for all fetches
 DASHBOARD_REFRESH_INTERVAL = 5     # seconds between dashboard refreshes
-MOMENTUM_POLL_INTERVAL = 30        # seconds between spot price samples
+SPOT_POLL_ACTIVE_INTERVAL = 5       # seconds between samples in active window
+SPOT_POLL_IDLE_INTERVAL = 60       # seconds between samples outside active window
+SPOT_ACTIVE_WINDOW = 120           # seconds before close to start active polling
 SPOT_RETRY_DELAY = 10              # seconds between retries on fetch failure
-SPOT_CACHE_TTL = 30                # seconds a cached spot price remains valid
+SPOT_CACHE_TTL = 90                # seconds a cached spot price remains valid
 
 # ── Signal Thresholds ──────────────────────────────────────────────────
 # Chainlink vs Spot divergence — "significant" threshold in USD

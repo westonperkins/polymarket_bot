@@ -34,10 +34,11 @@ async def fetch_orderbook(
     Only counts volume within config.ORDERBOOK_DEPTH_PCT (0.1%) of mid price.
     Returns None on API failure.
     """
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
+    timeout = aiohttp.ClientTimeout(total=15)
     close_session = session is None
     if close_session:
-        session = aiohttp.ClientSession()
+        connector = aiohttp.TCPConnector(limit=10)
+        session = aiohttp.ClientSession(connector=connector)
     try:
         async with session.get(config.BINANCE_DEPTH_URL, timeout=timeout) as resp:
             if resp.status != 200:
@@ -88,7 +89,7 @@ async def fetch_orderbook(
             direction=direction,
         )
     except Exception as e:
-        logger.warning(f"Failed to fetch order book: {e}")
+        logger.warning(f"Failed to fetch order book: {type(e).__name__}: {e}")
         return None
     finally:
         if close_session:

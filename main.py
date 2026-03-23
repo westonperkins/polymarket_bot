@@ -98,7 +98,7 @@ pending_trades: dict[str, int] = {}
 
 # ── Spot price polling task ─────────────────────────────────────────────
 async def poll_spot_price():
-    """Continuously sample spot price every 5s for momentum tracking."""
+    """Adaptively sample spot price: every 5s in the 2-min active window, every 60s otherwise."""
     async with aiohttp.ClientSession() as session:
         while engine.running:
             try:
@@ -106,8 +106,15 @@ async def poll_spot_price():
                 if price:
                     spot_tracker.record(price)
             except Exception as e:
-                logger.warning(f"Spot price poll failed: {e}")
-            await asyncio.sleep(config.MOMENTUM_POLL_INTERVAL)
+                logger.warning(f"Spot price poll failed: {type(e).__name__}: {e}")
+
+            # Use active (5s) polling when within 2 minutes of market close
+            secs = engine.seconds_until_close()
+            if secs is not None and 0 < secs <= config.SPOT_ACTIVE_WINDOW:
+                interval = config.SPOT_POLL_ACTIVE_INTERVAL
+            else:
+                interval = config.SPOT_POLL_IDLE_INTERVAL
+            await asyncio.sleep(interval)
 
 
 # ── Timing engine callbacks ────────────────────────────────────────────
