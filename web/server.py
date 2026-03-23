@@ -12,6 +12,7 @@ from aiohttp import web
 
 import config
 from database import db
+from network_health import health
 from paper_trading.portfolio import Portfolio
 from timing_engine import TimingEngine
 from dashboard.display import Dashboard
@@ -54,6 +55,7 @@ def build_state_dict(
         "decision": None,
         "trades": [],
         "status": dashboard.status_message,
+        "network": health.get_stats(),
     }
 
     # Current market
@@ -136,13 +138,21 @@ async def handle_index(request):
 
 async def handle_api_state(request):
     """Return full dashboard state as JSON."""
-    state = build_state_dict(
-        request.app["engine"],
-        request.app["portfolio"],
-        request.app["conn"],
-        request.app["dashboard"],
-    )
-    return web.json_response(state)
+    try:
+        state = build_state_dict(
+            request.app["engine"],
+            request.app["portfolio"],
+            request.app["conn"],
+            request.app["dashboard"],
+        )
+        return web.json_response(state)
+    except Exception as e:
+        logger.error(f"Dashboard API error: {e}", exc_info=True)
+        return web.json_response(
+            {"error": str(e), "portfolio": None, "market": None,
+             "signals": None, "decision": None, "trades": [], "status": f"Dashboard error: {e}"},
+            status=200,  # 200 so frontend doesn't break
+        )
 
 
 async def start_web_server(

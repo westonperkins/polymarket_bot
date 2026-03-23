@@ -65,7 +65,7 @@ def vote(
     # Signal 8 — Time of day regime (modifies interpretation, not direct vote)
     # During US market hours, momentum is more reliable → lean with current direction
     # During Asian hours, mean reversion is more likely → lean against current direction
-    if time_regime and candle_position_dollars is not None:
+    if time_regime and candle_position_dollars is not None and candle_position_dollars != 0.0:
         if time_regime == "us_market" and abs(candle_position_dollars) > 10:
             # US hours: momentum-driven, lean with current direction
             if candle_position_dollars > 0:

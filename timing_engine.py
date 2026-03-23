@@ -50,12 +50,36 @@ class TimingEngine:
     async def run(self) -> None:
         """Main loop — runs indefinitely, processing one market at a time."""
         self.running = True
-        self._session = aiohttp.ClientSession()
+        self._session = aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=15),
+            connector=aiohttp.TCPConnector(limit=20, ttl_dns_cache=300),
+        )
         logger.info("Timing engine started")
+        consecutive_failures = 0
 
         try:
             while self.running:
-                await self._process_one_market()
+                try:
+                    await self._process_one_market()
+                    consecutive_failures = 0
+                except asyncio.CancelledError:
+                    raise
+                except Exception as e:
+                    consecutive_failures += 1
+                    logger.error(f"Error in market cycle ({consecutive_failures} consecutive): {e}", exc_info=True)
+                    # If session might be broken, recreate it
+                    if consecutive_failures >= 3:
+                        logger.warning("Multiple consecutive failures — recreating HTTP session")
+                        try:
+                            await self._session.close()
+                        except Exception:
+                            pass
+                        self._session = aiohttp.ClientSession(
+                            timeout=aiohttp.ClientTimeout(total=15),
+                            connector=aiohttp.TCPConnector(limit=20, ttl_dns_cache=300),
+                        )
+                        consecutive_failures = 0
+                    await asyncio.sleep(10)
         except asyncio.CancelledError:
             logger.info("Timing engine cancelled")
         finally:
@@ -128,13 +152,25 @@ class TimingEngine:
         self.current_odds = None
 
     async def _discover_market(self) -> Optional[MarketInfo]:
-        """Try to find the current or next market, with retries."""
-        for attempt in range(3):
-            market = await fetch_current_market(session=self._session)
-            if market:
-                return market
-            logger.debug(f"Market discovery attempt {attempt + 1} failed, retrying in 5s")
-            await asyncio.sleep(5)
+        """Try to find the current or next market, with retries.
+
+        Retries 5 times with 10s delays. On any exception, catches it,
+        logs it, waits, and retries — never propagates up.
+        """
+        for attempt in range(1, 6):
+            try:
+                market = await fetch_current_market(session=self._session)
+                if market:
+                    return market
+                logger.info(f"Market discovery attempt {attempt}/5: no market found, retrying in 10s")
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:
+                logger.warning(f"Market discovery attempt {attempt}/5 error: {type(e).__name__}: {e}")
+            if not self.running:
+                return None
+            await asyncio.sleep(10)
+        logger.warning("Market discovery failed after 5 attempts")
         return None
 
     async def _wait_until_signal_window(self, market: MarketInfo) -> None:

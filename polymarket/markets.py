@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 import aiohttp
 
 import config
+from network_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -84,22 +85,43 @@ def _parse_market(event: dict) -> MarketInfo | None:
 
 
 async def fetch_market_by_slug(slug: str, session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
-    """Fetch a specific market by its slug."""
+    """Fetch a specific market by its slug with retry logic. Returns None on failure."""
+    import asyncio as _asyncio
+
     url = f"{config.POLYMARKET_GAMMA_URL.replace('/markets', '/events')}?slug={slug}"
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
 
     close_session = session is None
     if close_session:
         session = aiohttp.ClientSession()
+
     try:
-        async with session.get(url, timeout=timeout) as resp:
-            if resp.status != 200:
+        for attempt in range(1, 3):
+            try:
+                timeout = aiohttp.ClientTimeout(total=15)
+                async with session.get(url, timeout=timeout) as resp:
+                    if resp.status != 200:
+                        logger.warning(f"fetch_market_by_slug({slug}) HTTP {resp.status} (attempt {attempt}/2)")
+                        if attempt < 2:
+                            await _asyncio.sleep(3)
+                            continue
+                        return None
+                    data = await resp.json()
+                    if not data:
+                        return None
+                    event = data[0] if isinstance(data, list) else data
+                    health.record("Gamma", True)
+                    return _parse_market(event)
+            except (aiohttp.ClientError, _asyncio.TimeoutError, TimeoutError, OSError, ConnectionError) as e:
+                health.record("Gamma", False)
+                logger.warning(f"fetch_market_by_slug({slug}) attempt {attempt}/2 failed: {type(e).__name__}")
+                if attempt < 2:
+                    await _asyncio.sleep(3)
+                    continue
                 return None
-            data = await resp.json()
-            if not data:
+            except Exception as e:
+                logger.error(f"fetch_market_by_slug({slug}) unexpected: {type(e).__name__}: {e}")
                 return None
-            event = data[0] if isinstance(data, list) else data
-            return _parse_market(event)
+        return None
     finally:
         if close_session:
             await session.close()

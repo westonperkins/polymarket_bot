@@ -30,7 +30,6 @@ def vote(
     if chainlink_price and spot_price:
         divergence = spot_price - chainlink_price
         if divergence > config.CHAINLINK_SPOT_DIVERGENCE_THRESHOLD:
-            # Spot above chainlink → price likely to settle up
             votes.append("Up")
             logger.debug(f"  Momentum: chainlink divergence +${divergence:.2f} → Up")
         elif divergence < -config.CHAINLINK_SPOT_DIVERGENCE_THRESHOLD:
@@ -40,7 +39,8 @@ def vote(
             logger.debug(f"  Momentum: chainlink divergence ${divergence:+.2f} → neutral")
 
     # Signal 3 — Price momentum
-    if momentum:
+    # Treat zero momentum as missing data (fetch failure returns 0.0)
+    if momentum and (momentum.momentum_60s != 0.0 or momentum.momentum_120s != 0.0):
         if momentum.direction == "bullish":
             votes.append("Up")
             logger.debug(f"  Momentum: price momentum {momentum.momentum_60s:+.4f}$/s → Up")
@@ -49,17 +49,22 @@ def vote(
             logger.debug(f"  Momentum: price momentum {momentum.momentum_60s:+.4f}$/s → Down")
         else:
             logger.debug(f"  Momentum: price momentum neutral")
+    elif momentum:
+        logger.debug("  Momentum: price momentum is 0.0 — treating as missing data")
 
     # Signal 4 — CVD
-    if cvd:
+    # Treat zero CVD as missing data (fetch failure or no trades returns 0.0)
+    if cvd and cvd.cvd != 0.0 and cvd.trade_count > 0:
         if cvd.direction == "bullish":
             votes.append("Up")
-            logger.debug(f"  Momentum: CVD {cvd.cvd:+.6f} → Up")
+            logger.debug(f"  Momentum: CVD {cvd.cvd:+.6f} ({cvd.trade_count} trades) → Up")
         elif cvd.direction == "bearish":
             votes.append("Down")
-            logger.debug(f"  Momentum: CVD {cvd.cvd:+.6f} → Down")
+            logger.debug(f"  Momentum: CVD {cvd.cvd:+.6f} ({cvd.trade_count} trades) → Down")
         else:
             logger.debug(f"  Momentum: CVD neutral")
+    elif cvd:
+        logger.debug(f"  Momentum: CVD is zero/empty ({cvd.trade_count} trades) — treating as missing data")
 
     # Majority vote
     if not votes:

@@ -32,7 +32,8 @@ def vote(
     votes = []
 
     # Signal 2 — Candle position (vote for reversion if extended)
-    if candle_position_dollars is not None:
+    # Treat exactly 0.0 as missing data (odds at exactly 0.50 is unlikely)
+    if candle_position_dollars is not None and candle_position_dollars != 0.0:
         if candle_position_dollars > CANDLE_EXTENDED_THRESHOLD:
             # Price has moved far Up → mean reversion says Down
             votes.append("Down")

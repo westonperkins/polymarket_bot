@@ -166,6 +166,14 @@
     </div>
   </div>
 
+  <!-- Network Health -->
+  <div class="card" id="network-card" style="border-color: var(--dim);">
+    <h2 style="color: var(--dim); border-color: var(--dim);">Network Health (5 min)</h2>
+    <div id="network-content">
+      <div style="color: var(--dim)">No data yet</div>
+    </div>
+  </div>
+
   <!-- Signals -->
   <div class="card card-signals" id="signals-card">
     <h2>Signals & Votes</h2>
@@ -349,6 +357,21 @@ function render(s) {
       </tr>`;
     }
     tb.innerHTML = html;
+  }
+
+  // Network health
+  const nc = document.getElementById('network-content');
+  if (s.network && s.network.total > 0) {
+    const n = s.network;
+    const rateClass = n.success_rate >= 80 ? 'positive' : n.success_rate >= 50 ? 'stat-value' : 'negative';
+    let html = `<div class="stat-row"><span class="stat-label">Overall</span><span class="stat-value ${rateClass}">${n.success_rate}% (${n.successes}/${n.total})</span></div>`;
+    for (const [src, info] of Object.entries(n.by_source)) {
+      const srcClass = info.rate >= 80 ? 'positive' : info.rate >= 50 ? '' : 'negative';
+      html += `<div class="stat-row"><span class="stat-label">${src}</span><span class="stat-value ${srcClass}">${info.rate}% <span style="color:var(--dim)">(${info.fail} fail)</span></span></div>`;
+    }
+    nc.innerHTML = html;
+  } else {
+    nc.innerHTML = '<div style="color: var(--dim)">No API calls yet</div>';
   }
 
   // Footer

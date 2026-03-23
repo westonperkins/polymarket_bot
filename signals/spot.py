@@ -15,6 +15,7 @@ from typing import Optional
 import aiohttp
 
 import config
+from network_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -151,10 +152,12 @@ async def _fetch_binance(session: aiohttp.ClientSession) -> Optional[float]:
             price = float(data.get("price", 0))
             if price > 0:
                 logger.debug(f"Binance.US BTC/USDT spot: ${price:,.2f}")
+                health.record("Binance", True)
                 return price
             return None
     except Exception as e:
-        logger.debug(f"Binance.US spot fetch failed: {e}")
+        health.record("Binance", False)
+        logger.warning(f"Binance.US spot fetch failed: {e}")
         return None
 
 
@@ -170,8 +173,10 @@ async def _fetch_coingecko(session: aiohttp.ClientSession) -> Optional[float]:
             price = data.get("bitcoin", {}).get("usd")
             if price and float(price) > 0:
                 logger.debug(f"CoinGecko BTC/USD: ${float(price):,.2f}")
+                health.record("CoinGecko", True)
                 return float(price)
             return None
     except Exception as e:
+        health.record("CoinGecko", False)
         logger.warning(f"CoinGecko fetch failed: {e}")
         return None

@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ── Trading Mode ──────────────────────────────────────────────────────
+# "paper" = simulated trades (default), "live" = real orders on Polymarket
+TRADING_MODE = os.environ.get("TRADING_MODE", "paper")
+
 # ── Database ─────────────────────────────────────────────────────────
 DATABASE_URL = os.environ["DATABASE_URL"]
 
@@ -23,7 +27,7 @@ ODDS_UPPER_BOUND = 0.70
 # ── Timing ─────────────────────────────────────────────────────────────
 CANDLE_DURATION_SECONDS = 300       # 5 minutes
 ENTRY_SECONDS_BEFORE_CLOSE = 30    # trigger signal analysis at T-30s
-SIGNAL_FETCH_TIMEOUT = 3           # max seconds per API call
+SIGNAL_FETCH_TIMEOUT = 10          # max seconds per API call
 SIGNAL_FETCH_BUDGET = 5            # total seconds allowed for all fetches
 DASHBOARD_REFRESH_INTERVAL = 5     # seconds between dashboard refreshes
 MOMENTUM_POLL_INTERVAL = 5         # seconds between spot price samples
@@ -73,4 +77,15 @@ ASIAN_CLOSE_ET = 6.0       # 6:00 AM
 # ── Web Dashboard ──────────────────────────────────────────────────────
 WEB_PORT = 8080
 WEB_REFRESH_INTERVAL = 5  # seconds between frontend polls
+
+# ── Live Trading (only used when TRADING_MODE=live) ───────────────────
+POLYMARKET_PRIVATE_KEY = os.environ.get("POLYMARKET_PRIVATE_KEY", "")
+POLYMARKET_FUNDER_ADDRESS = os.environ.get("POLYMARKET_FUNDER_ADDRESS", "")
+# Signature type: 0=EOA wallet, 1=Email/Magic wallet, 2=Browser proxy
+POLYMARKET_SIGNATURE_TYPE = int(os.environ.get("POLYMARKET_SIGNATURE_TYPE", "0"))
+
+# Risk limits for live trading (as percentages of starting balance)
+LIVE_MAX_DAILY_LOSS_PCT = float(os.environ.get("LIVE_MAX_DAILY_LOSS_PCT", "10"))     # stop if down X% today
+LIVE_MAX_POSITION_SIZE_PCT = float(os.environ.get("LIVE_MAX_POSITION_SIZE_PCT", "5"))  # max X% per trade
+LIVE_MIN_BALANCE_PCT = float(os.environ.get("LIVE_MIN_BALANCE_PCT", "20"))           # stop if balance drops below X% of starting
 
