@@ -150,8 +150,9 @@ async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> 
 
     Polymarket slugs use the candle START time. So at 5:42, the current
     candle started at 5:40 and its slug is btc-updown-5m-{5:40 unix}.
-    We check the current candle and the next few in case the current one
-    has already ended.
+
+    If the API times out for the current candle, we construct a minimal
+    MarketInfo from the slug rather than skipping ahead to a future candle.
     """
     now = time.time()
     now_utc = datetime.now(timezone.utc)
@@ -159,18 +160,47 @@ async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> 
 
     for offset in range(4):
         start_ts = candle_start + (offset * 300)
+        end_ts = start_ts + 300
         slug = _build_slug(start_ts)
-        market = await fetch_market_by_slug(slug, session=session)
-        if market is None:
-            logger.info(f"Market discovery: {slug} not found on API")
-            continue
-        if market.end_time <= now_utc:
+
+        # Skip if this candle has already ended
+        end_dt = datetime.fromtimestamp(end_ts, tz=timezone.utc)
+        if end_dt <= now_utc:
             logger.info(f"Market discovery: {slug} already ended, skipping")
             continue
-        logger.info(
-            f"Market discovery: {slug} selected "
-            f"(closed={market.closed}, ends={market.end_time.isoformat()})"
-        )
-        return market
+
+        market = await fetch_market_by_slug(slug, session=session)
+        if market is not None:
+            if market.end_time <= now_utc:
+                logger.info(f"Market discovery: {slug} already ended (API confirmed), skipping")
+                continue
+            logger.info(
+                f"Market discovery: {slug} selected "
+                f"(closed={market.closed}, ends={market.end_time.isoformat()})"
+            )
+            return market
+
+        # API returned None — could be a timeout or genuinely not found.
+        # For the current candle (offset 0), construct a fallback MarketInfo
+        # so we don't skip ahead to a future candle due to network issues.
+        if offset == 0:
+            logger.warning(
+                f"Market discovery: {slug} API failed — using fallback for current candle"
+            )
+            return MarketInfo(
+                event_id="",
+                market_id="",
+                condition_id="",
+                slug=slug,
+                title=f"BTC 5-min (fallback) — ends {end_dt.strftime('%H:%M UTC')}",
+                start_time=datetime.fromtimestamp(start_ts, tz=timezone.utc),
+                end_time=end_dt,
+                clob_token_id_up="",
+                clob_token_id_down="",
+                active=True,
+                closed=False,
+            )
+
+        logger.info(f"Market discovery: {slug} not found on API")
 
     return None
