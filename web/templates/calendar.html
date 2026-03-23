@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&L Calendar — Polymarket Bot</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --dim: #8b949e; --green: #3fb950;
+    --red: #f85149; --yellow: #d29922; --blue: #58a6ff;
+    --cyan: #39d2c0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg); color: var(--text);
+    padding: 16px; min-height: 100vh;
+  }
+  .header {
+    text-align: center; padding: 12px; margin-bottom: 16px;
+    border: 1px solid var(--cyan); border-radius: 8px;
+  }
+  .header h1 { font-size: 18px; color: var(--cyan); letter-spacing: 1px; }
+  .nav-links {
+    margin-top: 6px; font-size: 12px; letter-spacing: 1px;
+  }
+  .nav-links a {
+    color: var(--cyan); text-decoration: none; margin: 0 8px;
+  }
+  .nav-links a:hover { text-decoration: underline; }
+  .nav-links a.active { color: var(--text); font-weight: 700; }
+  .controls {
+    display: flex; justify-content: center; align-items: center;
+    gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .controls button {
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 14px; cursor: pointer;
+    font-family: inherit; font-size: 13px;
+  }
+  .controls button:hover { border-color: var(--cyan); }
+  .controls button.active { border-color: var(--cyan); color: var(--cyan); font-weight: 700; }
+  .controls .month-label {
+    font-size: 16px; font-weight: 700; min-width: 180px; text-align: center;
+  }
+  .summary {
+    display: flex; justify-content: center; gap: 24px; margin-bottom: 16px;
+    font-size: 13px; flex-wrap: wrap;
+  }
+  .summary-item { color: var(--dim); }
+  .summary-item span { font-weight: 700; }
+  .calendar {
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--card); overflow: hidden;
+    max-width: 900px; margin: 0 auto;
+  }
+  .cal-header {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-header div {
+    text-align: center; padding: 8px 4px;
+    font-size: 11px; color: var(--dim); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .cal-body {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+  }
+  .cal-cell {
+    border: 1px solid var(--border); padding: 8px 6px;
+    min-height: 70px; position: relative;
+  }
+  .cal-cell.empty { background: var(--bg); opacity: 0.3; }
+  .cal-cell .day-num {
+    font-size: 11px; color: var(--dim); margin-bottom: 4px;
+  }
+  .cal-cell .pnl-val {
+    font-size: 13px; font-weight: 700; text-align: center;
+    margin-top: 6px;
+  }
+  .cal-cell .trade-count {
+    font-size: 10px; color: var(--dim); text-align: center;
+    margin-top: 2px;
+  }
+  .cal-cell.today { border: 2px solid var(--cyan); }
+  .cal-cell.win { background: rgba(63, 185, 80, 0.08); }
+  .cal-cell.win-med { background: rgba(63, 185, 80, 0.15); }
+  .cal-cell.win-big { background: rgba(63, 185, 80, 0.25); }
+  .cal-cell.loss { background: rgba(248, 81, 73, 0.08); }
+  .cal-cell.loss-med { background: rgba(248, 81, 73, 0.15); }
+  .cal-cell.loss-big { background: rgba(248, 81, 73, 0.25); }
+  .cal-cell.win .pnl-val { color: var(--green); }
+  .cal-cell.win-med .pnl-val { color: var(--green); }
+  .cal-cell.win-big .pnl-val { color: var(--green); }
+  .cal-cell.loss .pnl-val { color: var(--red); }
+  .cal-cell.loss-med .pnl-val { color: var(--red); }
+  .cal-cell.loss-big .pnl-val { color: var(--red); }
+
+  /* Year view */
+  .year-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; max-width: 900px; margin: 0 auto;
+  }
+  .month-card {
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--card); padding: 16px; text-align: center;
+    cursor: pointer; transition: border-color 0.15s;
+  }
+  .month-card:hover { border-color: var(--cyan); }
+  .month-card .month-name {
+    font-size: 13px; color: var(--dim); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .month-card .month-pnl {
+    font-size: 20px; font-weight: 700;
+  }
+  .month-card .month-trades {
+    font-size: 11px; color: var(--dim); margin-top: 4px;
+  }
+  .month-card.win { background: rgba(63, 185, 80, 0.08); }
+  .month-card.win .month-pnl { color: var(--green); }
+  .month-card.loss { background: rgba(248, 81, 73, 0.08); }
+  .month-card.loss .month-pnl { color: var(--red); }
+  .month-card.no-data .month-pnl { color: var(--dim); }
+
+  @media (max-width: 600px) {
+    .cal-cell { min-height: 55px; padding: 4px 3px; }
+    .cal-cell .pnl-val { font-size: 11px; }
+    .year-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>P&L CALENDAR</h1>
+  <div class="nav-links">
+    <a href="/">DASHBOARD</a>
+    <a href="/calendar" class="active">CALENDAR</a>
+  </div>
+</div>
+
+<div class="controls">
+  <button id="btn-prev" onclick="navigate(-1)">&larr;</button>
+  <div class="month-label" id="period-label">Loading...</div>
+  <button id="btn-next" onclick="navigate(1)">&rarr;</button>
+  <button id="btn-month" class="active" onclick="setView('month')">Month</button>
+  <button id="btn-year" onclick="setView('year')">Year</button>
+</div>
+
+<div class="summary" id="summary"></div>
+<div id="calendar-container"></div>
+
+<script>
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+let currentView = 'month';
+let currentYear, currentMonth;
+
+// Initialize to current Pacific date
+(function init() {
+  const now = new Date();
+  // Approximate Pacific time
+  const pacific = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  currentYear = pacific.getFullYear();
+  currentMonth = pacific.getMonth() + 1;
+  fetchAndRender();
+})();
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btn-month').className = v === 'month' ? 'active' : '';
+  document.getElementById('btn-year').className = v === 'year' ? 'active' : '';
+  fetchAndRender();
+}
+
+function navigate(dir) {
+  if (currentView === 'year') {
+    currentYear += dir;
+  } else {
+    currentMonth += dir;
+    if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+    if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+  }
+  fetchAndRender();
+}
+
+async function fetchAndRender() {
+  const label = document.getElementById('period-label');
+  const container = document.getElementById('calendar-container');
+
+  if (currentView === 'year') {
+    label.textContent = currentYear;
+    try {
+      const res = await fetch(`/api/calendar?year=${currentYear}&view=year`);
+      const json = await res.json();
+      renderYear(json.data);
+    } catch(e) {
+      container.innerHTML = '<div style="color: var(--dim); text-align: center; padding: 40px;">Failed to load data</div>';
+    }
+  } else {
+    label.textContent = `${MONTHS[currentMonth - 1]} ${currentYear}`;
+    try {
+      const res = await fetch(`/api/calendar?year=${currentYear}&month=${currentMonth}`);
+      const json = await res.json();
+      renderMonth(json.data);
+    } catch(e) {
+      container.innerHTML = '<div style="color: var(--dim); text-align: center; padding: 40px;">Failed to load data</div>';
+    }
+  }
+}
+
+function fmt(n) {
+  return Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function pnlClass(pnl, maxAbs) {
+  if (pnl === 0) return '';
+  const ratio = Math.abs(pnl) / (maxAbs || 1);
+  if (pnl > 0) {
+    if (ratio > 0.6) return 'win-big';
+    if (ratio > 0.3) return 'win-med';
+    return 'win';
+  } else {
+    if (ratio > 0.6) return 'loss-big';
+    if (ratio > 0.3) return 'loss-med';
+    return 'loss';
+  }
+}
+
+function renderMonth(data) {
+  const container = document.getElementById('calendar-container');
+  const summary = document.getElementById('summary');
+
+  // Build date→pnl map
+  const pnlMap = {};
+  let totalPnl = 0, totalTrades = 0, winDays = 0, lossDays = 0, maxAbs = 0;
+  for (const d of data) {
+    pnlMap[d.date] = d;
+    totalPnl += d.pnl;
+    totalTrades += d.trades;
+    if (d.pnl > 0) winDays++;
+    if (d.pnl < 0) lossDays++;
+    if (Math.abs(d.pnl) > maxAbs) maxAbs = Math.abs(d.pnl);
+  }
+
+  const pnlColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+  summary.innerHTML = `
+    <div class="summary-item">Month P&L: <span style="color:${pnlColor}">$${totalPnl >= 0 ? '+' : '-'}${fmt(totalPnl)}</span></div>
+    <div class="summary-item">Trades: <span>${totalTrades}</span></div>
+    <div class="summary-item">Win Days: <span style="color:var(--green)">${winDays}</span></div>
+    <div class="summary-item">Loss Days: <span style="color:var(--red)">${lossDays}</span></div>
+  `;
+
+  // Get today in Pacific
+  const nowPacific = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const todayStr = `${nowPacific.getFullYear()}-${String(nowPacific.getMonth()+1).padStart(2,'0')}-${String(nowPacific.getDate()).padStart(2,'0')}`;
+
+  // First day of month (0=Sun in JS, we want Mon=0)
+  const firstDate = new Date(currentYear, currentMonth - 1, 1);
+  let startDow = firstDate.getDay() - 1;
+  if (startDow < 0) startDow = 6; // Sunday → 6
+
+  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+  let html = '<div class="calendar"><div class="cal-header">';
+  for (const d of DAYS) html += `<div>${d}</div>`;
+  html += '</div><div class="cal-body">';
+
+  // Empty cells before first day
+  for (let i = 0; i < startDow; i++) {
+    html += '<div class="cal-cell empty"></div>';
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const info = pnlMap[dateStr];
+    const isToday = dateStr === todayStr;
+
+    let cellClass = 'cal-cell';
+    if (isToday) cellClass += ' today';
+    if (info) cellClass += ' ' + pnlClass(info.pnl, maxAbs);
+
+    let pnlHtml = '<div class="pnl-val" style="color: var(--dim);">--</div>';
+    let tradeHtml = '';
+    if (info) {
+      const sign = info.pnl >= 0 ? '+' : '-';
+      pnlHtml = `<div class="pnl-val">${sign}$${fmt(info.pnl)}</div>`;
+      tradeHtml = `<div class="trade-count">${info.trades} trade${info.trades !== 1 ? 's' : ''}</div>`;
+    }
+
+    html += `<div class="${cellClass}">
+      <div class="day-num">${day}</div>
+      ${pnlHtml}
+      ${tradeHtml}
+    </div>`;
+  }
+
+  // Fill remaining cells
+  const totalCells = startDow + daysInMonth;
+  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 0; i < remaining; i++) {
+    html += '<div class="cal-cell empty"></div>';
+  }
+
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+function renderYear(data) {
+  const container = document.getElementById('calendar-container');
+  const summary = document.getElementById('summary');
+
+  const monthMap = {};
+  let totalPnl = 0, totalTrades = 0;
+  for (const d of data) {
+    monthMap[d.month] = d;
+    totalPnl += d.pnl;
+    totalTrades += d.trades;
+  }
+
+  const pnlColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+  summary.innerHTML = `
+    <div class="summary-item">Year P&L: <span style="color:${pnlColor}">$${totalPnl >= 0 ? '+' : '-'}${fmt(totalPnl)}</span></div>
+    <div class="summary-item">Trades: <span>${totalTrades}</span></div>
+  `;
+
+  let html = '<div class="year-grid">';
+  for (let m = 1; m <= 12; m++) {
+    const info = monthMap[m];
+    let cardClass = 'month-card';
+    if (info) {
+      cardClass += info.pnl >= 0 ? ' win' : ' loss';
+    } else {
+      cardClass += ' no-data';
+    }
+
+    const pnl = info ? info.pnl : 0;
+    const trades = info ? info.trades : 0;
+    const sign = pnl >= 0 ? '+' : '-';
+    const pnlText = info ? `${sign}$${fmt(pnl)}` : '--';
+    const tradeText = info ? `${trades} trade${trades !== 1 ? 's' : ''}` : 'No trades';
+
+    html += `<div class="${cardClass}" onclick="currentMonth=${m};setView('month');">
+      <div class="month-name">${MONTHS[m-1]}</div>
+      <div class="month-pnl">${pnlText}</div>
+      <div class="month-trades">${tradeText}</div>
+    </div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+</script>
+</body>
+</html>

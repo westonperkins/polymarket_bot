@@ -251,18 +251,116 @@ def get_trade_stats(conn) -> dict:
 
 @_retry
 def get_daily_pnl(conn) -> float:
-    """Return total P&L for trades settled today (UTC)."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    """Return total P&L for trades settled today (Pacific time)."""
+    from zoneinfo import ZoneInfo
+    pacific = ZoneInfo("America/Los_Angeles")
+    today_pacific = datetime.now(pacific).strftime("%Y-%m-%d")
+    # Convert midnight Pacific to UTC for the query
+    day_start_pacific = datetime.strptime(today_pacific, "%Y-%m-%d").replace(tzinfo=pacific)
+    day_start_utc = day_start_pacific.astimezone(timezone.utc).isoformat()
     with _cursor(conn) as cur:
         cur.execute(
             """SELECT COALESCE(SUM(pnl), 0) AS daily_pnl
                FROM trades
                WHERE outcome IN ('win', 'loss')
                AND timestamp >= %s""",
-            (today,),
+            (day_start_utc,),
         )
         row = cur.fetchone()
     return float(row["daily_pnl"])
+
+
+@_retry
+def get_calendar_pnl(conn, year: int, month: int) -> list[dict]:
+    """Return daily P&L totals for a given month, grouped by Pacific date.
+
+    Returns a list of dicts: [{"date": "2026-03-22", "pnl": 123.45, "trades": 5}, ...]
+    """
+    from zoneinfo import ZoneInfo
+    import calendar
+
+    pacific = ZoneInfo("America/Los_Angeles")
+    # First and last day of the month in Pacific
+    first_day = datetime(year, month, 1, tzinfo=pacific)
+    last_day_num = calendar.monthrange(year, month)[1]
+    # Start of next month
+    if month == 12:
+        next_month_start = datetime(year + 1, 1, 1, tzinfo=pacific)
+    else:
+        next_month_start = datetime(year, month + 1, 1, tzinfo=pacific)
+
+    start_utc = first_day.astimezone(timezone.utc).isoformat()
+    end_utc = next_month_start.astimezone(timezone.utc).isoformat()
+
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT timestamp, pnl
+               FROM trades
+               WHERE outcome IN ('win', 'loss')
+               AND timestamp >= %s
+               AND timestamp < %s
+               ORDER BY timestamp""",
+            (start_utc, end_utc),
+        )
+        rows = cur.fetchall()
+
+    # Group by Pacific date
+    daily: dict[str, dict] = {}
+    for row in rows:
+        ts_str = row["timestamp"]
+        ts_utc = datetime.fromisoformat(ts_str)
+        ts_pacific = ts_utc.astimezone(pacific)
+        date_key = ts_pacific.strftime("%Y-%m-%d")
+        if date_key not in daily:
+            daily[date_key] = {"date": date_key, "pnl": 0.0, "trades": 0}
+        daily[date_key]["pnl"] += row["pnl"]
+        daily[date_key]["trades"] += 1
+
+    # Round pnl values
+    for d in daily.values():
+        d["pnl"] = round(d["pnl"], 2)
+
+    return list(daily.values())
+
+
+@_retry
+def get_monthly_pnl(conn, year: int) -> list[dict]:
+    """Return monthly P&L totals for a given year.
+
+    Returns a list of dicts: [{"month": 1, "pnl": 1234.56, "trades": 42}, ...]
+    """
+    from zoneinfo import ZoneInfo
+
+    pacific = ZoneInfo("America/Los_Angeles")
+    start_utc = datetime(year, 1, 1, tzinfo=pacific).astimezone(timezone.utc).isoformat()
+    end_utc = datetime(year + 1, 1, 1, tzinfo=pacific).astimezone(timezone.utc).isoformat()
+
+    with _cursor(conn) as cur:
+        cur.execute(
+            """SELECT timestamp, pnl
+               FROM trades
+               WHERE outcome IN ('win', 'loss')
+               AND timestamp >= %s
+               AND timestamp < %s
+               ORDER BY timestamp""",
+            (start_utc, end_utc),
+        )
+        rows = cur.fetchall()
+
+    monthly: dict[int, dict] = {}
+    for row in rows:
+        ts_utc = datetime.fromisoformat(row["timestamp"])
+        ts_pacific = ts_utc.astimezone(pacific)
+        m = ts_pacific.month
+        if m not in monthly:
+            monthly[m] = {"month": m, "pnl": 0.0, "trades": 0}
+        monthly[m]["pnl"] += row["pnl"]
+        monthly[m]["trades"] += 1
+
+    for d in monthly.values():
+        d["pnl"] = round(d["pnl"], 2)
+
+    return list(monthly.values())
 
 
 @_retry

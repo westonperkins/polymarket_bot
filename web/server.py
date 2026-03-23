@@ -155,6 +155,37 @@ async def handle_api_state(request):
         )
 
 
+async def handle_calendar(request):
+    """Serve the calendar HTML page."""
+    return web.FileResponse(TEMPLATES_DIR / "calendar.html")
+
+
+async def handle_api_calendar(request):
+    """Return calendar P&L data as JSON."""
+    try:
+        conn = request.app["conn"]
+        year = int(request.query.get("year", 0))
+        month = int(request.query.get("month", 0))
+        view = request.query.get("view", "month")
+
+        if not year or not month:
+            from datetime import datetime
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo("America/Los_Angeles"))
+            year = year or now.year
+            month = month or now.month
+
+        if view == "year":
+            data = db.get_monthly_pnl(conn, year)
+            return web.json_response({"year": year, "view": "year", "data": data})
+        else:
+            data = db.get_calendar_pnl(conn, year, month)
+            return web.json_response({"year": year, "month": month, "view": "month", "data": data})
+    except Exception as e:
+        logger.error(f"Calendar API error: {e}", exc_info=True)
+        return web.json_response({"error": str(e), "data": []}, status=200)
+
+
 async def start_web_server(
     engine: TimingEngine,
     portfolio: Portfolio,
@@ -169,7 +200,9 @@ async def start_web_server(
     app["dashboard"] = dashboard
 
     app.router.add_get("/", handle_index)
+    app.router.add_get("/calendar", handle_calendar)
     app.router.add_get("/api/state", handle_api_state)
+    app.router.add_get("/api/calendar", handle_api_calendar)
 
     runner = web.AppRunner(app, access_log=None)
     await runner.setup()
