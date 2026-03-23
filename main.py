@@ -179,7 +179,7 @@ session_mgr = SessionManager()
 
 # ── Spot price polling task ─────────────────────────────────────────────
 async def poll_spot_price():
-    """Adaptively sample spot price: every 5s in the 2-min active window, every 60s otherwise."""
+    """Adaptively sample spot price: 5s active, 60s tracking, 180s between markets."""
     while engine.running:
         try:
             price = await fetch_spot_price(client=session_mgr.client)
@@ -192,12 +192,14 @@ async def poll_spot_price():
             logger.warning(f"Spot price poll failed: {type(e).__name__}: {e}")
             session_mgr.record_failure()
 
-        # Use active (5s) polling when within 2 minutes of market close
+        # Three-tier polling: active window → tracking → between markets
         secs = engine.seconds_until_close()
         if secs is not None and 0 < secs <= config.SPOT_ACTIVE_WINDOW:
-            interval = config.SPOT_POLL_ACTIVE_INTERVAL
+            interval = config.SPOT_POLL_ACTIVE_INTERVAL       # 5s near close
+        elif engine.current_market is None:
+            interval = config.SPOT_POLL_BETWEEN_MARKETS        # 180s idle gap
         else:
-            interval = config.SPOT_POLL_IDLE_INTERVAL
+            interval = config.SPOT_POLL_IDLE_INTERVAL          # 60s tracking
         await asyncio.sleep(interval)
 
 

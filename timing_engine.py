@@ -152,6 +152,11 @@ class TimingEngine:
         self.current_market = None
         self.current_odds = None
 
+        # Stagger: let background resolution's first request complete
+        # before market discovery starts making its own requests
+        logger.debug(f"Post-close cooldown: {config.POST_CLOSE_DELAY}s before next discovery")
+        await asyncio.sleep(config.POST_CLOSE_DELAY)
+
     async def _discover_market(self) -> Optional[MarketInfo]:
         """Try to find the current or next market, with retries.
 
