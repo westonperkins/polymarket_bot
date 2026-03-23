@@ -31,7 +31,9 @@ ENTRY_SECONDS_BEFORE_CLOSE = 30    # trigger signal analysis at T-30s
 SIGNAL_FETCH_TIMEOUT = 10          # max seconds per API call
 SIGNAL_FETCH_BUDGET = 5            # total seconds allowed for all fetches
 DASHBOARD_REFRESH_INTERVAL = 5     # seconds between dashboard refreshes
-MOMENTUM_POLL_INTERVAL = 5         # seconds between spot price samples
+MOMENTUM_POLL_INTERVAL = 30        # seconds between spot price samples
+SPOT_RETRY_DELAY = 10              # seconds between retries on fetch failure
+SPOT_CACHE_TTL = 30                # seconds a cached spot price remains valid
 
 # ── Signal Thresholds ──────────────────────────────────────────────────
 # Chainlink vs Spot divergence — "significant" threshold in USD
@@ -60,11 +62,14 @@ CVD_WINDOW = 120
 LIQUIDATION_WINDOW = 120
 
 # ── API Endpoints ──────────────────────────────────────────────────────
+# BINANCE_REGION: "us" → api.binance.us, "global" (default) → api.binance.com
+BINANCE_REGION = os.environ.get("BINANCE_REGION", "global").lower()
+_BINANCE_HOST = "api.binance.us" if BINANCE_REGION == "us" else "api.binance.com"
+
 CHAINLINK_BTC_URL = "https://data.chain.link/streams/btc-usd"
-BINANCE_SPOT_URL = "https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT"
-BINANCE_TRADES_URL = "https://api.binance.us/api/v3/trades?symbol=BTCUSDT&limit=500"
-BINANCE_DEPTH_URL = "https://api.binance.us/api/v3/depth?symbol=BTCUSDT&limit=20"
-COINGECKO_BTC_URL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+BINANCE_SPOT_URL = f"https://{_BINANCE_HOST}/api/v3/ticker/price?symbol=BTCUSDT"
+BINANCE_TRADES_URL = f"https://{_BINANCE_HOST}/api/v3/trades?symbol=BTCUSDT&limit=500"
+BINANCE_DEPTH_URL = f"https://{_BINANCE_HOST}/api/v3/depth?symbol=BTCUSDT&limit=20"
 POLYMARKET_GAMMA_URL = "https://gamma-api.polymarket.com/markets"
 POLYMARKET_CLOB_URL = "https://clob.polymarket.com"
 

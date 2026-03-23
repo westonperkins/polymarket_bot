@@ -1,4 +1,4 @@
-"""Order book imbalance from Binance.US depth data.
+"""Order book imbalance from Binance depth data.
 
 Compares bid volume vs ask volume within 0.1% of current price.
 Ratio > 1.5 = strong buy wall (bullish).
@@ -29,7 +29,7 @@ class OrderBookResult:
 async def fetch_orderbook(
     session: aiohttp.ClientSession | None = None,
 ) -> Optional[OrderBookResult]:
-    """Fetch order book from Binance.US and compute bid/ask imbalance.
+    """Fetch order book from Binance and compute bid/ask imbalance.
 
     Only counts volume within config.ORDERBOOK_DEPTH_PCT (0.1%) of mid price.
     Returns None on API failure.
@@ -41,7 +41,7 @@ async def fetch_orderbook(
     try:
         async with session.get(config.BINANCE_DEPTH_URL, timeout=timeout) as resp:
             if resp.status != 200:
-                logger.warning(f"Binance.US depth API returned {resp.status}")
+                logger.warning(f"Binance depth API returned {resp.status}")
                 return None
             data = await resp.json()
 

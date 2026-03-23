@@ -1,11 +1,13 @@
 """Binance BTC/USDT spot price fetcher and momentum tracker.
 
 Provides:
-- Live spot price from Binance
-- Rolling price history (sampled every 5s by the timing engine)
+- Live spot price from Binance.com
+- Rolling price history (sampled every ~30s by the timing engine)
 - Momentum calculation over 60s and 120s windows
+- Cached spot price with 30s TTL to survive transient failures
 """
 
+import asyncio
 import logging
 import time
 from collections import deque
@@ -120,63 +122,71 @@ class SpotTracker:
         return best
 
 
+# ── Spot price cache ──────────────────────────────────────────────────
+_cached_price: Optional[float] = None
+_cached_at: float = 0.0
+
+
 async def fetch_spot_price(
     session: aiohttp.ClientSession | None = None,
 ) -> Optional[float]:
-    """Fetch the current BTC/USDT spot price from Binance.US, with CoinGecko fallback.
+    """Fetch BTC/USDT spot price from Binance.com with cache fallback.
 
-    Returns the price in USD or None on failure.
+    On failure, returns the last successful price if it's within SPOT_CACHE_TTL.
+    Retries once after SPOT_RETRY_DELAY seconds before falling back to cache.
     """
+    global _cached_price, _cached_at
+
     close_session = session is None
     if close_session:
         session = aiohttp.ClientSession()
     try:
         price = await _fetch_binance(session)
         if price:
+            _cached_price = price
+            _cached_at = time.time()
             return price
-        return await _fetch_coingecko(session)
+
+        # First attempt failed — wait and retry once
+        logger.info(f"Binance fetch failed, retrying in {config.SPOT_RETRY_DELAY}s")
+        await asyncio.sleep(config.SPOT_RETRY_DELAY)
+        price = await _fetch_binance(session)
+        if price:
+            _cached_price = price
+            _cached_at = time.time()
+            return price
+
+        # Both attempts failed — fall back to cache
+        if _cached_price and (time.time() - _cached_at) < config.SPOT_CACHE_TTL:
+            logger.warning(
+                f"Using cached spot price ${_cached_price:,.2f} "
+                f"(age {time.time() - _cached_at:.0f}s)"
+            )
+            return _cached_price
+
+        logger.error("Spot price unavailable: Binance failed and cache expired")
+        return None
     finally:
         if close_session:
             await session.close()
 
 
 async def _fetch_binance(session: aiohttp.ClientSession) -> Optional[float]:
-    """Fetch from Binance.US API."""
+    """Fetch from Binance.com API."""
     timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
     try:
         async with session.get(config.BINANCE_SPOT_URL, timeout=timeout) as resp:
             if resp.status != 200:
-                logger.debug(f"Binance.US spot API returned {resp.status}")
+                logger.debug(f"Binance spot API returned {resp.status}")
                 return None
             data = await resp.json()
             price = float(data.get("price", 0))
             if price > 0:
-                logger.debug(f"Binance.US BTC/USDT spot: ${price:,.2f}")
+                logger.debug(f"Binance BTC/USDT spot: ${price:,.2f}")
                 health.record("Binance", True)
                 return price
             return None
     except Exception as e:
         health.record("Binance", False)
-        logger.warning(f"Binance.US spot fetch failed: {e}")
-        return None
-
-
-async def _fetch_coingecko(session: aiohttp.ClientSession) -> Optional[float]:
-    """Fallback: fetch from CoinGecko."""
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
-    try:
-        async with session.get(config.COINGECKO_BTC_URL, timeout=timeout) as resp:
-            if resp.status != 200:
-                logger.debug(f"CoinGecko API returned {resp.status}")
-                return None
-            data = await resp.json()
-            price = data.get("bitcoin", {}).get("usd")
-            if price and float(price) > 0:
-                logger.debug(f"CoinGecko BTC/USD: ${float(price):,.2f}")
-                health.record("CoinGecko", True)
-                return float(price)
-            return None
-    except Exception as e:
-        health.record("CoinGecko", False)
-        logger.warning(f"CoinGecko fetch failed: {e}")
+        logger.warning(f"Binance spot fetch failed: {e}")
         return None

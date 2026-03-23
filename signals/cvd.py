@@ -1,4 +1,4 @@
-"""Cumulative Volume Delta (CVD) from Binance.US recent trades.
+"""Cumulative Volume Delta (CVD) from Binance recent trades.
 
 CVD = sum of (buy volume - sell volume) over a time window.
 Positive CVD = aggressive buying pressure.
@@ -34,7 +34,7 @@ class CVDResult:
 async def fetch_cvd(
     session: aiohttp.ClientSession | None = None,
 ) -> Optional[CVDResult]:
-    """Fetch recent trades from Binance.US and compute CVD over the last 120s.
+    """Fetch recent trades from Binance and compute CVD over the last 120s.
 
     Returns None on API failure.
     """
@@ -45,7 +45,7 @@ async def fetch_cvd(
     try:
         async with session.get(config.BINANCE_TRADES_URL, timeout=timeout) as resp:
             if resp.status != 200:
-                logger.warning(f"Binance.US trades API returned {resp.status}")
+                logger.warning(f"Binance trades API returned {resp.status}")
                 return None
             trades = await resp.json()
 
