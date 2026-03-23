@@ -35,12 +35,25 @@ def build_state_dict(
     best_worst = db.get_best_worst_trades(conn, mode=mode)
     peak_balance = db.get_peak_balance(conn, mode=mode)
 
-    # Portfolio
+    # Portfolio — always compute from DB per mode so paper/live are fully separated
+    if mode:
+        mode_portfolio = db.get_portfolio_for_mode(conn, mode)
+        p_balance = mode_portfolio["balance"]
+        p_starting = mode_portfolio["starting_balance"]
+        p_pnl_pct = mode_portfolio["pnl_pct"]
+    else:
+        # "All" view — sum both modes from DB
+        paper = db.get_portfolio_for_mode(conn, "paper")
+        live = db.get_portfolio_for_mode(conn, "live")
+        p_balance = paper["balance"] + live["balance"]
+        p_starting = paper["starting_balance"] + live["starting_balance"]
+        p_pnl_pct = round(((p_balance - p_starting) / p_starting * 100), 2) if p_starting > 0 else 0.0
+
     state = {
         "portfolio": {
-            "balance": portfolio.balance,
-            "starting_balance": portfolio._starting_balance,
-            "pnl_pct": portfolio.pnl_pct,
+            "balance": p_balance,
+            "starting_balance": p_starting,
+            "pnl_pct": p_pnl_pct,
             "daily_pnl": daily_pnl,
             "total_trades": stats["total"],
             "wins": stats["wins"],

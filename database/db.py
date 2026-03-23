@@ -142,6 +142,8 @@ def _default_for(func):
         return {"best_pnl": 0.0, "worst_pnl": 0.0}
     if name == "get_peak_balance":
         return 0.0
+    if name == "get_portfolio_for_mode":
+        return {"balance": 0.0, "total_pnl": 0.0, "starting_balance": 0.0, "pnl_pct": 0.0}
     if name in ("get_recent_trades", "get_pending_trades", "get_last_n_outcomes"):
         return []
     if name in ("get_latest_portfolio", "get_signals_for_trade"):
@@ -421,6 +423,33 @@ def get_monthly_pnl(conn, year: int, mode: Optional[str] = None) -> list[dict]:
         d["pnl"] = round(d["pnl"], 2)
 
     return list(monthly.values())
+
+
+@_retry
+def get_portfolio_for_mode(conn, mode: str) -> dict:
+    """Compute portfolio state from trade history for a specific mode.
+
+    Returns {"balance": float, "total_pnl": float, "starting_balance": float}.
+    """
+    starting = config.LIVE_STARTING_BALANCE if mode == "live" else config.STARTING_BALANCE
+    with _cursor(conn) as cur:
+        # Get total P&L from all settled trades in this mode
+        cur.execute(
+            """SELECT COALESCE(SUM(pnl), 0) AS total_pnl
+               FROM trades
+               WHERE outcome IN ('win', 'loss')
+               AND trading_mode = %s""",
+            (mode,),
+        )
+        row = cur.fetchone()
+    total_pnl = float(row["total_pnl"])
+    balance = starting + total_pnl
+    return {
+        "balance": round(balance, 2),
+        "total_pnl": round(total_pnl, 2),
+        "starting_balance": starting,
+        "pnl_pct": round((total_pnl / starting * 100), 2) if starting > 0 else 0.0,
+    }
 
 
 @_retry

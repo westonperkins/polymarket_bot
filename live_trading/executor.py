@@ -95,10 +95,17 @@ class Executor:
     def get_balance(self) -> float:
         """Return the account's USDC balance."""
         try:
-            balance_wei = self._client.get_balance()
-            return int(balance_wei) / 1e6
+            from py_clob_client.clob_types import BalanceAllowanceParams, AssetType
+            params = BalanceAllowanceParams(
+                asset_type=AssetType.COLLATERAL,
+                signature_type=config.POLYMARKET_SIGNATURE_TYPE,
+            )
+            result = self._client.get_balance_allowance(params)
+            # result has a 'balance' field in wei (USDC has 6 decimals)
+            balance_raw = result.get("balance", "0") if isinstance(result, dict) else getattr(result, "balance", "0")
+            return int(balance_raw) / 1e6
         except Exception as e:
-            logger.error(f"Failed to fetch balance: {e}")
+            logger.error(f"Failed to fetch balance: {type(e).__name__}: {e}")
             return 0.0
 
     def place_market_order(
