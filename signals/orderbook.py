@@ -27,20 +27,15 @@ class OrderBookResult:
 
 
 async def fetch_orderbook(
-    session: aiohttp.ClientSession | None = None,
+    session: aiohttp.ClientSession,
 ) -> Optional[OrderBookResult]:
     """Fetch order book from Binance and compute bid/ask imbalance.
 
     Only counts volume within config.ORDERBOOK_DEPTH_PCT (0.1%) of mid price.
-    Returns None on API failure.
+    Returns None on API failure. Expects the shared aiohttp session from main.py.
     """
-    timeout = aiohttp.ClientTimeout(total=15)
-    close_session = session is None
-    if close_session:
-        connector = aiohttp.TCPConnector(limit=10)
-        session = aiohttp.ClientSession(connector=connector)
     try:
-        async with session.get(config.BINANCE_DEPTH_URL, timeout=timeout) as resp:
+        async with session.get(config.BINANCE_DEPTH_URL) as resp:
             if resp.status != 200:
                 logger.warning(f"Binance depth API returned {resp.status}")
                 return None
@@ -91,6 +86,3 @@ async def fetch_orderbook(
     except Exception as e:
         logger.warning(f"Failed to fetch order book: {type(e).__name__}: {e}")
         return None
-    finally:
-        if close_session:
-            await session.close()

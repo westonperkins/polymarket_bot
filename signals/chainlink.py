@@ -93,29 +93,23 @@ def _parse_latest_round_data(hex_result: str) -> Optional[dict]:
 
 
 async def fetch_chainlink_price(
-    session: aiohttp.ClientSession | None = None,
+    session: aiohttp.ClientSession,
 ) -> Optional[float]:
     """Fetch the current Chainlink BTC/USD oracle price.
 
     Tries multiple public RPC endpoints. Returns the price in USD or None on failure.
+    Expects the shared aiohttp session from main.py.
     """
-    close_session = session is None
-    if close_session:
-        session = aiohttp.ClientSession()
-    try:
-        for rpc_url in PUBLIC_RPCS:
-            result = await _eth_call(
-                rpc_url, CHAINLINK_BTC_USD_CONTRACT, LATEST_ROUND_DATA_SELECTOR, session
-            )
-            if result:
-                parsed = _parse_latest_round_data(result)
-                if parsed and parsed["price"] > 0:
-                    logger.debug(
-                        f"Chainlink BTC/USD: ${parsed['price']:,.2f} (via {rpc_url})"
-                    )
-                    return parsed["price"]
-        logger.warning("All Chainlink RPC endpoints failed")
-        return None
-    finally:
-        if close_session:
-            await session.close()
+    for rpc_url in PUBLIC_RPCS:
+        result = await _eth_call(
+            rpc_url, CHAINLINK_BTC_USD_CONTRACT, LATEST_ROUND_DATA_SELECTOR, session
+        )
+        if result:
+            parsed = _parse_latest_round_data(result)
+            if parsed and parsed["price"] > 0:
+                logger.debug(
+                    f"Chainlink BTC/USD: ${parsed['price']:,.2f} (via {rpc_url})"
+                )
+                return parsed["price"]
+    logger.warning("All Chainlink RPC endpoints failed")
+    return None

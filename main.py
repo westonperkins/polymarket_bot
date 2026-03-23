@@ -97,24 +97,23 @@ pending_trades: dict[str, int] = {}
 
 
 # ── Spot price polling task ─────────────────────────────────────────────
-async def poll_spot_price():
+async def poll_spot_price(session: aiohttp.ClientSession):
     """Adaptively sample spot price: every 5s in the 2-min active window, every 60s otherwise."""
-    async with aiohttp.ClientSession() as session:
-        while engine.running:
-            try:
-                price = await fetch_spot_price(session=session)
-                if price:
-                    spot_tracker.record(price)
-            except Exception as e:
-                logger.warning(f"Spot price poll failed: {type(e).__name__}: {e}")
+    while engine.running:
+        try:
+            price = await fetch_spot_price(session=session)
+            if price:
+                spot_tracker.record(price)
+        except Exception as e:
+            logger.warning(f"Spot price poll failed: {type(e).__name__}: {e}")
 
-            # Use active (5s) polling when within 2 minutes of market close
-            secs = engine.seconds_until_close()
-            if secs is not None and 0 < secs <= config.SPOT_ACTIVE_WINDOW:
-                interval = config.SPOT_POLL_ACTIVE_INTERVAL
-            else:
-                interval = config.SPOT_POLL_IDLE_INTERVAL
-            await asyncio.sleep(interval)
+        # Use active (5s) polling when within 2 minutes of market close
+        secs = engine.seconds_until_close()
+        if secs is not None and 0 < secs <= config.SPOT_ACTIVE_WINDOW:
+            interval = config.SPOT_POLL_ACTIVE_INTERVAL
+        else:
+            interval = config.SPOT_POLL_IDLE_INTERVAL
+        await asyncio.sleep(interval)
 
 
 # ── Timing engine callbacks ────────────────────────────────────────────
@@ -298,7 +297,7 @@ async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
 
         # Resolve in background so the engine can move on to the next market
         asyncio.create_task(
-            _resolve_in_background(market, trade_id)
+            _resolve_in_background(market, trade_id, session)
         )
         dashboard.status_message = (
             f"Market closed — resolving {market.slug} in background..."
@@ -308,14 +307,13 @@ async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
         dashboard.status_message = f"ERROR: Market close handler failed"
 
 
-async def _resolve_in_background(market: MarketInfo, trade_id: int):
+async def _resolve_in_background(market: MarketInfo, trade_id: int, session: aiohttp.ClientSession):
     """Background task to wait for Polymarket resolution and settle the trade."""
     try:
         logger.info(f"Background resolution started for {market.slug} (trade {trade_id})")
-        async with aiohttp.ClientSession() as session:
-            winning_side = await resolve_market(
-                market.condition_id, market.slug, session=session
-            )
+        winning_side = await resolve_market(
+            market.condition_id, market.slug, session=session
+        )
 
         if winning_side:
             simulator.settle_trade(trade_id, winning_side)
@@ -335,6 +333,18 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int):
 
 async def run():
     """Start all tasks: timing engine, spot poller, and web server."""
+    # ── Shared HTTP session for all signal modules ────────────────────
+    connector = aiohttp.TCPConnector(
+        limit=20,
+        limit_per_host=5,
+        ttl_dns_cache=300,
+        enable_cleanup_closed=True,
+    )
+    shared_session = aiohttp.ClientSession(
+        connector=connector,
+        timeout=aiohttp.ClientTimeout(total=15, connect=5),
+    )
+
     # Wire callbacks
     engine.on_market_discovered = on_market_discovered
     engine.on_signal_window = on_signal_window
@@ -343,7 +353,7 @@ async def run():
 
     # Start engine and spot poller as concurrent tasks
     engine_task = asyncio.create_task(engine.run())
-    poller_task = asyncio.create_task(poll_spot_price())
+    poller_task = asyncio.create_task(poll_spot_price(shared_session))
 
     # Start web dashboard server
     web_runner = await start_web_server(engine, portfolio, conn, dashboard)
@@ -369,6 +379,7 @@ async def run():
             await poller_task
         except asyncio.CancelledError:
             pass
+        await shared_session.close()
         conn.close()
 
 

@@ -32,19 +32,14 @@ class CVDResult:
 
 
 async def fetch_cvd(
-    session: aiohttp.ClientSession | None = None,
+    session: aiohttp.ClientSession,
 ) -> Optional[CVDResult]:
     """Fetch recent trades from Binance and compute CVD over the last 120s.
 
-    Returns None on API failure.
+    Returns None on API failure. Expects the shared aiohttp session from main.py.
     """
-    timeout = aiohttp.ClientTimeout(total=15)
-    close_session = session is None
-    if close_session:
-        connector = aiohttp.TCPConnector(limit=10)
-        session = aiohttp.ClientSession(connector=connector)
     try:
-        async with session.get(config.BINANCE_TRADES_URL, timeout=timeout) as resp:
+        async with session.get(config.BINANCE_TRADES_URL) as resp:
             if resp.status != 200:
                 logger.warning(f"Binance trades API returned {resp.status}")
                 return None
@@ -95,6 +90,3 @@ async def fetch_cvd(
     except Exception as e:
         logger.warning(f"Failed to compute CVD: {type(e).__name__}: {e}")
         return None
-    finally:
-        if close_session:
-            await session.close()

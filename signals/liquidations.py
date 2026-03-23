@@ -34,19 +34,15 @@ class LiquidationResult:
 
 
 async def fetch_liquidations(
-    session: aiohttp.ClientSession | None = None,
+    session: aiohttp.ClientSession,
 ) -> Optional[LiquidationResult]:
     """Fetch recent BTC liquidations from Gate.io and compute pressure.
 
     Looks at liquidations in the last LIQUIDATION_WINDOW seconds (default 120s).
-    Returns None on API failure.
+    Returns None on API failure. Expects the shared aiohttp session from main.py.
     """
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
-    close_session = session is None
-    if close_session:
-        session = aiohttp.ClientSession()
     try:
-        async with session.get(GATEIO_LIQUIDATIONS_URL, timeout=timeout) as resp:
+        async with session.get(GATEIO_LIQUIDATIONS_URL) as resp:
             if resp.status != 200:
                 logger.warning(f"Gate.io liquidations API returned {resp.status}")
                 return None
@@ -108,8 +104,5 @@ async def fetch_liquidations(
             direction=direction,
         )
     except Exception as e:
-        logger.warning(f"Failed to fetch liquidations: {e}")
+        logger.warning(f"Failed to fetch liquidations: {type(e).__name__}: {e}")
         return None
-    finally:
-        if close_session:
-            await session.close()

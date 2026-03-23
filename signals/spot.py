@@ -132,55 +132,47 @@ _cached_at: float = 0.0
 
 
 async def fetch_spot_price(
-    session: aiohttp.ClientSession | None = None,
+    session: aiohttp.ClientSession,
 ) -> Optional[float]:
     """Fetch BTC/USDT spot price from Binance.com with cache fallback.
 
     On failure, returns the last successful price if it's within SPOT_CACHE_TTL.
     Retries once after SPOT_RETRY_DELAY seconds before falling back to cache.
+    Expects the shared aiohttp session from main.py.
     """
     global _cached_price, _cached_at
 
-    close_session = session is None
-    if close_session:
-        connector = aiohttp.TCPConnector(limit=10)
-        session = aiohttp.ClientSession(connector=connector)
-    try:
-        price = await _fetch_binance(session)
-        if price:
-            _cached_price = price
-            _cached_at = time.time()
-            return price
+    price = await _fetch_binance(session)
+    if price:
+        _cached_price = price
+        _cached_at = time.time()
+        return price
 
-        # First attempt failed — wait and retry once
-        logger.info(f"Binance fetch failed, retrying in {config.SPOT_RETRY_DELAY}s")
-        await asyncio.sleep(config.SPOT_RETRY_DELAY)
-        price = await _fetch_binance(session)
-        if price:
-            _cached_price = price
-            _cached_at = time.time()
-            return price
+    # First attempt failed — wait and retry once
+    logger.info(f"Binance fetch failed, retrying in {config.SPOT_RETRY_DELAY}s")
+    await asyncio.sleep(config.SPOT_RETRY_DELAY)
+    price = await _fetch_binance(session)
+    if price:
+        _cached_price = price
+        _cached_at = time.time()
+        return price
 
-        # Both attempts failed — fall back to cache
-        if _cached_price and (time.time() - _cached_at) < config.SPOT_CACHE_TTL:
-            logger.warning(
-                f"Using cached spot price ${_cached_price:,.2f} "
-                f"(age {time.time() - _cached_at:.0f}s)"
-            )
-            return _cached_price
+    # Both attempts failed — fall back to cache
+    if _cached_price and (time.time() - _cached_at) < config.SPOT_CACHE_TTL:
+        logger.warning(
+            f"Using cached spot price ${_cached_price:,.2f} "
+            f"(age {time.time() - _cached_at:.0f}s)"
+        )
+        return _cached_price
 
-        logger.error("Spot price unavailable: Binance failed and cache expired")
-        return None
-    finally:
-        if close_session:
-            await session.close()
+    logger.error("Spot price unavailable: Binance failed and cache expired")
+    return None
 
 
 async def _fetch_binance(session: aiohttp.ClientSession) -> Optional[float]:
     """Fetch from Binance.com API."""
-    timeout = aiohttp.ClientTimeout(total=15)
     try:
-        async with session.get(config.BINANCE_SPOT_URL, timeout=timeout) as resp:
+        async with session.get(config.BINANCE_SPOT_URL) as resp:
             if resp.status != 200:
                 logger.debug(f"Binance spot API returned {resp.status}")
                 return None
