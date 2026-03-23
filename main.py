@@ -38,19 +38,55 @@ logger = logging.getLogger(__name__)
 
 # ── Shared state ────────────────────────────────────────────────────────
 conn = db.get_connection()
-portfolio = Portfolio(conn)
+
+logger.info("=" * 50)
+logger.info(f"TRADING MODE: {config.TRADING_MODE.upper()}")
+logger.info("=" * 50)
 
 if config.TRADING_MODE == "live":
-    from live_trading.executor import Executor
+    from live_trading.executor import Executor, validate_live_credentials
     from live_trading.risk import RiskManager
     from live_trading.live_simulator import LiveSimulator
-    executor = Executor()
+
+    # Refuse to start without valid credentials
+    creds_ok, creds_err = validate_live_credentials()
+    if not creds_ok:
+        logger.error(f"Cannot start live mode: {creds_err}")
+        logger.error("Set credentials in .env or switch to TRADING_MODE=paper")
+        sys.exit(1)
+
+    # Don't restore from paper snapshots — start fresh with live balance
+    portfolio = Portfolio(conn, starting_balance=config.LIVE_STARTING_BALANCE, skip_restore=True)
+
+    # Initialize executor and fetch real wallet balance
+    try:
+        executor = Executor()
+        real_balance = executor.get_balance()
+        if real_balance and real_balance > 0:
+            portfolio._balance = real_balance
+            logger.info(f"Live wallet balance: ${real_balance:,.2f}")
+        else:
+            logger.warning(f"Could not fetch wallet balance, using ${portfolio.balance:,.2f}")
+    except Exception as e:
+        logger.error(f"Failed to initialize CLOB executor: {e}")
+        logger.error("Fix credentials in .env or switch to TRADING_MODE=paper")
+        sys.exit(1)
+
     risk = RiskManager(conn, portfolio.balance)
     simulator = LiveSimulator(conn, portfolio, executor, risk)
-    logger.info("*** LIVE TRADING MODE — real orders will be placed ***")
-else:
+    logger.info(f"*** LIVE TRADING MODE ACTIVE ***")
+    logger.info(f"  Balance: ${portfolio.balance:,.2f}")
+    logger.info(f"  Max position: ${portfolio.balance * config.LIVE_MAX_POSITION_SIZE_PCT / 100:,.2f} ({config.LIVE_MAX_POSITION_SIZE_PCT}%)")
+    logger.info(f"  Max daily loss: ${portfolio.balance * config.LIVE_MAX_DAILY_LOSS_PCT / 100:,.2f} ({config.LIVE_MAX_DAILY_LOSS_PCT}%)")
+
+elif config.TRADING_MODE == "paper":
+    portfolio = Portfolio(conn)
     simulator = Simulator(conn, portfolio)
-    logger.info("Paper trading mode")
+    logger.info(f"Paper trading mode — balance: ${portfolio.balance:,.2f}")
+
+else:
+    logger.error(f"Unknown TRADING_MODE: '{config.TRADING_MODE}' — must be 'paper' or 'live'")
+    sys.exit(1)
 
 engine = TimingEngine()
 spot_tracker = SpotTracker()
@@ -331,8 +367,7 @@ async def run():
 
 def main():
     """Entry point with auto-restart. The bot should never stay dead."""
-    logger.info("Polymarket Paper Trading Bot starting...")
-    logger.info(f"Starting balance: ${config.STARTING_BALANCE:,.2f}")
+    logger.info("Polymarket Trading Bot starting...")
 
     # Handle Ctrl+C gracefully
     shutdown_requested = False

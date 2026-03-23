@@ -130,6 +130,13 @@
   }
   .detail-label { color: var(--dim); }
   .detail-value { font-weight: 600; }
+  .mode-btn {
+    background: var(--card); color: var(--dim); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 10px; cursor: pointer;
+    font-family: inherit; font-size: 11px; letter-spacing: 1px; font-weight: 600;
+  }
+  .mode-btn:hover { border-color: var(--cyan); color: var(--text); }
+  .mode-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(57,210,192,0.1); }
   @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .card-trades { grid-row: auto; grid-column: auto; }
@@ -138,9 +145,16 @@
 </head>
 <body>
 <div class="header">
-  <h1>POLYMARKET BTC 5-MIN PAPER TRADING BOT</h1>
+  <h1 id="header-title">POLYMARKET BTC 5-MIN PAPER TRADING BOT</h1>
   <div class="time" id="clock"></div>
-  <div style="margin-top: 6px;"><a href="/calendar" style="color: var(--cyan); text-decoration: none; font-size: 12px; letter-spacing: 1px;">P&L CALENDAR →</a></div>
+  <div style="margin-top: 8px; display: flex; justify-content: center; align-items: center; gap: 12px;">
+    <div style="display: flex; gap: 4px;">
+      <button class="mode-btn active" id="btn-paper" onclick="setMode('paper')">PAPER</button>
+      <button class="mode-btn" id="btn-live" onclick="setMode('live')">LIVE</button>
+      <button class="mode-btn" id="btn-all" onclick="setMode(null)">ALL</button>
+    </div>
+    <a href="/calendar" style="color: var(--cyan); text-decoration: none; font-size: 12px; letter-spacing: 1px;">P&L CALENDAR →</a>
+  </div>
 </div>
 
 <div class="grid">
@@ -200,8 +214,26 @@
 <div class="footer" id="footer">Starting up...</div>
 
 <script>
-const API = '/api/state';
+let currentMode = null; // will be set from server on first poll
+let modeInitialized = false;
 const REFRESH = 5000;
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btn-paper').className = 'mode-btn' + (mode === 'paper' ? ' active' : '');
+  document.getElementById('btn-live').className = 'mode-btn' + (mode === 'live' ? ' active' : '');
+  document.getElementById('btn-all').className = 'mode-btn' + (mode === null ? ' active' : '');
+  const title = document.getElementById('header-title');
+  if (mode === 'live') title.textContent = 'POLYMARKET BTC 5-MIN LIVE TRADING BOT';
+  else if (mode === 'paper') title.textContent = 'POLYMARKET BTC 5-MIN PAPER TRADING BOT';
+  else title.textContent = 'POLYMARKET BTC 5-MIN TRADING BOT (ALL)';
+  if (modeInitialized) poll();
+}
+
+function getApiUrl() {
+  if (currentMode) return '/api/state?mode=' + currentMode;
+  return '/api/state?mode=all';
+}
 
 function fmt(n, dec=2) {
   return n != null ? n.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec}) : '-';
@@ -220,6 +252,13 @@ function badgeHtml(text, type) {
 }
 
 function render(s) {
+  // Initialize mode from server on first render
+  if (!modeInitialized && s.active_mode) {
+    currentMode = s.active_mode;
+    setMode(currentMode);
+    modeInitialized = true;
+  }
+
   // Clock
   document.getElementById('clock').textContent = new Date().toUTCString().replace('GMT','UTC');
 
@@ -455,7 +494,7 @@ function buildDetailHtml(t) {
 
 async function poll() {
   try {
-    const res = await fetch(API);
+    const res = await fetch(getApiUrl());
     const data = await res.json();
     render(data);
   } catch(e) {

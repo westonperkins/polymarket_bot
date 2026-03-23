@@ -48,10 +48,12 @@ class ConnectionManager:
             connect_timeout=10,
         )
         conn.autocommit = False
-        # Create tables if needed
+        # Create tables / run migrations — use a longer statement timeout
         with open(SCHEMA_PATH) as f:
             with conn.cursor() as cur:
+                cur.execute("SET statement_timeout = '60s'")
                 cur.execute(f.read())
+                cur.execute("SET statement_timeout = '15s'")
             conn.commit()
         self._conn = conn
         logger.info("Database connected")
@@ -161,14 +163,17 @@ def insert_trade(
     outcome: str = "pending",
     pnl: float = 0.0,
     portfolio_balance_after: Optional[float] = None,
+    trading_mode: Optional[str] = None,
 ) -> int:
     """Insert a trade record and return its id."""
+    mode = trading_mode or config.TRADING_MODE
     with _cursor(conn) as cur:
         cur.execute(
             """INSERT INTO trades
                (timestamp, market_id, side, entry_odds, position_size,
-                payout_rate, confidence_level, outcome, pnl, portfolio_balance_after)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                payout_rate, confidence_level, outcome, pnl, portfolio_balance_after,
+                trading_mode)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 datetime.now(timezone.utc).isoformat(),
@@ -181,6 +186,7 @@ def insert_trade(
                 outcome,
                 pnl,
                 portfolio_balance_after,
+                mode,
             ),
         )
         trade_id = cur.fetchone()["id"]
@@ -208,33 +214,59 @@ def update_trade_outcome(
 
 
 @_retry
-def get_recent_trades(conn, limit: int = 10) -> list[dict]:
-    """Return the most recent trades, newest first."""
+def get_recent_trades(conn, limit: int = 10, mode: Optional[str] = None) -> list[dict]:
+    """Return the most recent trades with a mode-specific row number, newest first."""
     with _cursor(conn) as cur:
-        cur.execute("SELECT * FROM trades ORDER BY id DESC LIMIT %s", (limit,))
+        if mode:
+            cur.execute(
+                """SELECT *, ROW_NUMBER() OVER (ORDER BY id) AS trade_num
+                   FROM trades WHERE trading_mode = %s
+                   ORDER BY id DESC LIMIT %s""",
+                (mode, limit),
+            )
+        else:
+            cur.execute(
+                """SELECT *, ROW_NUMBER() OVER (ORDER BY id) AS trade_num
+                   FROM trades ORDER BY id DESC LIMIT %s""",
+                (limit,),
+            )
         return cur.fetchall()
 
 
 @_retry
-def get_pending_trades(conn) -> list[dict]:
+def get_pending_trades(conn, mode: Optional[str] = None) -> list[dict]:
     """Return all trades awaiting resolution."""
     with _cursor(conn) as cur:
-        cur.execute("SELECT * FROM trades WHERE outcome = 'pending'")
+        if mode:
+            cur.execute("SELECT * FROM trades WHERE outcome = 'pending' AND trading_mode = %s", (mode,))
+        else:
+            cur.execute("SELECT * FROM trades WHERE outcome = 'pending'")
         return cur.fetchall()
 
 
 @_retry
-def get_trade_stats(conn) -> dict:
+def get_trade_stats(conn, mode: Optional[str] = None) -> dict:
     """Return aggregate trade statistics."""
     with _cursor(conn) as cur:
-        cur.execute(
-            """SELECT
-                   COUNT(*) AS total,
-                   SUM(CASE WHEN outcome = 'win' THEN 1 ELSE 0 END) AS wins,
-                   SUM(CASE WHEN outcome = 'loss' THEN 1 ELSE 0 END) AS losses,
-                   SUM(CASE WHEN outcome = 'skip' THEN 1 ELSE 0 END) AS skips
-               FROM trades"""
-        )
+        if mode:
+            cur.execute(
+                """SELECT
+                       COUNT(*) AS total,
+                       SUM(CASE WHEN outcome = 'win' THEN 1 ELSE 0 END) AS wins,
+                       SUM(CASE WHEN outcome = 'loss' THEN 1 ELSE 0 END) AS losses,
+                       SUM(CASE WHEN outcome = 'skip' THEN 1 ELSE 0 END) AS skips
+                   FROM trades WHERE trading_mode = %s""",
+                (mode,),
+            )
+        else:
+            cur.execute(
+                """SELECT
+                       COUNT(*) AS total,
+                       SUM(CASE WHEN outcome = 'win' THEN 1 ELSE 0 END) AS wins,
+                       SUM(CASE WHEN outcome = 'loss' THEN 1 ELSE 0 END) AS losses,
+                       SUM(CASE WHEN outcome = 'skip' THEN 1 ELSE 0 END) AS skips
+                   FROM trades"""
+            )
         row = cur.fetchone()
     total = row["total"]
     wins = row["wins"] or 0
@@ -250,28 +282,36 @@ def get_trade_stats(conn) -> dict:
 
 
 @_retry
-def get_daily_pnl(conn) -> float:
+def get_daily_pnl(conn, mode: Optional[str] = None) -> float:
     """Return total P&L for trades settled today (Pacific time)."""
     from zoneinfo import ZoneInfo
     pacific = ZoneInfo("America/Los_Angeles")
     today_pacific = datetime.now(pacific).strftime("%Y-%m-%d")
-    # Convert midnight Pacific to UTC for the query
     day_start_pacific = datetime.strptime(today_pacific, "%Y-%m-%d").replace(tzinfo=pacific)
     day_start_utc = day_start_pacific.astimezone(timezone.utc).isoformat()
     with _cursor(conn) as cur:
-        cur.execute(
-            """SELECT COALESCE(SUM(pnl), 0) AS daily_pnl
-               FROM trades
-               WHERE outcome IN ('win', 'loss')
-               AND timestamp >= %s""",
-            (day_start_utc,),
-        )
+        if mode:
+            cur.execute(
+                """SELECT COALESCE(SUM(pnl), 0) AS daily_pnl
+                   FROM trades
+                   WHERE outcome IN ('win', 'loss')
+                   AND timestamp >= %s AND trading_mode = %s""",
+                (day_start_utc, mode),
+            )
+        else:
+            cur.execute(
+                """SELECT COALESCE(SUM(pnl), 0) AS daily_pnl
+                   FROM trades
+                   WHERE outcome IN ('win', 'loss')
+                   AND timestamp >= %s""",
+                (day_start_utc,),
+            )
         row = cur.fetchone()
     return float(row["daily_pnl"])
 
 
 @_retry
-def get_calendar_pnl(conn, year: int, month: int) -> list[dict]:
+def get_calendar_pnl(conn, year: int, month: int, mode: Optional[str] = None) -> list[dict]:
     """Return daily P&L totals for a given month, grouped by Pacific date.
 
     Returns a list of dicts: [{"date": "2026-03-22", "pnl": 123.45, "trades": 5}, ...]
@@ -293,15 +333,25 @@ def get_calendar_pnl(conn, year: int, month: int) -> list[dict]:
     end_utc = next_month_start.astimezone(timezone.utc).isoformat()
 
     with _cursor(conn) as cur:
-        cur.execute(
-            """SELECT timestamp, pnl
-               FROM trades
-               WHERE outcome IN ('win', 'loss')
-               AND timestamp >= %s
-               AND timestamp < %s
-               ORDER BY timestamp""",
-            (start_utc, end_utc),
-        )
+        if mode:
+            cur.execute(
+                """SELECT timestamp, pnl
+                   FROM trades
+                   WHERE outcome IN ('win', 'loss')
+                   AND timestamp >= %s AND timestamp < %s
+                   AND trading_mode = %s
+                   ORDER BY timestamp""",
+                (start_utc, end_utc, mode),
+            )
+        else:
+            cur.execute(
+                """SELECT timestamp, pnl
+                   FROM trades
+                   WHERE outcome IN ('win', 'loss')
+                   AND timestamp >= %s AND timestamp < %s
+                   ORDER BY timestamp""",
+                (start_utc, end_utc),
+            )
         rows = cur.fetchall()
 
     # Group by Pacific date
@@ -324,7 +374,7 @@ def get_calendar_pnl(conn, year: int, month: int) -> list[dict]:
 
 
 @_retry
-def get_monthly_pnl(conn, year: int) -> list[dict]:
+def get_monthly_pnl(conn, year: int, mode: Optional[str] = None) -> list[dict]:
     """Return monthly P&L totals for a given year.
 
     Returns a list of dicts: [{"month": 1, "pnl": 1234.56, "trades": 42}, ...]
@@ -336,15 +386,25 @@ def get_monthly_pnl(conn, year: int) -> list[dict]:
     end_utc = datetime(year + 1, 1, 1, tzinfo=pacific).astimezone(timezone.utc).isoformat()
 
     with _cursor(conn) as cur:
-        cur.execute(
-            """SELECT timestamp, pnl
-               FROM trades
-               WHERE outcome IN ('win', 'loss')
-               AND timestamp >= %s
-               AND timestamp < %s
-               ORDER BY timestamp""",
-            (start_utc, end_utc),
-        )
+        if mode:
+            cur.execute(
+                """SELECT timestamp, pnl
+                   FROM trades
+                   WHERE outcome IN ('win', 'loss')
+                   AND timestamp >= %s AND timestamp < %s
+                   AND trading_mode = %s
+                   ORDER BY timestamp""",
+                (start_utc, end_utc, mode),
+            )
+        else:
+            cur.execute(
+                """SELECT timestamp, pnl
+                   FROM trades
+                   WHERE outcome IN ('win', 'loss')
+                   AND timestamp >= %s AND timestamp < %s
+                   ORDER BY timestamp""",
+                (start_utc, end_utc),
+            )
         rows = cur.fetchall()
 
     monthly: dict[int, dict] = {}
@@ -364,16 +424,20 @@ def get_monthly_pnl(conn, year: int) -> list[dict]:
 
 
 @_retry
-def get_best_worst_trades(conn) -> dict:
+def get_best_worst_trades(conn, mode: Optional[str] = None) -> dict:
     """Return the best and worst single trades by P&L."""
     with _cursor(conn) as cur:
-        cur.execute(
-            """SELECT
-                   MAX(pnl) AS best_pnl,
-                   MIN(pnl) AS worst_pnl
-               FROM trades
-               WHERE outcome IN ('win', 'loss')"""
-        )
+        if mode:
+            cur.execute(
+                """SELECT MAX(pnl) AS best_pnl, MIN(pnl) AS worst_pnl
+                   FROM trades WHERE outcome IN ('win', 'loss') AND trading_mode = %s""",
+                (mode,),
+            )
+        else:
+            cur.execute(
+                """SELECT MAX(pnl) AS best_pnl, MIN(pnl) AS worst_pnl
+                   FROM trades WHERE outcome IN ('win', 'loss')"""
+            )
         row = cur.fetchone()
     return {
         "best_pnl": float(row["best_pnl"]) if row["best_pnl"] is not None else 0.0,
@@ -382,14 +446,20 @@ def get_best_worst_trades(conn) -> dict:
 
 
 @_retry
-def get_peak_balance(conn) -> float:
+def get_peak_balance(conn, mode: Optional[str] = None) -> float:
     """Return the highest portfolio balance ever recorded."""
     with _cursor(conn) as cur:
-        cur.execute(
-            """SELECT COALESCE(MAX(portfolio_balance_after), 0) AS peak
-               FROM trades
-               WHERE portfolio_balance_after IS NOT NULL"""
-        )
+        if mode:
+            cur.execute(
+                """SELECT COALESCE(MAX(portfolio_balance_after), 0) AS peak
+                   FROM trades WHERE portfolio_balance_after IS NOT NULL AND trading_mode = %s""",
+                (mode,),
+            )
+        else:
+            cur.execute(
+                """SELECT COALESCE(MAX(portfolio_balance_after), 0) AS peak
+                   FROM trades WHERE portfolio_balance_after IS NOT NULL"""
+            )
         row = cur.fetchone()
     return float(row["peak"]) if row["peak"] else 0.0
 

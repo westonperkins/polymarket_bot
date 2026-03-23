@@ -15,18 +15,22 @@ logger = logging.getLogger(__name__)
 class Portfolio:
     """Manages the virtual USDC portfolio."""
 
-    def __init__(self, conn) -> None:
+    def __init__(self, conn, starting_balance: float = None, skip_restore: bool = False) -> None:
         self._conn = conn
-        self._balance: float = config.STARTING_BALANCE
+        self._starting_balance = starting_balance or config.STARTING_BALANCE
+        self._balance: float = self._starting_balance
         self._daily_pnl: float = 0.0
 
-        # Try to restore from latest DB snapshot
-        snapshot = db.get_latest_portfolio(conn)
-        if snapshot:
-            self._balance = snapshot["balance"]
-            logger.info(f"Restored portfolio balance: ${self._balance:,.2f}")
+        # Try to restore from latest DB snapshot (skip for live mode)
+        if not skip_restore:
+            snapshot = db.get_latest_portfolio(conn)
+            if snapshot:
+                self._balance = snapshot["balance"]
+                logger.info(f"Restored portfolio balance: ${self._balance:,.2f}")
+            else:
+                logger.info(f"New portfolio initialized: ${self._balance:,.2f}")
         else:
-            logger.info(f"New portfolio initialized: ${self._balance:,.2f}")
+            logger.info(f"Portfolio initialized (no restore): ${self._balance:,.2f}")
 
     @property
     def balance(self) -> float:
@@ -39,7 +43,7 @@ class Portfolio:
     @property
     def pnl_pct(self) -> float:
         """Return total P&L as percentage from starting balance."""
-        return ((self._balance - config.STARTING_BALANCE) / config.STARTING_BALANCE) * 100
+        return ((self._balance - self._starting_balance) / self._starting_balance) * 100
 
     def position_size(self, confidence: str) -> float:
         """Calculate position size based on confidence level.

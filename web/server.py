@@ -27,18 +27,19 @@ def build_state_dict(
     portfolio: Portfolio,
     conn,
     dashboard: Dashboard,
+    mode: str = None,
 ) -> dict:
     """Assemble the full dashboard state as a JSON-serializable dict."""
-    stats = db.get_trade_stats(conn)
-    daily_pnl = db.get_daily_pnl(conn)
-    best_worst = db.get_best_worst_trades(conn)
-    peak_balance = db.get_peak_balance(conn)
+    stats = db.get_trade_stats(conn, mode=mode)
+    daily_pnl = db.get_daily_pnl(conn, mode=mode)
+    best_worst = db.get_best_worst_trades(conn, mode=mode)
+    peak_balance = db.get_peak_balance(conn, mode=mode)
 
     # Portfolio
     state = {
         "portfolio": {
             "balance": portfolio.balance,
-            "starting_balance": config.STARTING_BALANCE,
+            "starting_balance": portfolio._starting_balance,
             "pnl_pct": portfolio.pnl_pct,
             "daily_pnl": daily_pnl,
             "total_trades": stats["total"],
@@ -56,6 +57,7 @@ def build_state_dict(
         "trades": [],
         "status": dashboard.status_message,
         "network": health.get_stats(),
+        "active_mode": config.TRADING_MODE,
     }
 
     # Current market
@@ -89,11 +91,12 @@ def build_state_dict(
         }
 
     # Recent trades with their signal snapshots
-    trades = db.get_recent_trades(conn, limit=10)
+    trades = db.get_recent_trades(conn, limit=10, mode=mode)
     state["trades"] = []
     for t in trades:
+        real_id = t["id"]
         trade_dict = {
-            "id": t["id"],
+            "id": t.get("trade_num", real_id),
             "market_id": t["market_id"],
             "side": t["side"],
             "entry_odds": t["entry_odds"],
@@ -106,7 +109,7 @@ def build_state_dict(
             "timestamp": t["timestamp"],
             "signals": None,
         }
-        sig = db.get_signals_for_trade(conn, t["id"])
+        sig = db.get_signals_for_trade(conn, real_id)
         if sig:
             trade_dict["signals"] = {
                 "chainlink_price": sig["chainlink_price"],
@@ -139,11 +142,15 @@ async def handle_index(request):
 async def handle_api_state(request):
     """Return full dashboard state as JSON."""
     try:
+        mode = request.query.get("mode", config.TRADING_MODE)
+        if mode == "all":
+            mode = None  # no filter
         state = build_state_dict(
             request.app["engine"],
             request.app["portfolio"],
             request.app["conn"],
             request.app["dashboard"],
+            mode=mode,
         )
         return web.json_response(state)
     except Exception as e:
@@ -167,6 +174,9 @@ async def handle_api_calendar(request):
         year = int(request.query.get("year", 0))
         month = int(request.query.get("month", 0))
         view = request.query.get("view", "month")
+        mode = request.query.get("mode", config.TRADING_MODE)
+        if mode == "all":
+            mode = None
 
         if not year or not month:
             from datetime import datetime
@@ -176,10 +186,10 @@ async def handle_api_calendar(request):
             month = month or now.month
 
         if view == "year":
-            data = db.get_monthly_pnl(conn, year)
+            data = db.get_monthly_pnl(conn, year, mode=mode)
             return web.json_response({"year": year, "view": "year", "data": data})
         else:
-            data = db.get_calendar_pnl(conn, year, month)
+            data = db.get_calendar_pnl(conn, year, month, mode=mode)
             return web.json_response({"year": year, "month": month, "view": "month", "data": data})
     except Exception as e:
         logger.error(f"Calendar API error: {e}", exc_info=True)

@@ -39,8 +39,8 @@
     border-radius: 6px; padding: 6px 14px; cursor: pointer;
     font-family: inherit; font-size: 13px;
   }
-  .controls button:hover { border-color: var(--cyan); }
-  .controls button.active { border-color: var(--cyan); color: var(--cyan); font-weight: 700; }
+  .controls button:hover { border-color: var(--cyan); color: var(--text); }
+  .controls button.active { border-color: var(--cyan); color: var(--cyan); font-weight: 700; background: rgba(57,210,192,0.1); }
   .controls .month-label {
     font-size: 16px; font-weight: 700; min-width: 180px; text-align: center;
   }
@@ -146,6 +146,10 @@
   <button id="btn-next" onclick="navigate(1)">&rarr;</button>
   <button id="btn-month" class="active" onclick="setView('month')">Month</button>
   <button id="btn-year" onclick="setView('year')">Year</button>
+  <span style="color: var(--border);">|</span>
+  <button id="btn-paper" class="active" onclick="setMode('paper')">Paper</button>
+  <button id="btn-live" onclick="setMode('live')">Live</button>
+  <button id="btn-all" onclick="setMode(null)">All</button>
 </div>
 
 <div class="summary" id="summary"></div>
@@ -157,6 +161,15 @@ const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
 let currentView = 'month';
 let currentYear, currentMonth;
+let currentMode = 'paper';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btn-paper').className = mode === 'paper' ? 'active' : '';
+  document.getElementById('btn-live').className = mode === 'live' ? 'active' : '';
+  document.getElementById('btn-all').className = mode === null ? 'active' : '';
+  fetchAndRender();
+}
 
 // Initialize to current Pacific date
 (function init() {
@@ -193,7 +206,8 @@ async function fetchAndRender() {
   if (currentView === 'year') {
     label.textContent = currentYear;
     try {
-      const res = await fetch(`/api/calendar?year=${currentYear}&view=year`);
+      const modeParam = currentMode ? `&mode=${currentMode}` : '';
+      const res = await fetch(`/api/calendar?year=${currentYear}&view=year${modeParam}`);
       const json = await res.json();
       renderYear(json.data);
     } catch(e) {
@@ -202,7 +216,8 @@ async function fetchAndRender() {
   } else {
     label.textContent = `${MONTHS[currentMonth - 1]} ${currentYear}`;
     try {
-      const res = await fetch(`/api/calendar?year=${currentYear}&month=${currentMonth}`);
+      const modeParam2 = currentMode ? `&mode=${currentMode}` : '';
+      const res = await fetch(`/api/calendar?year=${currentYear}&month=${currentMonth}${modeParam2}`);
       const json = await res.json();
       renderMonth(json.data);
     } catch(e) {

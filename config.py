@@ -13,7 +13,8 @@ TRADING_MODE = os.environ.get("TRADING_MODE", "paper")
 DATABASE_URL = os.environ["DATABASE_URL"]
 
 # ── Portfolio ──────────────────────────────────────────────────────────
-STARTING_BALANCE = 10_000.00  # virtual USDC
+STARTING_BALANCE = 10_000.00  # virtual USDC for paper trading
+LIVE_STARTING_BALANCE = float(os.environ.get("LIVE_STARTING_BALANCE", "9.00"))  # real USDC for live
 
 # Risk per trade as fraction of current portfolio
 RISK_HIGH_CONFIDENCE = 0.05    # 5%

@@ -77,6 +77,10 @@ async def run_web():
 
 
 if __name__ == "__main__":
+    # Suppress noisy aiohttp keepalive errors on macOS + Python 3.13
+    import logging as _logging
+    _logging.getLogger("asyncio").setLevel(_logging.CRITICAL)
+
     if "--web" in sys.argv:
         asyncio.run(run_web())
     else:

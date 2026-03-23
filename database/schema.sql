@@ -9,8 +9,24 @@ CREATE TABLE IF NOT EXISTS trades (
     confidence_level TEXT NOT NULL CHECK (confidence_level IN ('high', 'medium', 'skip')),
     outcome TEXT NOT NULL DEFAULT 'pending' CHECK (outcome IN ('win', 'loss', 'skip', 'pending')),
     pnl DOUBLE PRECISION DEFAULT 0.0,
-    portfolio_balance_after DOUBLE PRECISION
+    portfolio_balance_after DOUBLE PRECISION,
+    trading_mode TEXT NOT NULL DEFAULT 'paper' CHECK (trading_mode IN ('paper', 'live'))
 );
+
+-- Migration: add trading_mode column if it doesn't exist (for existing databases)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'trades' AND column_name = 'trading_mode'
+    ) THEN
+        ALTER TABLE trades ADD COLUMN trading_mode TEXT DEFAULT 'paper';
+        UPDATE trades SET trading_mode = 'paper' WHERE trading_mode IS NULL;
+        ALTER TABLE trades ALTER COLUMN trading_mode SET NOT NULL;
+        ALTER TABLE trades ADD CONSTRAINT trades_trading_mode_check
+            CHECK (trading_mode IN ('paper', 'live'));
+    END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS signals (
     id SERIAL PRIMARY KEY,
