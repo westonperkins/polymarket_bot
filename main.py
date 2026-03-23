@@ -1,6 +1,7 @@
 """Entry point — wires all components together and runs the bot."""
 
 import asyncio
+import concurrent.futures
 import logging
 import signal
 import sys
@@ -114,8 +115,9 @@ class SessionManager:
         self._creation_count: int = 0
 
     def _create_client(self) -> httpx.AsyncClient:
-        """Create a fresh httpx async client."""
+        """Create a fresh httpx async client with HTTP/2 multiplexing."""
         client = httpx.AsyncClient(
+            http2=True,
             limits=httpx.Limits(
                 max_connections=20,
                 max_keepalive_connections=5,
@@ -176,13 +178,17 @@ class SessionManager:
 
 session_mgr = SessionManager()
 
+# Limit concurrent outbound HTTP requests to prevent DNS thread pool exhaustion
+_http_semaphore = asyncio.Semaphore(config.MAX_CONCURRENT_REQUESTS)
+
 
 # ── Spot price polling task ─────────────────────────────────────────────
 async def poll_spot_price():
     """Adaptively sample spot price: 5s active, 60s tracking, 180s between markets."""
     while engine.running:
         try:
-            price = await fetch_spot_price(client=session_mgr.client)
+            async with _http_semaphore:
+                price = await fetch_spot_price(client=session_mgr.client)
             if price:
                 spot_tracker.record(price)
                 session_mgr.record_success()
@@ -242,17 +248,22 @@ async def on_signal_window(
     try:
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
-        # ── Fetch all signals in parallel (use managed httpx client) ──
+        # ── Fetch all signals with concurrency limit ─────────────────
+        # Semaphore ensures at most MAX_CONCURRENT_REQUESTS in flight,
+        # preventing DNS thread pool exhaustion on the VPS.
         sig_client = session_mgr.client
-        chainlink_task = fetch_chainlink_price(client=sig_client)
-        spot_task = fetch_spot_price(client=sig_client)
-        cvd_task = fetch_cvd(client=sig_client)
-        orderbook_task = fetch_orderbook(client=sig_client)
-        liq_task = fetch_liquidations(client=sig_client)
+
+        async def _limited(coro):
+            async with _http_semaphore:
+                return await coro
 
         chainlink_price, spot_price, cvd_result, ob_result, liq_result = (
             await asyncio.gather(
-                chainlink_task, spot_task, cvd_task, orderbook_task, liq_task,
+                _limited(fetch_chainlink_price(client=sig_client)),
+                _limited(fetch_spot_price(client=sig_client)),
+                _limited(fetch_cvd(client=sig_client)),
+                _limited(fetch_orderbook(client=sig_client)),
+                _limited(fetch_liquidations(client=sig_client)),
                 return_exceptions=True,
             )
         )
@@ -421,6 +432,12 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int):
 
 async def run():
     """Start all tasks: timing engine, spot poller, and web server."""
+    # Expand asyncio thread pool for DNS resolution — default is ~6 workers
+    # on a 2-vCPU box, which gets exhausted by parallel signal fetches.
+    loop = asyncio.get_event_loop()
+    loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=20))
+    logger.info("Asyncio thread pool expanded to 20 workers")
+
     # Wire callbacks
     engine.on_market_discovered = on_market_discovered
     engine.on_signal_window = on_signal_window

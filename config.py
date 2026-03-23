@@ -40,6 +40,7 @@ SPOT_RETRY_DELAY = 10              # seconds between retries on fetch failure
 SPOT_CACHE_TTL = 90                # seconds a cached spot price remains valid
 SESSION_MAX_AGE = 120              # recreate HTTP session every 2 minutes
 SESSION_FAILURE_THRESHOLD = 2      # recreate after N consecutive request failures
+MAX_CONCURRENT_REQUESTS = 2        # max simultaneous outbound HTTP requests
 
 # ── Signal Thresholds ──────────────────────────────────────────────────
 # Chainlink vs Spot divergence — "significant" threshold in USD

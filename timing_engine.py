@@ -48,8 +48,9 @@ class TimingEngine:
         ] = None
 
     def _create_client(self) -> httpx.AsyncClient:
-        """Create a fresh httpx async client."""
+        """Create a fresh httpx async client with HTTP/2 multiplexing."""
         return httpx.AsyncClient(
+            http2=True,
             limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
             timeout=httpx.Timeout(15.0, connect=5.0),
         )
