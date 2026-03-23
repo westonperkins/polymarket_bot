@@ -206,8 +206,8 @@ async function fetchAndRender() {
   if (currentView === 'year') {
     label.textContent = currentYear;
     try {
-      const modeParam = currentMode ? `&mode=${currentMode}` : '';
-      const res = await fetch(`/api/calendar?year=${currentYear}&view=year${modeParam}`);
+      const modeVal = currentMode === null ? 'all' : currentMode;
+      const res = await fetch(`/api/calendar?year=${currentYear}&view=year&mode=${modeVal}`);
       const json = await res.json();
       renderYear(json.data);
     } catch(e) {
@@ -216,8 +216,8 @@ async function fetchAndRender() {
   } else {
     label.textContent = `${MONTHS[currentMonth - 1]} ${currentYear}`;
     try {
-      const modeParam2 = currentMode ? `&mode=${currentMode}` : '';
-      const res = await fetch(`/api/calendar?year=${currentYear}&month=${currentMonth}${modeParam2}`);
+      const modeVal2 = currentMode === null ? 'all' : currentMode;
+      const res = await fetch(`/api/calendar?year=${currentYear}&month=${currentMonth}&mode=${modeVal2}`);
       const json = await res.json();
       renderMonth(json.data);
     } catch(e) {
