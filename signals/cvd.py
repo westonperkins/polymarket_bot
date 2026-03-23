@@ -5,8 +5,8 @@ Positive CVD = aggressive buying pressure.
 Negative CVD = aggressive selling pressure.
 
 Binance marks each trade with isBuyerMaker:
-  - isBuyerMaker=False → buyer is taker (aggressive buy)
-  - isBuyerMaker=True  → seller is taker (aggressive sell)
+  - isBuyerMaker=False -> buyer is taker (aggressive buy)
+  - isBuyerMaker=True  -> seller is taker (aggressive sell)
 """
 
 import logging
@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional
 
-import aiohttp
+import httpx
 
 import config
 
@@ -32,18 +32,18 @@ class CVDResult:
 
 
 async def fetch_cvd(
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[CVDResult]:
     """Fetch recent trades from Binance and compute CVD over the last 120s.
 
-    Returns None on API failure. Expects the shared aiohttp session from main.py.
+    Returns None on API failure. Expects the shared httpx client from main.py.
     """
     try:
-        async with session.get(config.BINANCE_TRADES_URL) as resp:
-            if resp.status != 200:
-                logger.warning(f"Binance trades API returned {resp.status}")
-                return None
-            trades = await resp.json()
+        resp = await client.get(config.BINANCE_TRADES_URL)
+        if resp.status_code != 200:
+            logger.warning(f"Binance trades API returned {resp.status_code}")
+            return None
+        trades = resp.json()
 
         if not trades:
             return None
@@ -58,9 +58,9 @@ async def fetch_cvd(
                 continue
             qty = float(t["qty"])
             if t["isBuyerMaker"]:
-                sell_vol += qty   # seller is taker → aggressive sell
+                sell_vol += qty   # seller is taker -> aggressive sell
             else:
-                buy_vol += qty    # buyer is taker → aggressive buy
+                buy_vol += qty    # buyer is taker -> aggressive buy
             count += 1
 
         cvd = buy_vol - sell_vol
@@ -77,7 +77,7 @@ async def fetch_cvd(
             direction = "neutral"
 
         logger.debug(
-            f"CVD: {cvd:+.4f} BTC ({count} trades, buy={buy_vol:.4f}, sell={sell_vol:.4f}) → {direction}"
+            f"CVD: {cvd:+.4f} BTC ({count} trades, buy={buy_vol:.4f}, sell={sell_vol:.4f}) -> {direction}"
         )
 
         return CVDResult(

@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-import aiohttp
+import httpx
 
 import config
 from network_health import health
@@ -84,34 +84,33 @@ def _parse_market(event: dict) -> MarketInfo | None:
     )
 
 
-async def fetch_market_by_slug(slug: str, session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
+async def fetch_market_by_slug(slug: str, client: httpx.AsyncClient | None = None) -> MarketInfo | None:
     """Fetch a specific market by its slug with retry logic. Returns None on failure."""
     import asyncio as _asyncio
 
     url = f"{config.POLYMARKET_GAMMA_URL.replace('/markets', '/events')}?slug={slug}"
 
-    close_session = session is None
-    if close_session:
-        session = aiohttp.ClientSession()
+    close_client = client is None
+    if close_client:
+        client = httpx.AsyncClient(timeout=httpx.Timeout(15))
 
     try:
         for attempt in range(1, 3):
             try:
-                timeout = aiohttp.ClientTimeout(total=15)
-                async with session.get(url, timeout=timeout) as resp:
-                    if resp.status != 200:
-                        logger.warning(f"fetch_market_by_slug({slug}) HTTP {resp.status} (attempt {attempt}/2)")
-                        if attempt < 2:
-                            await _asyncio.sleep(3)
-                            continue
-                        return None
-                    data = await resp.json()
-                    if not data:
-                        return None
-                    event = data[0] if isinstance(data, list) else data
-                    health.record("Gamma", True)
-                    return _parse_market(event)
-            except (aiohttp.ClientError, _asyncio.TimeoutError, TimeoutError, OSError, ConnectionError) as e:
+                resp = await client.get(url, timeout=15)
+                if resp.status_code != 200:
+                    logger.warning(f"fetch_market_by_slug({slug}) HTTP {resp.status_code} (attempt {attempt}/2)")
+                    if attempt < 2:
+                        await _asyncio.sleep(3)
+                        continue
+                    return None
+                data = resp.json()
+                if not data:
+                    return None
+                event = data[0] if isinstance(data, list) else data
+                health.record("Gamma", True)
+                return _parse_market(event)
+            except (httpx.HTTPError, _asyncio.TimeoutError, TimeoutError, OSError, ConnectionError) as e:
                 health.record("Gamma", False)
                 logger.warning(f"fetch_market_by_slug({slug}) attempt {attempt}/2 failed: {type(e).__name__}")
                 if attempt < 2:
@@ -123,11 +122,11 @@ async def fetch_market_by_slug(slug: str, session: aiohttp.ClientSession | None 
                 return None
         return None
     finally:
-        if close_session:
-            await session.close()
+        if close_client:
+            await client.aclose()
 
 
-async def fetch_next_market(session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
+async def fetch_next_market(client: httpx.AsyncClient | None = None) -> MarketInfo | None:
     """Find the next upcoming BTC 5-minute Up/Down market.
 
     Tries the next few 5-minute boundaries in case the immediate next one
@@ -139,13 +138,13 @@ async def fetch_next_market(session: aiohttp.ClientSession | None = None) -> Mar
     for offset in range(1, 5):
         start_ts = candle_start + (offset * 300)
         slug = _build_slug(start_ts)
-        market = await fetch_market_by_slug(slug, session=session)
+        market = await fetch_market_by_slug(slug, client=client)
         if market and market.end_time > now_utc:
             return market
     return None
 
 
-async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
+async def fetch_current_market(client: httpx.AsyncClient | None = None) -> MarketInfo | None:
     """Find the currently active (not yet ended) BTC 5-minute market.
 
     Polymarket slugs use the candle START time. So at 5:42, the current
@@ -169,7 +168,7 @@ async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> 
             logger.info(f"Market discovery: {slug} already ended, skipping")
             continue
 
-        market = await fetch_market_by_slug(slug, session=session)
+        market = await fetch_market_by_slug(slug, client=client)
         if market is not None:
             if market.end_time <= now_utc:
                 logger.info(f"Market discovery: {slug} already ended (API confirmed), skipping")

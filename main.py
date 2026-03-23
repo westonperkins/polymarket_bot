@@ -7,6 +7,7 @@ import sys
 import time as _time_module
 
 import aiohttp
+import httpx
 
 import config
 from database import db
@@ -99,81 +100,78 @@ pending_trades: dict[str, int] = {}
 
 # ── Session manager ───────────────────────────────────────────────────────
 class SessionManager:
-    """Manages aiohttp session lifecycle with periodic rotation and health checks.
+    """Manages httpx async client lifecycle with periodic rotation and health checks.
 
-    - Recreates both connector and session every SESSION_MAX_AGE seconds (2 min)
+    - Recreates client every SESSION_MAX_AGE seconds (2 min)
     - Recreates immediately after SESSION_FAILURE_THRESHOLD consecutive failures
     - Logs every recreation for diagnostics
     """
 
     def __init__(self) -> None:
-        self._session: aiohttp.ClientSession | None = None
+        self._client: httpx.AsyncClient | None = None
         self._created_at: float = 0.0
         self._consecutive_failures: int = 0
         self._creation_count: int = 0
 
-    def _create_session(self) -> aiohttp.ClientSession:
-        """Create a fresh connector + session pair."""
-        connector = aiohttp.TCPConnector(
-            limit=20,
-            limit_per_host=5,
-            ttl_dns_cache=300,
-            enable_cleanup_closed=True,
-        )
-        session = aiohttp.ClientSession(
-            connector=connector,
-            timeout=aiohttp.ClientTimeout(total=15, connect=5),
+    def _create_client(self) -> httpx.AsyncClient:
+        """Create a fresh httpx async client."""
+        client = httpx.AsyncClient(
+            limits=httpx.Limits(
+                max_connections=20,
+                max_keepalive_connections=5,
+            ),
+            timeout=httpx.Timeout(15.0, connect=5.0),
         )
         self._created_at = _time_module.time()
         self._consecutive_failures = 0
         self._creation_count += 1
-        logger.info(f"HTTP session created (#{self._creation_count})")
-        return session
+        logger.info(f"HTTP client created (#{self._creation_count})")
+        return client
 
     @property
-    def session(self) -> aiohttp.ClientSession:
-        """Return the current session, rotating if stale or closed."""
+    def client(self) -> httpx.AsyncClient:
+        """Return the current client, rotating if stale or closed."""
         now = _time_module.time()
         needs_rotation = (
-            self._session is None
-            or self._session.closed
+            self._client is None
+            or self._client.is_closed
             or (now - self._created_at) >= config.SESSION_MAX_AGE
         )
         if needs_rotation:
-            old = self._session
-            self._session = self._create_session()
-            if old and not old.closed:
+            old = self._client
+            self._client = self._create_client()
+            if old and not old.is_closed:
                 asyncio.get_event_loop().create_task(self._close_old(old))
-        return self._session
+        return self._client
 
     def record_success(self) -> None:
         """Reset failure counter on a successful request."""
         self._consecutive_failures = 0
 
     def record_failure(self) -> None:
-        """Track a failed request; recreate session after threshold."""
+        """Track a failed request; recreate client after threshold."""
         self._consecutive_failures += 1
         if self._consecutive_failures >= config.SESSION_FAILURE_THRESHOLD:
             logger.warning(
-                f"Session unhealthy ({self._consecutive_failures} consecutive failures) — recreating"
+                f"Client unhealthy ({self._consecutive_failures} consecutive failures) — recreating"
             )
-            old = self._session
-            self._session = self._create_session()
-            if old and not old.closed:
+            old = self._client
+            self._client = self._create_client()
+            if old and not old.is_closed:
                 asyncio.get_event_loop().create_task(self._close_old(old))
 
-    async def _close_old(self, old_session: aiohttp.ClientSession) -> None:
-        """Close a retired session in the background."""
+    async def _close_old(self, old_client: httpx.AsyncClient) -> None:
+        """Close a retired client in the background."""
         try:
-            await old_session.close()
+            await old_client.aclose()
         except Exception:
             pass
 
     async def close(self) -> None:
-        """Shut down the current session (called on bot exit)."""
-        if self._session and not self._session.closed:
-            await self._session.close()
-            self._session = None
+        """Shut down the current client (called on bot exit)."""
+        if self._client and not self._client.is_closed:
+            await self._client.aclose()
+            self._client = None
 
 
 session_mgr = SessionManager()
@@ -184,7 +182,7 @@ async def poll_spot_price():
     """Adaptively sample spot price: every 5s in the 2-min active window, every 60s otherwise."""
     while engine.running:
         try:
-            price = await fetch_spot_price(session=session_mgr.session)
+            price = await fetch_spot_price(client=session_mgr.client)
             if price:
                 spot_tracker.record(price)
                 session_mgr.record_success()
@@ -236,19 +234,19 @@ async def on_skip(market: MarketInfo, reason: str):
 async def on_signal_window(
     market: MarketInfo,
     odds: MarketOdds,
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ):
     """Called at T-30s — fetch all signals, vote, and enter trade."""
     try:
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
-        # ── Fetch all signals in parallel (use managed session) ───────
-        sig_session = session_mgr.session
-        chainlink_task = fetch_chainlink_price(session=sig_session)
-        spot_task = fetch_spot_price(session=sig_session)
-        cvd_task = fetch_cvd(session=sig_session)
-        orderbook_task = fetch_orderbook(session=sig_session)
-        liq_task = fetch_liquidations(session=sig_session)
+        # ── Fetch all signals in parallel (use managed httpx client) ──
+        sig_client = session_mgr.client
+        chainlink_task = fetch_chainlink_price(client=sig_client)
+        spot_task = fetch_spot_price(client=sig_client)
+        cvd_task = fetch_cvd(client=sig_client)
+        orderbook_task = fetch_orderbook(client=sig_client)
+        liq_task = fetch_liquidations(client=sig_client)
 
         chainlink_price, spot_price, cvd_result, ob_result, liq_result = (
             await asyncio.gather(
@@ -375,7 +373,7 @@ async def on_signal_window(
         dashboard.status_message = f"ERROR: Signal window failed — {e}"
 
 
-async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
+async def on_market_close(market: MarketInfo, client: httpx.AsyncClient):
     """Called after market closes — launch background resolution."""
     try:
         trade_id = pending_trades.pop(market.slug, None)
@@ -400,7 +398,7 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int):
     try:
         logger.info(f"Background resolution started for {market.slug} (trade {trade_id})")
         winning_side = await resolve_market(
-            market.condition_id, market.slug, session=session_mgr.session
+            market.condition_id, market.slug, client=session_mgr.client
         )
 
         if winning_side:

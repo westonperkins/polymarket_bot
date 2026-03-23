@@ -8,7 +8,7 @@ import struct
 import logging
 from typing import Optional
 
-import aiohttp
+import httpx
 
 import config
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Chainlink BTC/USD aggregator proxy on Ethereum mainnet
 CHAINLINK_BTC_USD_CONTRACT = "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c"
-# Function selector for latestRoundData() → (uint80, int256, uint256, uint256, uint80)
+# Function selector for latestRoundData() -> (uint80, int256, uint256, uint256, uint80)
 LATEST_ROUND_DATA_SELECTOR = "0xfeaf968c"
 # Price has 8 decimals
 CHAINLINK_DECIMALS = 8
@@ -33,7 +33,7 @@ async def _eth_call(
     rpc_url: str,
     contract: str,
     data: str,
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
     timeout: float = config.SIGNAL_FETCH_TIMEOUT,
 ) -> Optional[str]:
     """Make an eth_call JSON-RPC request and return the hex result."""
@@ -47,18 +47,14 @@ async def _eth_call(
         ],
     }
     try:
-        async with session.post(
-            rpc_url,
-            json=payload,
-            timeout=aiohttp.ClientTimeout(total=timeout),
-        ) as resp:
-            if resp.status != 200:
-                return None
-            body = await resp.json()
-            result = body.get("result")
-            if not result or result == "0x":
-                return None
-            return result
+        resp = await client.post(rpc_url, json=payload, timeout=timeout)
+        if resp.status_code != 200:
+            return None
+        body = resp.json()
+        result = body.get("result")
+        if not result or result == "0x":
+            return None
+        return result
     except Exception as e:
         logger.debug(f"RPC call to {rpc_url} failed: {e}")
         return None
@@ -93,16 +89,16 @@ def _parse_latest_round_data(hex_result: str) -> Optional[dict]:
 
 
 async def fetch_chainlink_price(
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[float]:
     """Fetch the current Chainlink BTC/USD oracle price.
 
     Tries multiple public RPC endpoints. Returns the price in USD or None on failure.
-    Expects the shared aiohttp session from main.py.
+    Expects the shared httpx client from main.py.
     """
     for rpc_url in PUBLIC_RPCS:
         result = await _eth_call(
-            rpc_url, CHAINLINK_BTC_USD_CONTRACT, LATEST_ROUND_DATA_SELECTOR, session
+            rpc_url, CHAINLINK_BTC_USD_CONTRACT, LATEST_ROUND_DATA_SELECTOR, client
         )
         if result:
             parsed = _parse_latest_round_data(result)

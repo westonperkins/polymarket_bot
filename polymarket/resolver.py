@@ -10,7 +10,7 @@ import json
 import logging
 from typing import Optional
 
-import aiohttp
+import httpx
 
 import config
 
@@ -24,7 +24,7 @@ RESOLUTION_RETRY_DELAY = 10  # seconds between retries (total: ~10 min)
 async def resolve_market(
     condition_id: str,
     slug: str,
-    session: aiohttp.ClientSession | None = None,
+    client: httpx.AsyncClient | None = None,
 ) -> Optional[str]:
     """Wait for and return the winning side of a resolved market.
 
@@ -33,19 +33,19 @@ async def resolve_market(
 
     Returns: "Up", "Down", or None if resolution could not be determined.
     """
-    close_session = session is None
-    if close_session:
-        session = aiohttp.ClientSession()
+    close_client = client is None
+    if close_client:
+        client = httpx.AsyncClient(timeout=httpx.Timeout(config.SIGNAL_FETCH_TIMEOUT))
     try:
         for attempt in range(1, MAX_RESOLUTION_ATTEMPTS + 1):
             # Try CLOB first (most explicit)
-            winner = await _resolve_via_clob(condition_id, session)
+            winner = await _resolve_via_clob(condition_id, client)
             if winner:
                 logger.info(f"Market {slug} resolved: {winner} (CLOB, attempt {attempt})")
                 return winner
 
             # Fallback to Gamma
-            winner = await _resolve_via_gamma(slug, session)
+            winner = await _resolve_via_gamma(slug, client)
             if winner:
                 logger.info(f"Market {slug} resolved: {winner} (Gamma, attempt {attempt})")
                 return winner
@@ -61,22 +61,21 @@ async def resolve_market(
         logger.warning(f"Could not resolve market {slug} after {MAX_RESOLUTION_ATTEMPTS} attempts")
         return None
     finally:
-        if close_session:
-            await session.close()
+        if close_client:
+            await client.aclose()
 
 
 async def _resolve_via_clob(
     condition_id: str,
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[str]:
     """Check CLOB API for tokens[].winner boolean."""
     url = f"{config.POLYMARKET_CLOB_URL}/markets/{condition_id}"
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
     try:
-        async with session.get(url, timeout=timeout) as resp:
-            if resp.status != 200:
-                return None
-            data = await resp.json()
+        resp = await client.get(url, timeout=config.SIGNAL_FETCH_TIMEOUT)
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
 
         if not data.get("closed", False):
             return None
@@ -93,16 +92,15 @@ async def _resolve_via_clob(
 
 async def _resolve_via_gamma(
     slug: str,
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[str]:
     """Check Gamma API for outcomePrices resolution."""
     url = f"{config.POLYMARKET_GAMMA_URL.replace('/markets', '/events')}?slug={slug}"
-    timeout = aiohttp.ClientTimeout(total=config.SIGNAL_FETCH_TIMEOUT)
     try:
-        async with session.get(url, timeout=timeout) as resp:
-            if resp.status != 200:
-                return None
-            data = await resp.json()
+        resp = await client.get(url, timeout=config.SIGNAL_FETCH_TIMEOUT)
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
 
         if not data:
             return None

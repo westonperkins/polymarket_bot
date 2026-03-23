@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from typing import Optional
 
-import aiohttp
+import httpx
 
 import config
 
@@ -27,19 +27,19 @@ class OrderBookResult:
 
 
 async def fetch_orderbook(
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[OrderBookResult]:
     """Fetch order book from Binance and compute bid/ask imbalance.
 
     Only counts volume within config.ORDERBOOK_DEPTH_PCT (0.1%) of mid price.
-    Returns None on API failure. Expects the shared aiohttp session from main.py.
+    Returns None on API failure. Expects the shared httpx client from main.py.
     """
     try:
-        async with session.get(config.BINANCE_DEPTH_URL) as resp:
-            if resp.status != 200:
-                logger.warning(f"Binance depth API returned {resp.status}")
-                return None
-            data = await resp.json()
+        resp = await client.get(config.BINANCE_DEPTH_URL)
+        if resp.status_code != 200:
+            logger.warning(f"Binance depth API returned {resp.status_code}")
+            return None
+        data = resp.json()
 
         bids = data.get("bids", [])
         asks = data.get("asks", [])
@@ -73,7 +73,7 @@ async def fetch_orderbook(
             direction = "neutral"
 
         logger.debug(
-            f"Order book: bid={bid_vol:.4f} ask={ask_vol:.4f} ratio={ratio:.2f} → {direction}"
+            f"Order book: bid={bid_vol:.4f} ask={ask_vol:.4f} ratio={ratio:.2f} -> {direction}"
         )
 
         return OrderBookResult(

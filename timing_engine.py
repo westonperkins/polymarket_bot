@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Callable, Awaitable, Optional
 
-import aiohttp
+import httpx
 
 import config
 from polymarket.markets import MarketInfo, fetch_current_market, fetch_next_market
@@ -20,7 +20,7 @@ class TimingEngine:
     Lifecycle for each market:
         1. Discover the current/next market
         2. Sleep until T-30s before close
-        3. Fetch odds → check tradeable window
+        3. Fetch odds -> check tradeable window
         4. If tradeable, call on_signal_window (signal fetch + vote + trade decision)
         5. Sleep until market close
         6. Call on_market_close (fetch resolution, settle P&L)
@@ -31,14 +31,14 @@ class TimingEngine:
         self.current_market: Optional[MarketInfo] = None
         self.current_odds: Optional[MarketOdds] = None
         self.running: bool = False
-        self._session: Optional[aiohttp.ClientSession] = None
+        self._client: Optional[httpx.AsyncClient] = None
 
         # Callbacks — set by main.py before calling run()
         self.on_signal_window: Optional[
-            Callable[[MarketInfo, MarketOdds, aiohttp.ClientSession], Awaitable[None]]
+            Callable[[MarketInfo, MarketOdds, httpx.AsyncClient], Awaitable[None]]
         ] = None
         self.on_market_close: Optional[
-            Callable[[MarketInfo, aiohttp.ClientSession], Awaitable[None]]
+            Callable[[MarketInfo, httpx.AsyncClient], Awaitable[None]]
         ] = None
         self.on_market_discovered: Optional[
             Callable[[MarketInfo], Awaitable[None]]
@@ -47,13 +47,17 @@ class TimingEngine:
             Callable[[MarketInfo, str], Awaitable[None]]
         ] = None
 
+    def _create_client(self) -> httpx.AsyncClient:
+        """Create a fresh httpx async client."""
+        return httpx.AsyncClient(
+            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+            timeout=httpx.Timeout(15.0, connect=5.0),
+        )
+
     async def run(self) -> None:
         """Main loop — runs indefinitely, processing one market at a time."""
         self.running = True
-        self._session = aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=15),
-            connector=aiohttp.TCPConnector(limit=20, ttl_dns_cache=300),
-        )
+        self._client = self._create_client()
         logger.info("Timing engine started")
         consecutive_failures = 0
 
@@ -67,24 +71,21 @@ class TimingEngine:
                 except Exception as e:
                     consecutive_failures += 1
                     logger.error(f"Error in market cycle ({consecutive_failures} consecutive): {e}", exc_info=True)
-                    # If session might be broken, recreate it
+                    # If client might be broken, recreate it
                     if consecutive_failures >= 3:
-                        logger.warning("Multiple consecutive failures — recreating HTTP session")
+                        logger.warning("Multiple consecutive failures — recreating HTTP client")
                         try:
-                            await self._session.close()
+                            await self._client.aclose()
                         except Exception:
                             pass
-                        self._session = aiohttp.ClientSession(
-                            timeout=aiohttp.ClientTimeout(total=15),
-                            connector=aiohttp.TCPConnector(limit=20, ttl_dns_cache=300),
-                        )
+                        self._client = self._create_client()
                         consecutive_failures = 0
                     await asyncio.sleep(10)
         except asyncio.CancelledError:
             logger.info("Timing engine cancelled")
         finally:
-            await self._session.close()
-            self._session = None
+            await self._client.aclose()
+            self._client = None
             self.running = False
 
     async def stop(self) -> None:
@@ -112,7 +113,7 @@ class TimingEngine:
             return
 
         # ── Step 3: Fetch odds and check tradeable window ────────────
-        odds = await fetch_odds(market.condition_id, market.slug, session=self._session)
+        odds = await fetch_odds(market.condition_id, market.slug, client=self._client)
         self.current_odds = odds
 
         if odds is None:
@@ -136,7 +137,7 @@ class TimingEngine:
             f"SIGNAL WINDOW for {market.slug} | Up={odds.up_price:.3f} Down={odds.down_price:.3f}"
         )
         if self.on_signal_window:
-            await self.on_signal_window(market, odds, self._session)
+            await self.on_signal_window(market, odds, self._client)
 
         # ── Step 5: Wait for market close ────────────────────────────
         await self._wait_until_close(market)
@@ -146,7 +147,7 @@ class TimingEngine:
         # ── Step 6: Market closed — resolve ──────────────────────────
         logger.info(f"Market closed: {market.slug}")
         if self.on_market_close:
-            await self.on_market_close(market, self._session)
+            await self.on_market_close(market, self._client)
 
         self.current_market = None
         self.current_odds = None
@@ -159,7 +160,7 @@ class TimingEngine:
         """
         for attempt in range(1, 6):
             try:
-                market = await fetch_current_market(session=self._session)
+                market = await fetch_current_market(client=self._client)
                 if market:
                     return market
                 logger.info(f"Market discovery attempt {attempt}/5: no market found, retrying in 10s")

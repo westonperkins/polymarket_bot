@@ -1,8 +1,8 @@
 """Liquidation pressure signal from Gate.io futures API.
 
 Fetches recent BTC liquidation orders and classifies pressure:
-- Long liquidations = bearish pressure (longs forced out → sell pressure)
-- Short liquidations = bullish pressure (shorts forced out → buy pressure)
+- Long liquidations = bearish pressure (longs forced out -> sell pressure)
+- Short liquidations = bullish pressure (shorts forced out -> buy pressure)
 
 Gate.io size field: positive = long liquidated, negative = short liquidated.
 """
@@ -12,7 +12,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional
 
-import aiohttp
+import httpx
 
 import config
 
@@ -34,19 +34,19 @@ class LiquidationResult:
 
 
 async def fetch_liquidations(
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[LiquidationResult]:
     """Fetch recent BTC liquidations from Gate.io and compute pressure.
 
     Looks at liquidations in the last LIQUIDATION_WINDOW seconds (default 120s).
-    Returns None on API failure. Expects the shared aiohttp session from main.py.
+    Returns None on API failure. Expects the shared httpx client from main.py.
     """
     try:
-        async with session.get(GATEIO_LIQUIDATIONS_URL) as resp:
-            if resp.status != 200:
-                logger.warning(f"Gate.io liquidations API returned {resp.status}")
-                return None
-            orders = await resp.json()
+        resp = await client.get(GATEIO_LIQUIDATIONS_URL)
+        if resp.status_code != 200:
+            logger.warning(f"Gate.io liquidations API returned {resp.status_code}")
+            return None
+        orders = resp.json()
 
         if not orders:
             return LiquidationResult(
@@ -93,7 +93,7 @@ async def fetch_liquidations(
 
         logger.debug(
             f"Liquidations: longs=${long_usd:,.0f} shorts=${short_usd:,.0f} "
-            f"net=${net:+,.0f} ({count} events) → {direction}"
+            f"net=${net:+,.0f} ({count} events) -> {direction}"
         )
 
         return LiquidationResult(

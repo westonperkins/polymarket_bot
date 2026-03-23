@@ -14,7 +14,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from typing import Optional
 
-import aiohttp
+import httpx
 
 import config
 from network_health import health
@@ -90,7 +90,7 @@ class SpotTracker:
             m120 = (now.price - price_120s_ago) / dt if dt > 0 else 0.0
 
         # Determine direction based on both windows
-        # Use a small threshold to avoid noise (< $0.10/s ≈ $6/min)
+        # Use a small threshold to avoid noise (< $0.10/s ~ $6/min)
         threshold = 0.10
         if m60 > threshold and m120 > 0:
             direction = "bullish"
@@ -132,17 +132,17 @@ _cached_at: float = 0.0
 
 
 async def fetch_spot_price(
-    session: aiohttp.ClientSession,
+    client: httpx.AsyncClient,
 ) -> Optional[float]:
     """Fetch BTC/USDT spot price from Binance.com with cache fallback.
 
     On failure, returns the last successful price if it's within SPOT_CACHE_TTL.
     Retries once after SPOT_RETRY_DELAY seconds before falling back to cache.
-    Expects the shared aiohttp session from main.py.
+    Expects the shared httpx client from main.py.
     """
     global _cached_price, _cached_at
 
-    price = await _fetch_binance(session)
+    price = await _fetch_binance(client)
     if price:
         _cached_price = price
         _cached_at = time.time()
@@ -151,7 +151,7 @@ async def fetch_spot_price(
     # First attempt failed — wait and retry once
     logger.info(f"Binance fetch failed, retrying in {config.SPOT_RETRY_DELAY}s")
     await asyncio.sleep(config.SPOT_RETRY_DELAY)
-    price = await _fetch_binance(session)
+    price = await _fetch_binance(client)
     if price:
         _cached_price = price
         _cached_at = time.time()
@@ -169,20 +169,20 @@ async def fetch_spot_price(
     return None
 
 
-async def _fetch_binance(session: aiohttp.ClientSession) -> Optional[float]:
+async def _fetch_binance(client: httpx.AsyncClient) -> Optional[float]:
     """Fetch from Binance.com API."""
     try:
-        async with session.get(config.BINANCE_SPOT_URL) as resp:
-            if resp.status != 200:
-                logger.debug(f"Binance spot API returned {resp.status}")
-                return None
-            data = await resp.json()
-            price = float(data.get("price", 0))
-            if price > 0:
-                logger.debug(f"Binance BTC/USDT spot: ${price:,.2f}")
-                health.record("Binance", True)
-                return price
+        resp = await client.get(config.BINANCE_SPOT_URL)
+        if resp.status_code != 200:
+            logger.debug(f"Binance spot API returned {resp.status_code}")
             return None
+        data = resp.json()
+        price = float(data.get("price", 0))
+        if price > 0:
+            logger.debug(f"Binance BTC/USDT spot: ${price:,.2f}")
+            health.record("Binance", True)
+            return price
+        return None
     except Exception as e:
         health.record("Binance", False)
         logger.warning(f"Binance spot fetch failed: {type(e).__name__}: {e}")
