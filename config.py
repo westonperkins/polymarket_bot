@@ -36,6 +36,8 @@ SPOT_POLL_IDLE_INTERVAL = 60       # seconds between samples outside active wind
 SPOT_ACTIVE_WINDOW = 120           # seconds before close to start active polling
 SPOT_RETRY_DELAY = 10              # seconds between retries on fetch failure
 SPOT_CACHE_TTL = 90                # seconds a cached spot price remains valid
+SESSION_MAX_AGE = 120              # recreate HTTP session every 2 minutes
+SESSION_FAILURE_THRESHOLD = 2      # recreate after N consecutive request failures
 
 # ── Signal Thresholds ──────────────────────────────────────────────────
 # Chainlink vs Spot divergence — "significant" threshold in USD

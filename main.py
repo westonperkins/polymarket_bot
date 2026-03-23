@@ -4,6 +4,7 @@ import asyncio
 import logging
 import signal
 import sys
+import time as _time_module
 
 import aiohttp
 
@@ -96,16 +97,102 @@ dashboard = Dashboard(engine, portfolio, conn)
 pending_trades: dict[str, int] = {}
 
 
+# ── Session manager ───────────────────────────────────────────────────────
+class SessionManager:
+    """Manages aiohttp session lifecycle with periodic rotation and health checks.
+
+    - Recreates both connector and session every SESSION_MAX_AGE seconds (2 min)
+    - Recreates immediately after SESSION_FAILURE_THRESHOLD consecutive failures
+    - Logs every recreation for diagnostics
+    """
+
+    def __init__(self) -> None:
+        self._session: aiohttp.ClientSession | None = None
+        self._created_at: float = 0.0
+        self._consecutive_failures: int = 0
+        self._creation_count: int = 0
+
+    def _create_session(self) -> aiohttp.ClientSession:
+        """Create a fresh connector + session pair."""
+        connector = aiohttp.TCPConnector(
+            limit=20,
+            limit_per_host=5,
+            ttl_dns_cache=300,
+            enable_cleanup_closed=True,
+        )
+        session = aiohttp.ClientSession(
+            connector=connector,
+            timeout=aiohttp.ClientTimeout(total=15, connect=5),
+        )
+        self._created_at = _time_module.time()
+        self._consecutive_failures = 0
+        self._creation_count += 1
+        logger.info(f"HTTP session created (#{self._creation_count})")
+        return session
+
+    @property
+    def session(self) -> aiohttp.ClientSession:
+        """Return the current session, rotating if stale or closed."""
+        now = _time_module.time()
+        needs_rotation = (
+            self._session is None
+            or self._session.closed
+            or (now - self._created_at) >= config.SESSION_MAX_AGE
+        )
+        if needs_rotation:
+            old = self._session
+            self._session = self._create_session()
+            if old and not old.closed:
+                asyncio.get_event_loop().create_task(self._close_old(old))
+        return self._session
+
+    def record_success(self) -> None:
+        """Reset failure counter on a successful request."""
+        self._consecutive_failures = 0
+
+    def record_failure(self) -> None:
+        """Track a failed request; recreate session after threshold."""
+        self._consecutive_failures += 1
+        if self._consecutive_failures >= config.SESSION_FAILURE_THRESHOLD:
+            logger.warning(
+                f"Session unhealthy ({self._consecutive_failures} consecutive failures) — recreating"
+            )
+            old = self._session
+            self._session = self._create_session()
+            if old and not old.closed:
+                asyncio.get_event_loop().create_task(self._close_old(old))
+
+    async def _close_old(self, old_session: aiohttp.ClientSession) -> None:
+        """Close a retired session in the background."""
+        try:
+            await old_session.close()
+        except Exception:
+            pass
+
+    async def close(self) -> None:
+        """Shut down the current session (called on bot exit)."""
+        if self._session and not self._session.closed:
+            await self._session.close()
+            self._session = None
+
+
+session_mgr = SessionManager()
+
+
 # ── Spot price polling task ─────────────────────────────────────────────
-async def poll_spot_price(session: aiohttp.ClientSession):
+async def poll_spot_price():
     """Adaptively sample spot price: every 5s in the 2-min active window, every 60s otherwise."""
     while engine.running:
         try:
-            price = await fetch_spot_price(session=session)
+            price = await fetch_spot_price(session=session_mgr.session)
             if price:
                 spot_tracker.record(price)
+                session_mgr.record_success()
+            else:
+                session_mgr.record_failure()
         except Exception as e:
             logger.warning(f"Spot price poll failed: {type(e).__name__}: {e}")
+            session_mgr.record_failure()
 
         # Use active (5s) polling when within 2 minutes of market close
         secs = engine.seconds_until_close()
@@ -155,12 +242,13 @@ async def on_signal_window(
     try:
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
-        # ── Fetch all signals in parallel ───────────────────────────────
-        chainlink_task = fetch_chainlink_price(session=session)
-        spot_task = fetch_spot_price(session=session)
-        cvd_task = fetch_cvd(session=session)
-        orderbook_task = fetch_orderbook(session=session)
-        liq_task = fetch_liquidations(session=session)
+        # ── Fetch all signals in parallel (use managed session) ───────
+        sig_session = session_mgr.session
+        chainlink_task = fetch_chainlink_price(session=sig_session)
+        spot_task = fetch_spot_price(session=sig_session)
+        cvd_task = fetch_cvd(session=sig_session)
+        orderbook_task = fetch_orderbook(session=sig_session)
+        liq_task = fetch_liquidations(session=sig_session)
 
         chainlink_price, spot_price, cvd_result, ob_result, liq_result = (
             await asyncio.gather(
@@ -297,7 +385,7 @@ async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
 
         # Resolve in background so the engine can move on to the next market
         asyncio.create_task(
-            _resolve_in_background(market, trade_id, session)
+            _resolve_in_background(market, trade_id)
         )
         dashboard.status_message = (
             f"Market closed — resolving {market.slug} in background..."
@@ -307,12 +395,12 @@ async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
         dashboard.status_message = f"ERROR: Market close handler failed"
 
 
-async def _resolve_in_background(market: MarketInfo, trade_id: int, session: aiohttp.ClientSession):
+async def _resolve_in_background(market: MarketInfo, trade_id: int):
     """Background task to wait for Polymarket resolution and settle the trade."""
     try:
         logger.info(f"Background resolution started for {market.slug} (trade {trade_id})")
         winning_side = await resolve_market(
-            market.condition_id, market.slug, session=session
+            market.condition_id, market.slug, session=session_mgr.session
         )
 
         if winning_side:
@@ -333,18 +421,6 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int, session: aio
 
 async def run():
     """Start all tasks: timing engine, spot poller, and web server."""
-    # ── Shared HTTP session for all signal modules ────────────────────
-    connector = aiohttp.TCPConnector(
-        limit=20,
-        limit_per_host=5,
-        ttl_dns_cache=300,
-        enable_cleanup_closed=True,
-    )
-    shared_session = aiohttp.ClientSession(
-        connector=connector,
-        timeout=aiohttp.ClientTimeout(total=15, connect=5),
-    )
-
     # Wire callbacks
     engine.on_market_discovered = on_market_discovered
     engine.on_signal_window = on_signal_window
@@ -353,7 +429,7 @@ async def run():
 
     # Start engine and spot poller as concurrent tasks
     engine_task = asyncio.create_task(engine.run())
-    poller_task = asyncio.create_task(poll_spot_price(shared_session))
+    poller_task = asyncio.create_task(poll_spot_price())
 
     # Start web dashboard server
     web_runner = await start_web_server(engine, portfolio, conn, dashboard)
@@ -379,7 +455,7 @@ async def run():
             await poller_task
         except asyncio.CancelledError:
             pass
-        await shared_session.close()
+        await session_mgr.close()
         conn.close()
 
 
