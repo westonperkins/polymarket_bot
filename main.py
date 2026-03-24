@@ -411,7 +411,8 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int):
     try:
         logger.info(f"Background resolution started for {market.slug} (trade {trade_id})")
         winning_side = await resolve_market(
-            market.condition_id, market.slug, client=session_mgr.client
+            market.condition_id, market.slug,
+            client_factory=lambda: session_mgr.client,
         )
 
         if winning_side:

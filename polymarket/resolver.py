@@ -8,7 +8,7 @@ and resolution becoming available.
 import asyncio
 import json
 import logging
-from typing import Optional
+from typing import Callable, Optional
 
 import httpx
 
@@ -25,27 +25,35 @@ async def resolve_market(
     condition_id: str,
     slug: str,
     client: httpx.AsyncClient | None = None,
+    client_factory: Callable[[], httpx.AsyncClient] | None = None,
 ) -> Optional[str]:
     """Wait for and return the winning side of a resolved market.
 
     Retries up to MAX_RESOLUTION_ATTEMPTS times with RESOLUTION_RETRY_DELAY
     between attempts, since resolution may lag behind market close.
 
+    If client_factory is provided, it's called on each attempt to get a fresh
+    client — this survives session rotations that close old clients.
+    If only client is provided, it's reused for all attempts.
+
     Returns: "Up", "Down", or None if resolution could not be determined.
     """
-    close_client = client is None
+    close_client = client is None and client_factory is None
     if close_client:
         client = httpx.AsyncClient(timeout=httpx.Timeout(config.SIGNAL_FETCH_TIMEOUT))
+
     try:
         for attempt in range(1, MAX_RESOLUTION_ATTEMPTS + 1):
+            c = client_factory() if client_factory else client
+
             # Try CLOB first (most explicit)
-            winner = await _resolve_via_clob(condition_id, client)
+            winner = await _resolve_via_clob(condition_id, c)
             if winner:
                 logger.info(f"Market {slug} resolved: {winner} (CLOB, attempt {attempt})")
                 return winner
 
             # Fallback to Gamma
-            winner = await _resolve_via_gamma(slug, client)
+            winner = await _resolve_via_gamma(slug, c)
             if winner:
                 logger.info(f"Market {slug} resolved: {winner} (Gamma, attempt {attempt})")
                 return winner
@@ -61,7 +69,7 @@ async def resolve_market(
         logger.warning(f"Could not resolve market {slug} after {MAX_RESOLUTION_ATTEMPTS} attempts")
         return None
     finally:
-        if close_client:
+        if close_client and client:
             await client.aclose()
 
 
