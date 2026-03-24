@@ -334,6 +334,10 @@ async def on_signal_window(
         decision = decide(v_momentum, v_reversion, v_structure)
 
         # ── Build signal data dict for DB + dashboard ───────────────────
+        from datetime import datetime, timezone
+        now_utc = datetime.now(timezone.utc)
+        secs_to_close = engine.seconds_until_close() or 0
+
         signal_data = {
             "chainlink_price": chainlink_price,
             "spot_price": spot_price,
@@ -355,6 +359,25 @@ async def on_signal_window(
             "reversion_vote": v_reversion,
             "structure_vote": v_structure,
             "final_vote": decision.side or "ABSTAIN",
+            # ML features
+            "up_odds": odds.up_price,
+            "down_odds": odds.down_price,
+            "seconds_before_close": secs_to_close,
+            "cvd_buy_volume": cvd_result.buy_volume if cvd_result else None,
+            "cvd_sell_volume": cvd_result.sell_volume if cvd_result else None,
+            "cvd_trade_count": cvd_result.trade_count if cvd_result else None,
+            "ob_bid_volume": ob_result.bid_volume if ob_result else None,
+            "ob_ask_volume": ob_result.ask_volume if ob_result else None,
+            "liq_long_usd": liq_result.long_liquidated_usd if liq_result else None,
+            "liq_short_usd": liq_result.short_liquidated_usd if liq_result else None,
+            "poly_book_up_bids": poly_book.up_bid_volume if poly_book else None,
+            "poly_book_up_asks": poly_book.up_ask_volume if poly_book else None,
+            "poly_book_down_bids": poly_book.down_bid_volume if poly_book else None,
+            "poly_book_down_asks": poly_book.down_ask_volume if poly_book else None,
+            "poly_book_bias": poly_book.bias if poly_book else None,
+            "momentum_direction": momentum.direction if momentum else None,
+            "hour_of_day": now_utc.hour,
+            "day_of_week": now_utc.weekday(),
         }
 
         # Update dashboard

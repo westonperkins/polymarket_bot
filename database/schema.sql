@@ -47,8 +47,56 @@ CREATE TABLE IF NOT EXISTS signals (
     reversion_vote TEXT CHECK (reversion_vote IN ('Up', 'Down', 'ABSTAIN')),
     structure_vote TEXT CHECK (structure_vote IN ('Up', 'Down', 'ABSTAIN')),
     final_vote TEXT CHECK (final_vote IN ('Up', 'Down', 'ABSTAIN')),
+    -- ML features added for future model training
+    up_odds DOUBLE PRECISION,                -- Polymarket Up price at signal time
+    down_odds DOUBLE PRECISION,              -- Polymarket Down price at signal time
+    seconds_before_close DOUBLE PRECISION,   -- how many seconds before market close
+    cvd_buy_volume DOUBLE PRECISION,         -- aggressive buy volume (BTC)
+    cvd_sell_volume DOUBLE PRECISION,        -- aggressive sell volume (BTC)
+    cvd_trade_count INTEGER,                 -- number of trades in CVD window
+    ob_bid_volume DOUBLE PRECISION,          -- Binance bid volume near mid
+    ob_ask_volume DOUBLE PRECISION,          -- Binance ask volume near mid
+    liq_long_usd DOUBLE PRECISION,           -- long liquidation value (USD)
+    liq_short_usd DOUBLE PRECISION,          -- short liquidation value (USD)
+    poly_book_up_bids DOUBLE PRECISION,      -- Polymarket Up token bid depth
+    poly_book_up_asks DOUBLE PRECISION,      -- Polymarket Up token ask depth
+    poly_book_down_bids DOUBLE PRECISION,    -- Polymarket Down token bid depth
+    poly_book_down_asks DOUBLE PRECISION,    -- Polymarket Down token ask depth
+    poly_book_bias DOUBLE PRECISION,         -- net Polymarket book bias
+    momentum_direction TEXT,                 -- "bullish", "bearish", "neutral"
+    hour_of_day INTEGER,                     -- UTC hour (0-23)
+    day_of_week INTEGER,                     -- 0=Mon, 6=Sun
+    fill_price_per_share DOUBLE PRECISION,   -- actual fill price (live only)
+    fill_slippage_pct DOUBLE PRECISION,      -- % slippage from quoted odds (live only)
     FOREIGN KEY (trade_id) REFERENCES trades (id)
 );
+
+-- Migration: add ML columns if they don't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'signals' AND column_name = 'up_odds') THEN
+        ALTER TABLE signals ADD COLUMN up_odds DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN down_odds DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN seconds_before_close DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN cvd_buy_volume DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN cvd_sell_volume DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN cvd_trade_count INTEGER;
+        ALTER TABLE signals ADD COLUMN ob_bid_volume DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN ob_ask_volume DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN liq_long_usd DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN liq_short_usd DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN poly_book_up_bids DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN poly_book_up_asks DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN poly_book_down_bids DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN poly_book_down_asks DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN poly_book_bias DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN momentum_direction TEXT;
+        ALTER TABLE signals ADD COLUMN hour_of_day INTEGER;
+        ALTER TABLE signals ADD COLUMN day_of_week INTEGER;
+        ALTER TABLE signals ADD COLUMN fill_price_per_share DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN fill_slippage_pct DOUBLE PRECISION;
+    END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,

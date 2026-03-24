@@ -519,6 +519,27 @@ def insert_signals(
     reversion_vote: Optional[str] = None,
     structure_vote: Optional[str] = None,
     final_vote: Optional[str] = None,
+    # ML features
+    up_odds: Optional[float] = None,
+    down_odds: Optional[float] = None,
+    seconds_before_close: Optional[float] = None,
+    cvd_buy_volume: Optional[float] = None,
+    cvd_sell_volume: Optional[float] = None,
+    cvd_trade_count: Optional[int] = None,
+    ob_bid_volume: Optional[float] = None,
+    ob_ask_volume: Optional[float] = None,
+    liq_long_usd: Optional[float] = None,
+    liq_short_usd: Optional[float] = None,
+    poly_book_up_bids: Optional[float] = None,
+    poly_book_up_asks: Optional[float] = None,
+    poly_book_down_bids: Optional[float] = None,
+    poly_book_down_asks: Optional[float] = None,
+    poly_book_bias: Optional[float] = None,
+    momentum_direction: Optional[str] = None,
+    hour_of_day: Optional[int] = None,
+    day_of_week: Optional[int] = None,
+    fill_price_per_share: Optional[float] = None,
+    fill_slippage_pct: Optional[float] = None,
 ) -> int:
     """Insert a signal snapshot for a trade and return its id."""
     with _cursor(conn) as cur:
@@ -528,8 +549,17 @@ def insert_signals(
                 candle_position_dollars, momentum_60s, momentum_120s, cvd,
                 order_book_ratio, liquidation_signal, round_number_distance,
                 time_regime, candle_streak, momentum_vote, reversion_vote,
-                structure_vote, final_vote)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                structure_vote, final_vote,
+                up_odds, down_odds, seconds_before_close,
+                cvd_buy_volume, cvd_sell_volume, cvd_trade_count,
+                ob_bid_volume, ob_ask_volume,
+                liq_long_usd, liq_short_usd,
+                poly_book_up_bids, poly_book_up_asks,
+                poly_book_down_bids, poly_book_down_asks, poly_book_bias,
+                momentum_direction, hour_of_day, day_of_week,
+                fill_price_per_share, fill_slippage_pct)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 trade_id,
@@ -549,6 +579,14 @@ def insert_signals(
                 reversion_vote,
                 structure_vote,
                 final_vote,
+                up_odds, down_odds, seconds_before_close,
+                cvd_buy_volume, cvd_sell_volume, cvd_trade_count,
+                ob_bid_volume, ob_ask_volume,
+                liq_long_usd, liq_short_usd,
+                poly_book_up_bids, poly_book_up_asks,
+                poly_book_down_bids, poly_book_down_asks, poly_book_bias,
+                momentum_direction, hour_of_day, day_of_week,
+                fill_price_per_share, fill_slippage_pct,
             ),
         )
         signal_id = cur.fetchone()["id"]

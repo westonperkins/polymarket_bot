@@ -153,6 +153,9 @@ class LiveSimulator:
             pnl=0.0,
             portfolio_balance_after=self._tracked_balance,
         )
+        # Add fill quality data to signal record for ML training
+        signal_data["fill_price_per_share"] = effective_price
+        signal_data["fill_slippage_pct"] = slippage_pct
         self._save_signals(trade_id, signal_data)
 
         logger.info(
