@@ -51,12 +51,15 @@ class TimingEngine:
         """Create a fresh httpx async client with HTTP/2 multiplexing."""
         transport = httpx.AsyncHTTPTransport(
             http2=True,
-            keepalive_expiry=30,    # close idle connections after 30s
             retries=1,              # retry once on dead connections
         )
         return httpx.AsyncClient(
             transport=transport,
-            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+            limits=httpx.Limits(
+                max_connections=20,
+                max_keepalive_connections=10,
+                keepalive_expiry=30,    # close idle connections after 30s
+            ),
             timeout=httpx.Timeout(15.0, connect=5.0),
         )
 
