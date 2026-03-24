@@ -197,8 +197,10 @@ session_mgr = SessionManager()
 async def poll_spot_price():
     """Adaptively sample spot price: 5s active, 60s tracking, 180s between markets."""
     while engine.running:
+        logger.info("spot-poll: start")
         try:
             price = await fetch_spot_price(client=session_mgr.client)
+            logger.info(f"spot-poll: fetch returned {price}")
             if price:
                 spot_tracker.record(price)
                 session_mgr.record_success()
@@ -216,6 +218,7 @@ async def poll_spot_price():
             interval = config.SPOT_POLL_BETWEEN_MARKETS        # 180s idle gap
         else:
             interval = config.SPOT_POLL_IDLE_INTERVAL          # 60s tracking
+        logger.info(f"spot-poll: sleeping {interval}s")
         await asyncio.sleep(interval)
 
 
