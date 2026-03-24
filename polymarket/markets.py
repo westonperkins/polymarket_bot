@@ -1,13 +1,13 @@
 """Fetch BTC 5-minute Up/Down market metadata from Polymarket Gamma API."""
 
+import asyncio
 import json
 import logging
-import math
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-import httpx
+import aiohttp
 
 import config
 from network_health import health
@@ -17,14 +17,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class MarketInfo:
-    """Metadata for a single BTC 5-minute Up/Down market."""
     event_id: str
     market_id: str
     condition_id: str
     slug: str
     title: str
-    start_time: datetime      # opening price timestamp (UTC)
-    end_time: datetime         # close/resolution timestamp (UTC)
+    start_time: datetime
+    end_time: datetime
     clob_token_id_up: str
     clob_token_id_down: str
     active: bool
@@ -32,11 +31,6 @@ class MarketInfo:
 
 
 def _current_candle_start(now_unix: float | None = None) -> int:
-    """Return the Unix timestamp of the current candle's start time.
-
-    Polymarket slugs use the candle START time (not close time).
-    E.g. the 5:40-5:45 candle has slug btc-updown-5m-{5:40 unix}.
-    """
     now = now_unix or time.time()
     return int(now // 300) * 300
 
@@ -46,7 +40,6 @@ def _build_slug(close_unix: int) -> str:
 
 
 def _parse_market(event: dict) -> MarketInfo | None:
-    """Parse a Gamma API event response into a MarketInfo."""
     markets = event.get("markets", [])
     if not markets:
         return None
@@ -54,7 +47,6 @@ def _parse_market(event: dict) -> MarketInfo | None:
 
     outcomes = m.get("outcomes", [])
     clob_ids = m.get("clobTokenIds", [])
-    # Gamma API sometimes returns these as JSON strings instead of arrays
     if isinstance(outcomes, str):
         outcomes = json.loads(outcomes)
     if isinstance(clob_ids, str):
@@ -62,7 +54,6 @@ def _parse_market(event: dict) -> MarketInfo | None:
     if len(outcomes) < 2 or len(clob_ids) < 2:
         return None
 
-    # Map token IDs to Up/Down
     up_idx = outcomes.index("Up") if "Up" in outcomes else 0
     down_idx = outcomes.index("Down") if "Down" in outcomes else 1
 
@@ -84,37 +75,33 @@ def _parse_market(event: dict) -> MarketInfo | None:
     )
 
 
-async def fetch_market_by_slug(slug: str, client: httpx.AsyncClient | None = None) -> MarketInfo | None:
-    """Fetch a specific market by its slug with retry logic. Returns None on failure."""
-    import asyncio as _asyncio
-
+async def fetch_market_by_slug(slug: str, session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
+    """Fetch a specific market by its slug with retry logic."""
     url = f"{config.POLYMARKET_GAMMA_URL.replace('/markets', '/events')}?slug={slug}"
-
-    close_client = client is None
-    if close_client:
-        client = httpx.AsyncClient(timeout=httpx.Timeout(15))
-
+    close_session = session is None
+    if close_session:
+        session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15))
     try:
         for attempt in range(1, 3):
             try:
-                resp = await client.get(url, timeout=15)
-                if resp.status_code != 200:
-                    logger.warning(f"fetch_market_by_slug({slug}) HTTP {resp.status_code} (attempt {attempt}/2)")
-                    if attempt < 2:
-                        await _asyncio.sleep(3)
-                        continue
-                    return None
-                data = resp.json()
-                if not data:
-                    return None
-                event = data[0] if isinstance(data, list) else data
-                health.record("Gamma", True)
-                return _parse_market(event)
-            except (httpx.HTTPError, _asyncio.TimeoutError, TimeoutError, OSError, ConnectionError) as e:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                    if resp.status != 200:
+                        logger.warning(f"fetch_market_by_slug({slug}) HTTP {resp.status} (attempt {attempt}/2)")
+                        if attempt < 2:
+                            await asyncio.sleep(3)
+                            continue
+                        return None
+                    data = await resp.json()
+                    if not data:
+                        return None
+                    event = data[0] if isinstance(data, list) else data
+                    health.record("Gamma", True)
+                    return _parse_market(event)
+            except (aiohttp.ClientError, asyncio.TimeoutError, TimeoutError, OSError, ConnectionError) as e:
                 health.record("Gamma", False)
                 logger.warning(f"fetch_market_by_slug({slug}) attempt {attempt}/2 failed: {type(e).__name__}")
                 if attempt < 2:
-                    await _asyncio.sleep(3)
+                    await asyncio.sleep(3)
                     continue
                 return None
             except Exception as e:
@@ -122,37 +109,25 @@ async def fetch_market_by_slug(slug: str, client: httpx.AsyncClient | None = Non
                 return None
         return None
     finally:
-        if close_client:
-            await client.aclose()
+        if close_session:
+            await session.close()
 
 
-async def fetch_next_market(client: httpx.AsyncClient | None = None) -> MarketInfo | None:
-    """Find the next upcoming BTC 5-minute Up/Down market.
-
-    Tries the next few 5-minute boundaries in case the immediate next one
-    isn't listed yet.
-    """
+async def fetch_next_market(session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
     now = time.time()
     now_utc = datetime.now(timezone.utc)
     candle_start = _current_candle_start(now)
     for offset in range(1, 5):
         start_ts = candle_start + (offset * 300)
         slug = _build_slug(start_ts)
-        market = await fetch_market_by_slug(slug, client=client)
+        market = await fetch_market_by_slug(slug, session=session)
         if market and market.end_time > now_utc:
             return market
     return None
 
 
-async def fetch_current_market(client: httpx.AsyncClient | None = None) -> MarketInfo | None:
-    """Find the currently active (not yet ended) BTC 5-minute market.
-
-    Polymarket slugs use the candle START time. So at 5:42, the current
-    candle started at 5:40 and its slug is btc-updown-5m-{5:40 unix}.
-
-    If the API times out for the current candle, we construct a minimal
-    MarketInfo from the slug rather than skipping ahead to a future candle.
-    """
+async def fetch_current_market(session: aiohttp.ClientSession | None = None) -> MarketInfo | None:
+    """Find the currently active BTC 5-minute market."""
     now = time.time()
     now_utc = datetime.now(timezone.utc)
     candle_start = _current_candle_start(now)
@@ -162,13 +137,12 @@ async def fetch_current_market(client: httpx.AsyncClient | None = None) -> Marke
         end_ts = start_ts + 300
         slug = _build_slug(start_ts)
 
-        # Skip if this candle has already ended
         end_dt = datetime.fromtimestamp(end_ts, tz=timezone.utc)
         if end_dt <= now_utc:
             logger.info(f"Market discovery: {slug} already ended, skipping")
             continue
 
-        market = await fetch_market_by_slug(slug, client=client)
+        market = await fetch_market_by_slug(slug, session=session)
         if market is not None:
             if market.end_time <= now_utc:
                 logger.info(f"Market discovery: {slug} already ended (API confirmed), skipping")
@@ -179,25 +153,16 @@ async def fetch_current_market(client: httpx.AsyncClient | None = None) -> Marke
             )
             return market
 
-        # API returned None — could be a timeout or genuinely not found.
-        # For the current candle (offset 0), construct a fallback MarketInfo
-        # so we don't skip ahead to a future candle due to network issues.
         if offset == 0:
-            logger.warning(
-                f"Market discovery: {slug} API failed — using fallback for current candle"
-            )
+            logger.warning(f"Market discovery: {slug} API failed — using fallback for current candle")
             return MarketInfo(
-                event_id="",
-                market_id="",
-                condition_id="",
+                event_id="", market_id="", condition_id="",
                 slug=slug,
                 title=f"BTC 5-min (fallback) — ends {end_dt.strftime('%H:%M UTC')}",
                 start_time=datetime.fromtimestamp(start_ts, tz=timezone.utc),
                 end_time=end_dt,
-                clob_token_id_up="",
-                clob_token_id_down="",
-                active=True,
-                closed=False,
+                clob_token_id_up="", clob_token_id_down="",
+                active=True, closed=False,
             )
 
         logger.info(f"Market discovery: {slug} not found on API")

@@ -1,20 +1,11 @@
-"""Cumulative Volume Delta (CVD) from Binance recent trades.
-
-CVD = sum of (buy volume - sell volume) over a time window.
-Positive CVD = aggressive buying pressure.
-Negative CVD = aggressive selling pressure.
-
-Binance marks each trade with isBuyerMaker:
-  - isBuyerMaker=False -> buyer is taker (aggressive buy)
-  - isBuyerMaker=True  -> seller is taker (aggressive sell)
-"""
+"""Cumulative Volume Delta (CVD) from Binance recent trades."""
 
 import logging
 import time
 from dataclasses import dataclass
 from typing import Optional
 
-import httpx
+import aiohttp
 
 import config
 
@@ -23,70 +14,59 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CVDResult:
-    """Cumulative Volume Delta over the configured window."""
-    cvd: float              # net buy - sell volume in BTC
-    buy_volume: float       # total aggressive buy volume in BTC
-    sell_volume: float      # total aggressive sell volume in BTC
-    trade_count: int        # number of trades in the window
-    direction: str          # "bullish", "bearish", or "neutral"
+    cvd: float
+    buy_volume: float
+    sell_volume: float
+    trade_count: int
+    direction: str
 
 
 async def fetch_cvd(
-    client: httpx.AsyncClient,
+    session: aiohttp.ClientSession,
 ) -> Optional[CVDResult]:
-    """Fetch recent trades from Binance and compute CVD over the last 120s.
-
-    Returns None on API failure. Expects the shared httpx client from main.py.
-    """
+    """Fetch recent trades from Binance and compute CVD over the last 120s."""
     try:
-        resp = await client.get(config.BINANCE_TRADES_URL)
-        if resp.status_code != 200:
-            logger.warning(f"Binance trades API returned {resp.status_code}")
-            return None
-        trades = resp.json()
+        async with session.get(config.BINANCE_TRADES_URL) as resp:
+            if resp.status != 200:
+                logger.warning(f"Binance trades API returned {resp.status}")
+                return None
+            trades = await resp.json()
 
-        if not trades:
-            return None
+            if not trades:
+                return None
 
-        cutoff = time.time() * 1000 - config.CVD_WINDOW * 1000  # ms
-        buy_vol = 0.0
-        sell_vol = 0.0
-        count = 0
+            cutoff = time.time() * 1000 - config.CVD_WINDOW * 1000
+            buy_vol = 0.0
+            sell_vol = 0.0
+            count = 0
 
-        for t in trades:
-            if t["time"] < cutoff:
-                continue
-            qty = float(t["qty"])
-            if t["isBuyerMaker"]:
-                sell_vol += qty   # seller is taker -> aggressive sell
+            for t in trades:
+                if t["time"] < cutoff:
+                    continue
+                qty = float(t["qty"])
+                if t["isBuyerMaker"]:
+                    sell_vol += qty
+                else:
+                    buy_vol += qty
+                count += 1
+
+            cvd = buy_vol - sell_vol
+            total = buy_vol + sell_vol
+            if total == 0:
+                direction = "neutral"
+            elif cvd / total > 0.20:
+                direction = "bullish"
+            elif cvd / total < -0.20:
+                direction = "bearish"
             else:
-                buy_vol += qty    # buyer is taker -> aggressive buy
-            count += 1
+                direction = "neutral"
 
-        cvd = buy_vol - sell_vol
+            logger.debug(f"CVD: {cvd:+.4f} BTC ({count} trades) -> {direction}")
 
-        # Classify direction — require meaningful imbalance (>20% of total)
-        total = buy_vol + sell_vol
-        if total == 0:
-            direction = "neutral"
-        elif cvd / total > 0.20:
-            direction = "bullish"
-        elif cvd / total < -0.20:
-            direction = "bearish"
-        else:
-            direction = "neutral"
-
-        logger.debug(
-            f"CVD: {cvd:+.4f} BTC ({count} trades, buy={buy_vol:.4f}, sell={sell_vol:.4f}) -> {direction}"
-        )
-
-        return CVDResult(
-            cvd=cvd,
-            buy_volume=buy_vol,
-            sell_volume=sell_vol,
-            trade_count=count,
-            direction=direction,
-        )
+            return CVDResult(
+                cvd=cvd, buy_volume=buy_vol, sell_volume=sell_vol,
+                trade_count=count, direction=direction,
+            )
     except Exception as e:
         logger.warning(f"Failed to compute CVD: {type(e).__name__}: {e}")
         return None
