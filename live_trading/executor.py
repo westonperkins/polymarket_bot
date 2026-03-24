@@ -123,6 +123,8 @@ class Executor:
             Order response dict on success, None on failure.
         """
         try:
+            # CLOB requires maker amount to have max 2 decimal places
+            amount = round(amount, 2)
             order_args = MarketOrderArgs(
                 token_id=token_id,
                 amount=amount,

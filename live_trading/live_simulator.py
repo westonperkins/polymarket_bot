@@ -63,7 +63,7 @@ class LiveSimulator:
         # Determine entry odds and position size
         entry_odds = odds.up_price if decision.side == "Up" else odds.down_price
         payout_rate = calculate_payout_rate(entry_odds)
-        position_size = self._portfolio.position_size(decision.confidence)
+        position_size = round(self._portfolio.position_size(decision.confidence), 2)
 
         # Risk check
         allowed, reason = self._risk.check_trade_allowed(position_size)
