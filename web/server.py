@@ -4,8 +4,10 @@ Runs on the same asyncio event loop as the timing engine.
 Serves a single-page dashboard at localhost and a JSON API endpoint.
 """
 
+import asyncio
 import logging
 from dataclasses import asdict
+from functools import partial
 from pathlib import Path
 
 from aiohttp import web
@@ -153,17 +155,26 @@ async def handle_index(request):
 
 
 async def handle_api_state(request):
-    """Return full dashboard state as JSON."""
+    """Return full dashboard state as JSON.
+
+    Runs build_state_dict in a thread pool to avoid blocking the event loop
+    with synchronous psycopg2 database queries.
+    """
     try:
         mode = request.query.get("mode", config.TRADING_MODE)
         if mode == "all":
-            mode = None  # no filter
-        state = build_state_dict(
-            request.app["engine"],
-            request.app["portfolio"],
-            request.app["conn"],
-            request.app["dashboard"],
-            mode=mode,
+            mode = None
+        loop = asyncio.get_event_loop()
+        state = await loop.run_in_executor(
+            None,
+            partial(
+                build_state_dict,
+                request.app["engine"],
+                request.app["portfolio"],
+                request.app["conn"],
+                request.app["dashboard"],
+                mode=mode,
+            ),
         )
         return web.json_response(state)
     except Exception as e:
@@ -171,7 +182,7 @@ async def handle_api_state(request):
         return web.json_response(
             {"error": str(e), "portfolio": None, "market": None,
              "signals": None, "decision": None, "trades": [], "status": f"Dashboard error: {e}"},
-            status=200,  # 200 so frontend doesn't break
+            status=200,
         )
 
 
@@ -181,7 +192,10 @@ async def handle_calendar(request):
 
 
 async def handle_api_calendar(request):
-    """Return calendar P&L data as JSON."""
+    """Return calendar P&L data as JSON.
+
+    Runs DB queries in a thread pool to avoid blocking the event loop.
+    """
     try:
         conn = request.app["conn"]
         year = int(request.query.get("year", 0))
@@ -198,11 +212,12 @@ async def handle_api_calendar(request):
             year = year or now.year
             month = month or now.month
 
+        loop = asyncio.get_event_loop()
         if view == "year":
-            data = db.get_monthly_pnl(conn, year, mode=mode)
+            data = await loop.run_in_executor(None, partial(db.get_monthly_pnl, conn, year, mode=mode))
             return web.json_response({"year": year, "view": "year", "data": data})
         else:
-            data = db.get_calendar_pnl(conn, year, month, mode=mode)
+            data = await loop.run_in_executor(None, partial(db.get_calendar_pnl, conn, year, month, mode=mode))
             return web.json_response({"year": year, "month": month, "view": "month", "data": data})
     except Exception as e:
         logger.error(f"Calendar API error: {e}", exc_info=True)
