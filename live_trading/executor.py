@@ -163,18 +163,24 @@ class Executor:
                 amount=amount,
                 side=BUY,
                 price=max_price,
-                order_type=OrderType.FOK,
+                order_type=OrderType.FAK,
             )
             signed_order = self._client.create_market_order(order_args)
-            response = self._client.post_order(signed_order, OrderType.FOK)
+            response = self._client.post_order(signed_order, OrderType.FAK)
 
             # Extract actual fill amounts from CLOB response
             taking = float(response.get("takingAmount", 0)) if isinstance(response, dict) else 0
             making = float(response.get("makingAmount", 0)) if isinstance(response, dict) else 0
 
+            # FAK may fill zero if book is completely empty
+            if making == 0 or taking == 0:
+                logger.warning(f"Order got zero fill (empty book): ${amount:.2f} on token {token_id[:16]}...")
+                return None
+
+            fill_pct = round(making / amount * 100, 1) if amount > 0 else 0
             logger.info(
-                f"Order placed: ${amount:.2f} on token {token_id[:16]}... | "
-                f"cost=${making:.6f} shares={taking:.6f} -> {response}"
+                f"Order filled: ${making:.6f} of ${amount:.2f} ({fill_pct}%) | "
+                f"shares={taking:.6f} -> {response}"
             )
 
             # Attach parsed fill amounts for live_simulator
