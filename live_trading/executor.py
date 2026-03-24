@@ -82,6 +82,7 @@ class Executor:
         logger.info(f"  Signature type: {config.POLYMARKET_SIGNATURE_TYPE} "
                      f"({'EOA' if config.POLYMARKET_SIGNATURE_TYPE == 0 else 'Magic/Email' if config.POLYMARKET_SIGNATURE_TYPE == 1 else 'Browser proxy'})")
         logger.info(f"  Private key: {config.POLYMARKET_PRIVATE_KEY[:6]}...{config.POLYMARKET_PRIVATE_KEY[-4:]}")
+        self._last_order_error = ""
 
         try:
             self._client = ClobClient(
@@ -190,6 +191,8 @@ class Executor:
             return response
         except Exception as e:
             logger.error(f"Order placement failed: {type(e).__name__}: {e}")
+            # Return error details so caller can record the specific reason
+            self._last_order_error = str(e)
             return None
 
     def redeem_positions(self, condition_id: str) -> bool:

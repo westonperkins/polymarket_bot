@@ -113,7 +113,22 @@ class LiveSimulator:
         )
 
         if order_response is None:
-            logger.error(f"ORDER FAILED: {decision.side} on {market.slug}")
+            # Parse specific rejection reason from the error
+            err = self._executor._last_order_error.lower()
+            if "no orders found" in err or "no match" in err:
+                reject_reason = "empty_book"
+            elif "fully filled" in err:
+                reject_reason = "insufficient_liquidity"
+            elif "price" in err and ("min" in err or "max" in err):
+                reject_reason = "price_out_of_range"
+            elif "service not ready" in err or "too early" in err:
+                reject_reason = "service_unavailable"
+            elif "invalid amounts" in err or "decimals" in err:
+                reject_reason = "invalid_amount"
+            else:
+                reject_reason = "order_rejected"
+
+            logger.error(f"ORDER FAILED: {decision.side} on {market.slug} ({reject_reason})")
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
@@ -125,7 +140,7 @@ class LiveSimulator:
                 outcome="skip",
                 pnl=0.0,
                 portfolio_balance_after=self._tracked_balance,
-                skip_reason="order_rejected",
+                skip_reason=reject_reason,
             )
             self._save_signals(trade_id, signal_data)
             return None

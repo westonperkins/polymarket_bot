@@ -57,19 +57,17 @@ def query_state(conn):
     # Detailed skip breakdown
     cur.execute("""
         SELECT
-            COUNT(*) FILTER (WHERE COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) = 'no_consensus') AS no_consensus,
-            COUNT(*) FILTER (WHERE COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) = 'risk_blocked') AS risk_blocked,
-            COUNT(*) FILTER (WHERE COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) = 'order_rejected') AS order_rejected
+            COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) AS reason,
+            COUNT(*) AS cnt
         FROM trades t
         LEFT JOIN signals s ON s.trade_id = t.id
         WHERE t.trading_mode = 'live' AND t.outcome = 'skip'
+        GROUP BY reason
+        ORDER BY cnt DESC
     """)
-    sb = cur.fetchone()
-    skip_detail = {
-        "no_consensus": sb["no_consensus"] or 0,
-        "risk_blocked": sb["risk_blocked"] or 0,
-        "order_rejected": sb["order_rejected"] or 0,
-    }
+    skip_detail = {}
+    for row in cur.fetchall():
+        skip_detail[row["reason"]] = row["cnt"]
 
     stats = {
         "total": total, "wins": wins,
@@ -321,7 +319,7 @@ async function poll() {
         <div class="row"><span class="lbl">Win Rate</span><span class="val">${fmt(p.win_rate,1)}%</span></div>
         <div class="row"><span class="lbl">Trades</span><span class="val">${p.total}</span></div>
         <div class="row"><span class="lbl">Record</span><span class="val"><span class="pos">${p.wins}W</span> / <span class="neg">${p.losses}L</span></span></div>
-        <div class="row"><span class="lbl">Skips</span><span class="val">${p.skip_detail.no_consensus} no consensus / ${p.skip_detail.order_rejected} rejected / ${p.skip_detail.risk_blocked} risk blocked</span></div>
+        <div class="row"><span class="lbl">Skips</span><span class="val">${p.skips} total</span></div>
         <div class="row"><span class="lbl">Best Trade</span><span class="val pos">$+${fmt(p.best_trade)}</span></div>
         <div class="row"><span class="lbl">Worst Trade</span><span class="val neg">$${fmt(p.worst_trade)}</span></div>
         <div class="row"><span class="lbl">Peak Balance</span><span class="val">$${fmt(p.peak_balance)}</span></div>
@@ -349,14 +347,41 @@ async function poll() {
 
     // Skip breakdown pie chart
     const sd = p.skip_detail;
-    const skipData = [sd.no_consensus, sd.order_rejected, sd.risk_blocked];
-    const skipLabels = ['No Consensus', 'Order Rejected', 'Risk Blocked'];
-    const skipColors = ['#8b949e', '#f0883e', '#f85149'];
+    const colorMap = {
+      'no_consensus': '#8b949e',
+      'risk_blocked': '#f85149',
+      'order_rejected': '#f0883e',
+      'empty_book': '#d29922',
+      'insufficient_liquidity': '#e3b341',
+      'price_out_of_range': '#bc8cff',
+      'service_unavailable': '#58a6ff',
+      'invalid_amount': '#ff7b72',
+    };
+    const nameMap = {
+      'no_consensus': 'No Consensus',
+      'risk_blocked': 'Risk Blocked',
+      'order_rejected': 'Order Rejected',
+      'empty_book': 'Empty Book',
+      'insufficient_liquidity': 'Low Liquidity',
+      'price_out_of_range': 'Price Out of Range',
+      'service_unavailable': 'Service Unavailable',
+      'invalid_amount': 'Invalid Amount',
+    };
+    const skipLabels = []; const skipData = []; const skipColors = [];
+    for (const [key, count] of Object.entries(sd)) {
+      if (count > 0) {
+        skipLabels.push(nameMap[key] || key);
+        skipData.push(count);
+        skipColors.push(colorMap[key] || '#8b949e');
+      }
+    }
     const skipCtx = document.getElementById('skipChart').getContext('2d');
     if (skipChart) {
+      skipChart.data.labels = skipLabels;
       skipChart.data.datasets[0].data = skipData;
+      skipChart.data.datasets[0].backgroundColor = skipColors;
       skipChart.update('none');
-    } else if (skipData.some(v => v > 0)) {
+    } else if (skipData.length > 0) {
       skipChart = new Chart(skipCtx, {
         type: 'doughnut',
         data: {
@@ -385,9 +410,7 @@ async function poll() {
     let legendHtml = '';
     for (let i = 0; i < skipLabels.length; i++) {
       const pct = totalSkips > 0 ? Math.round(skipData[i] / totalSkips * 100) : 0;
-      if (skipData[i] > 0) {
-        legendHtml += '<div class="row"><span class="lbl"><span style="color:'+skipColors[i]+'">&#9679;</span> '+skipLabels[i]+'</span><span class="val">'+skipData[i]+' ('+pct+'%)</span></div>';
-      }
+      legendHtml += '<div class="row"><span class="lbl"><span style="color:'+skipColors[i]+'">&#9679;</span> '+skipLabels[i]+'</span><span class="val">'+skipData[i]+' ('+pct+'%)</span></div>';
     }
     document.getElementById('skipLegend').innerHTML = legendHtml;
 
