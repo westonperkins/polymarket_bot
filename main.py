@@ -26,6 +26,7 @@ from signals.cvd import fetch_cvd
 from signals.orderbook import fetch_orderbook
 from signals.liquidations import fetch_liquidations
 from signals.market_structure import compute_round_number, get_time_regime, compute_streak
+from signals.polymarket_book import fetch_polymarket_book
 from timing_engine import TimingEngine
 
 logging.basicConfig(
@@ -241,13 +242,17 @@ async def on_signal_window(
         # ── Fetch all signals in parallel ─────────────────────────────
         sig_session = session_mgr.session
 
-        chainlink_price, spot_price, cvd_result, ob_result, liq_result = (
+        chainlink_price, spot_price, cvd_result, ob_result, liq_result, poly_book = (
             await asyncio.gather(
                 fetch_chainlink_price(session=sig_session),
                 fetch_spot_price(session=sig_session),
                 fetch_cvd(session=sig_session),
                 fetch_orderbook(session=sig_session),
                 fetch_liquidations(session=sig_session),
+                fetch_polymarket_book(
+                    market.clob_token_id_up, market.clob_token_id_down,
+                    session=sig_session,
+                ),
                 return_exceptions=True,
             )
         )
@@ -268,6 +273,9 @@ async def on_signal_window(
         if isinstance(liq_result, Exception):
             logger.warning(f"Liquidation fetch error: {liq_result}")
             liq_result = None
+        if isinstance(poly_book, Exception):
+            logger.warning(f"Polymarket book fetch error: {poly_book}")
+            poly_book = None
 
         # Record latest spot for momentum if fresh
         if spot_price:
@@ -316,7 +324,7 @@ async def on_signal_window(
         )
 
         v_structure = structure_model.vote(
-            round_number=round_number,
+            polymarket_book=poly_book,
             liquidations=liq_result,
             time_regime=time_regime,
             candle_position_dollars=candle_position,
