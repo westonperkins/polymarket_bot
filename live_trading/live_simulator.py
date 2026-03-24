@@ -6,6 +6,7 @@ Bridges the ensemble decision, portfolio, database, and CLOB execution layers.
 import logging
 from typing import Optional
 
+import config
 from database import db
 from models.ensemble import EnsembleDecision
 from polymarket.markets import MarketInfo
@@ -90,10 +91,18 @@ class LiveSimulator:
             else market.clob_token_id_down
         )
 
-        # Place the real order
+        # Max price = quoted odds + slippage tolerance
+        max_price = entry_odds * (1.0 + config.LIVE_MAX_SLIPPAGE_PCT / 100.0)
+        logger.info(
+            f"Placing order: {decision.side} | quoted={entry_odds:.3f} "
+            f"max_price={max_price:.3f} ({config.LIVE_MAX_SLIPPAGE_PCT}% slippage)"
+        )
+
+        # Place the real order with price limit
         order_response = self._executor.place_market_order(
             token_id=token_id,
             amount=position_size,
+            max_price=max_price,
         )
 
         if order_response is None:
@@ -117,9 +126,16 @@ class LiveSimulator:
         fill_cost = order_response.get("_fill_cost", position_size)
         fill_shares = order_response.get("_fill_shares", 0)
 
-        # Real payout rate: if we win, we get fill_shares (each share pays $1)
-        # so profit = fill_shares - fill_cost, payout_rate = profit / fill_cost
+        # Fill quality analysis
+        effective_price = fill_cost / fill_shares if fill_shares > 0 else 0
+        slippage_pct = ((effective_price - entry_odds) / entry_odds * 100) if entry_odds > 0 else 0
         real_payout_rate = (fill_shares - fill_cost) / fill_cost if fill_cost > 0 else 0.0
+
+        logger.info(
+            f"FILL QUALITY: quoted=${entry_odds:.3f}/share actual=${effective_price:.3f}/share "
+            f"slippage={slippage_pct:+.1f}% | "
+            f"if_win=${fill_shares - fill_cost:.4f} if_loss=-${fill_cost:.4f}"
+        )
 
         trade_id = db.insert_trade(
             self._conn,

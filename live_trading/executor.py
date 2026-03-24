@@ -112,12 +112,14 @@ class Executor:
         self,
         token_id: str,
         amount: float,
+        max_price: float = 0,
     ) -> Optional[dict]:
-        """Place a market buy order (Fill-Or-Kill).
+        """Place a market buy order (Fill-Or-Kill) with optional price limit.
 
         Args:
             token_id: the CLOB token ID for the side to buy (Up or Down)
             amount: dollar amount to spend (USDC)
+            max_price: maximum price per share (0 = no limit)
 
         Returns:
             Order response dict on success, None on failure.
@@ -125,10 +127,13 @@ class Executor:
         try:
             # CLOB requires maker amount to have max 2 decimal places
             amount = round(amount, 2)
+            # Price must be rounded to 2 decimal places for the CLOB
+            max_price = round(max_price, 2) if max_price > 0 else 0
             order_args = MarketOrderArgs(
                 token_id=token_id,
                 amount=amount,
                 side=BUY,
+                price=max_price,
                 order_type=OrderType.FOK,
             )
             signed_order = self._client.create_market_order(order_args)
