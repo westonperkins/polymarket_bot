@@ -50,6 +50,11 @@ CREATE TABLE IF NOT EXISTS signals (
     FOREIGN KEY (trade_id) REFERENCES trades (id)
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS portfolio (
     id SERIAL PRIMARY KEY,
     timestamp TEXT NOT NULL,

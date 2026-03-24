@@ -58,22 +58,31 @@ if config.TRADING_MODE == "live":
         logger.error("Set credentials in .env or switch to TRADING_MODE=paper")
         sys.exit(1)
 
-    # Don't restore from paper snapshots — start fresh with live balance
-    portfolio = Portfolio(conn, starting_balance=config.LIVE_STARTING_BALANCE, skip_restore=True)
-
     # Initialize executor and fetch real wallet balance
     try:
         executor = Executor()
         real_balance = executor.get_balance()
-        if real_balance and real_balance > 0:
-            portfolio._balance = real_balance
-            logger.info(f"Live wallet balance: ${real_balance:,.2f}")
-        else:
-            logger.warning(f"Could not fetch wallet balance, using ${portfolio.balance:,.2f}")
+        if not real_balance or real_balance <= 0:
+            logger.error("Could not fetch wallet balance — cannot start live mode")
+            sys.exit(1)
+        logger.info(f"Live wallet balance: ${real_balance:,.2f}")
     except Exception as e:
         logger.error(f"Failed to initialize CLOB executor: {e}")
         logger.error("Fix credentials in .env or switch to TRADING_MODE=paper")
         sys.exit(1)
+
+    # Auto-detect starting balance on first launch, save to DB for P&L tracking
+    saved_baseline = db.get_setting(conn, "live_starting_balance")
+    if saved_baseline:
+        starting = float(saved_baseline)
+        logger.info(f"Live starting balance (from DB): ${starting:,.2f}")
+    else:
+        starting = real_balance
+        db.set_setting(conn, "live_starting_balance", str(starting))
+        logger.info(f"Live starting balance auto-detected: ${starting:,.2f} (saved to DB)")
+
+    portfolio = Portfolio(conn, starting_balance=starting, skip_restore=True)
+    portfolio._balance = real_balance
 
     risk = RiskManager(conn, portfolio.balance)
     simulator = LiveSimulator(conn, portfolio, executor, risk)

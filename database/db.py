@@ -431,7 +431,11 @@ def get_portfolio_for_mode(conn, mode: str) -> dict:
 
     Returns {"balance": float, "total_pnl": float, "starting_balance": float}.
     """
-    starting = config.LIVE_STARTING_BALANCE if mode == "live" else config.STARTING_BALANCE
+    if mode == "live":
+        saved = get_setting(conn, "live_starting_balance")
+        starting = float(saved) if saved else config.LIVE_STARTING_BALANCE
+    else:
+        starting = config.STARTING_BALANCE
     with _cursor(conn) as cur:
         # Get total P&L from all settled trades in this mode
         cur.execute(
@@ -617,3 +621,26 @@ def get_last_n_outcomes(conn, n: int = 5) -> list[str]:
         )
         rows = cur.fetchall()
     return [row["side"] for row in rows]
+
+
+# ── Settings ─────────────────────────────────────────────────────────
+
+@_retry
+def get_setting(conn, key: str) -> Optional[str]:
+    """Return a setting value by key, or None if not set."""
+    with _cursor(conn) as cur:
+        cur.execute("SELECT value FROM settings WHERE key = %s", (key,))
+        row = cur.fetchone()
+    return row["value"] if row else None
+
+
+@_retry
+def set_setting(conn, key: str, value: str) -> None:
+    """Insert or update a setting."""
+    with _cursor(conn) as cur:
+        cur.execute(
+            """INSERT INTO settings (key, value) VALUES (%s, %s)
+               ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value""",
+            (key, value),
+        )
+    conn.get_conn().commit()
