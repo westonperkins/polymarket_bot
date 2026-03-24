@@ -124,17 +124,17 @@ class SessionManager:
         self._creation_count: int = 0
 
     def _create_client(self) -> httpx.AsyncClient:
-        """Create a fresh httpx async client with HTTP/2 multiplexing."""
+        """Create a fresh httpx async client."""
         transport = httpx.AsyncHTTPTransport(
-            http2=True,
-            retries=1,              # retry once on dead connections
+            http2=config.HTTP2_ENABLED,
+            retries=1,
         )
         client = httpx.AsyncClient(
             transport=transport,
             limits=httpx.Limits(
                 max_connections=20,
                 max_keepalive_connections=5,
-                keepalive_expiry=30,    # close idle connections after 30s
+                keepalive_expiry=30,
             ),
             timeout=httpx.Timeout(15.0, connect=5.0),
         )
