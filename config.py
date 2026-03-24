@@ -38,7 +38,7 @@ SPOT_ACTIVE_WINDOW = 120           # seconds before close to start active pollin
 POST_CLOSE_DELAY = 5               # seconds to wait after market close before next discovery
 SPOT_RETRY_DELAY = 10              # seconds between retries on fetch failure
 SPOT_CACHE_TTL = 90                # seconds a cached spot price remains valid
-SESSION_MAX_AGE = 120              # recreate HTTP session every 2 minutes
+SESSION_MAX_AGE = 86400            # disable time-based rotation (keepalive_expiry handles stale conns)
 SESSION_FAILURE_THRESHOLD = 2      # recreate after N consecutive request failures
 MAX_CONCURRENT_REQUESTS = 2        # max simultaneous outbound HTTP requests
 HTTP2_ENABLED = os.environ.get("HTTP2_ENABLED", "true").lower() == "true"
