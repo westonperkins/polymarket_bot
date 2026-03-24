@@ -169,24 +169,24 @@ class LiveSimulator:
             return
 
         fill_cost = trade["position_size"]    # actual USDC spent (from fill)
-        payout_rate = trade["payout_rate"]      # actual (shares - cost) / cost
         trade_side = trade["side"]
+        outcome = "win" if trade_side == winning_side else "loss"
 
-        if trade_side == winning_side:
-            # Win: we get fill_shares back ($1 per share)
-            # fill_shares = fill_cost * (1 + payout_rate)
-            fill_shares = fill_cost * (1.0 + payout_rate)
-            pnl = fill_shares - fill_cost  # profit = shares received - cost
-            outcome = "win"
-        else:
-            # Loss: shares are worthless, we lose the cost
-            pnl = -fill_cost
-            outcome = "loss"
-
-        # Sync portfolio balance from real wallet
+        # Get real wallet balance — this is the source of truth (includes fees)
+        balance_before = self._portfolio.balance
         real_balance = self._executor.get_balance()
         if real_balance > 0:
             self._portfolio._balance = real_balance
+            # PnL from wallet change accounts for fees automatically
+            pnl = real_balance - balance_before
+        else:
+            # Fallback to fill-based calculation if balance fetch fails
+            if outcome == "win":
+                payout_rate = trade["payout_rate"]
+                fill_shares = fill_cost * (1.0 + payout_rate)
+                pnl = fill_shares - fill_cost
+            else:
+                pnl = -fill_cost
 
         db.update_trade_outcome(
             self._conn,
