@@ -1,7 +1,7 @@
 """Risk management for live trading.
 
 Enforces daily loss limits, max position sizes, and provides a kill switch.
-All limits are percentage-based relative to the starting balance.
+All limits are percentage-based and recalculated from the current balance on every check.
 """
 
 import logging
@@ -13,26 +13,24 @@ logger = logging.getLogger(__name__)
 
 
 class RiskManager:
-    """Checks risk limits before every trade."""
+    """Checks risk limits before every trade. Limits scale with current balance."""
 
     def __init__(self, conn, starting_balance: float) -> None:
         self._conn = conn
         self._starting_balance = starting_balance
         self._killed = False
-
-        # Convert percentages to dollar amounts based on starting balance
-        self._max_daily_loss = starting_balance * (config.LIVE_MAX_DAILY_LOSS_PCT / 100)
-        self._max_position_size = starting_balance * (config.LIVE_MAX_POSITION_SIZE_PCT / 100)
-        self._min_balance = starting_balance * (config.LIVE_MIN_BALANCE_PCT / 100)
+        self._current_balance = starting_balance
 
         logger.info(
-            f"Risk limits: max daily loss=${self._max_daily_loss:,.2f} "
-            f"({config.LIVE_MAX_DAILY_LOSS_PCT}%), "
-            f"max position=${self._max_position_size:,.2f} "
-            f"({config.LIVE_MAX_POSITION_SIZE_PCT}%), "
-            f"min balance=${self._min_balance:,.2f} "
-            f"({config.LIVE_MIN_BALANCE_PCT}%)"
+            f"Risk limits: max daily loss={config.LIVE_MAX_DAILY_LOSS_PCT}%, "
+            f"max position={config.LIVE_MAX_POSITION_SIZE_PCT}%, "
+            f"min balance={config.LIVE_MIN_BALANCE_PCT}%"
         )
+
+    def update_balance(self, balance: float) -> None:
+        """Update the current balance for dynamic risk calculations."""
+        if balance > 0:
+            self._current_balance = balance
 
     @property
     def is_killed(self) -> bool:
@@ -46,36 +44,39 @@ class RiskManager:
     def check_trade_allowed(self, position_size: float) -> tuple[bool, str]:
         """Check if a trade is allowed under current risk limits.
 
-        Returns:
-            (allowed, reason) — reason is empty string if allowed.
+        Limits are recalculated from current balance on every call.
         """
         if self._killed:
             return False, "Kill switch is active"
 
+        # Recalculate limits from current balance
+        max_position = self._current_balance * (config.LIVE_MAX_POSITION_SIZE_PCT / 100)
+        max_daily_loss = self._current_balance * (config.LIVE_MAX_DAILY_LOSS_PCT / 100)
+        min_balance = self._starting_balance * (config.LIVE_MIN_BALANCE_PCT / 100)
+
         # Check daily loss limit
         daily_pnl = db.get_daily_pnl(self._conn)
-        if daily_pnl <= -self._max_daily_loss:
+        if daily_pnl <= -max_daily_loss:
             self.kill()
             return False, (
                 f"Daily loss limit reached (${daily_pnl:,.2f} / "
-                f"-${self._max_daily_loss:,.2f} max)"
+                f"-${max_daily_loss:,.2f} max)"
             )
 
-        # Check max position size (round to cents to avoid float precision issues)
-        if round(position_size, 2) > round(self._max_position_size, 2):
+        # Check max position size
+        if round(position_size, 2) > round(max_position, 2):
             return False, (
                 f"Position size ${position_size:,.2f} exceeds "
-                f"max ${self._max_position_size:,.2f} "
+                f"max ${max_position:,.2f} "
                 f"({config.LIVE_MAX_POSITION_SIZE_PCT}%)"
             )
 
         # Check minimum balance
-        snapshot = db.get_latest_portfolio(self._conn)
-        if snapshot and snapshot["balance"] < self._min_balance:
+        if self._current_balance < min_balance:
             self.kill()
             return False, (
-                f"Balance ${snapshot['balance']:,.2f} below minimum "
-                f"${self._min_balance:,.2f} ({config.LIVE_MIN_BALANCE_PCT}%)"
+                f"Balance ${self._current_balance:,.2f} below minimum "
+                f"${min_balance:,.2f} ({config.LIVE_MIN_BALANCE_PCT}%)"
             )
 
         return True, ""

@@ -23,9 +23,8 @@ CHAIN_ID = 137  # Polygon mainnet
 
 # Polygon RPC endpoints (free, no API key needed)
 POLYGON_RPCS = [
-    "https://polygon-rpc.com",
-    "https://rpc.ankr.com/polygon",
-    "https://polygon.llamarpc.com",
+    "https://polygon.drpc.org",
+    "https://polygon-bor-rpc.publicnode.com",
 ]
 
 # Polymarket Conditional Tokens Framework contract on Polygon

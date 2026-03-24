@@ -68,6 +68,7 @@ class LiveSimulator:
         wallet_balance = self._executor.get_balance()
         if wallet_balance > 0:
             self._portfolio._balance = wallet_balance
+            self._risk.update_balance(wallet_balance)
         position_size = round(self._portfolio.position_size(decision.confidence), 2)
 
         # Risk check
