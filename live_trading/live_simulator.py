@@ -1,6 +1,11 @@
 """Live trade simulator — same interface as paper_trading.simulator but places real orders.
 
 Bridges the ensemble decision, portfolio, database, and CLOB execution layers.
+
+Portfolio balance tracking:
+- portfolio._balance tracks the "true" balance from fills (cost + pnl)
+- get_balance() returns available USDC (excludes unclaimed winnings)
+- We use fill-based tracking for DB records and get_balance() for position sizing
 """
 
 import logging
@@ -19,17 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 class LiveSimulator:
-    """Places real trades on Polymarket via the CLOB API.
-
-    Has the same interface as paper_trading.simulator.Simulator so main.py
-    can swap between them based on TRADING_MODE.
-    """
+    """Places real trades on Polymarket via the CLOB API."""
 
     def __init__(self, conn, portfolio: Portfolio, executor: Executor, risk: RiskManager) -> None:
         self._conn = conn
         self._portfolio = portfolio
         self._executor = executor
         self._risk = risk
+        # Track balance from fills — independent of wallet/claim state
+        self._tracked_balance = portfolio.balance
 
     def enter_trade(
         self,
@@ -38,13 +41,9 @@ class LiveSimulator:
         decision: EnsembleDecision,
         signal_data: dict,
     ) -> Optional[int]:
-        """Place a real trade or record a skip.
+        """Place a real trade or record a skip."""
 
-        Returns:
-            trade_id if a trade was placed, None if skipped.
-        """
         if decision.side is None:
-            # Skip — log it in the database (same as paper)
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
@@ -55,7 +54,7 @@ class LiveSimulator:
                 confidence_level="skip",
                 outcome="skip",
                 pnl=0.0,
-                portfolio_balance_after=self._portfolio.balance,
+                portfolio_balance_after=self._tracked_balance,
             )
             self._save_signals(trade_id, signal_data)
             logger.info(f"SKIP: {market.slug} — {decision.reason}")
@@ -64,6 +63,11 @@ class LiveSimulator:
         # Determine entry odds and position size
         entry_odds = odds.up_price if decision.side == "Up" else odds.down_price
         payout_rate = calculate_payout_rate(entry_odds)
+
+        # Use wallet balance for position sizing (available USDC to trade)
+        wallet_balance = self._executor.get_balance()
+        if wallet_balance > 0:
+            self._portfolio._balance = wallet_balance
         position_size = round(self._portfolio.position_size(decision.confidence), 2)
 
         # Risk check
@@ -80,7 +84,7 @@ class LiveSimulator:
                 confidence_level="skip",
                 outcome="skip",
                 pnl=0.0,
-                portfolio_balance_after=self._portfolio.balance,
+                portfolio_balance_after=self._tracked_balance,
             )
             self._save_signals(trade_id, signal_data)
             return None
@@ -117,7 +121,7 @@ class LiveSimulator:
                 confidence_level="skip",
                 outcome="skip",
                 pnl=0.0,
-                portfolio_balance_after=self._portfolio.balance,
+                portfolio_balance_after=self._tracked_balance,
             )
             self._save_signals(trade_id, signal_data)
             return None
@@ -147,7 +151,7 @@ class LiveSimulator:
             confidence_level=decision.confidence,
             outcome="pending",
             pnl=0.0,
-            portfolio_balance_after=self._portfolio.balance,
+            portfolio_balance_after=self._tracked_balance,
         )
         self._save_signals(trade_id, signal_data)
 
@@ -158,12 +162,11 @@ class LiveSimulator:
         )
         return trade_id
 
-    def settle_trade(self, trade_id: int, winning_side: str) -> None:
+    def settle_trade(self, trade_id: int, winning_side: str, condition_id: str = "") -> None:
         """Settle a trade after market resolution.
 
-        For live trading, the actual USDC settlement happens on-chain
-        automatically. This updates the DB records and portfolio tracker
-        to match.
+        PnL is calculated from fill amounts (deterministic, no wallet dependency).
+        On wins, auto-redeems positions on-chain to convert shares back to USDC.
         """
         import psycopg2.extras
         try:
@@ -184,38 +187,41 @@ class LiveSimulator:
             logger.warning(f"Trade {trade_id} already settled as {trade['outcome']}")
             return
 
-        fill_cost = trade["position_size"]    # actual USDC spent (from fill)
+        fill_cost = trade["position_size"]
+        payout_rate = trade["payout_rate"]
         trade_side = trade["side"]
         outcome = "win" if trade_side == winning_side else "loss"
 
-        # Get real wallet balance — this is the source of truth (includes fees)
-        balance_before = self._portfolio.balance
-        real_balance = self._executor.get_balance()
-        if real_balance > 0:
-            self._portfolio._balance = real_balance
-            # PnL from wallet change accounts for fees automatically
-            pnl = real_balance - balance_before
+        # PnL from fill amounts — always correct regardless of claim state
+        if outcome == "win":
+            fill_shares = fill_cost * (1.0 + payout_rate)
+            pnl = fill_shares - fill_cost
+
+            # Auto-redeem winning positions on-chain
+            if condition_id:
+                redeemed = self._executor.redeem_positions(condition_id)
+                if redeemed:
+                    logger.info(f"Auto-claimed winning position for trade {trade_id}")
+                else:
+                    logger.warning(f"Auto-claim failed for trade {trade_id} — claim manually on Polymarket")
         else:
-            # Fallback to fill-based calculation if balance fetch fails
-            if outcome == "win":
-                payout_rate = trade["payout_rate"]
-                fill_shares = fill_cost * (1.0 + payout_rate)
-                pnl = fill_shares - fill_cost
-            else:
-                pnl = -fill_cost
+            pnl = -fill_cost
+
+        # Update tracked balance from fills
+        self._tracked_balance = round(self._tracked_balance + pnl, 6)
 
         db.update_trade_outcome(
             self._conn,
             trade_id=trade_id,
             outcome=outcome,
             pnl=round(pnl, 6),
-            portfolio_balance_after=self._portfolio.balance,
+            portfolio_balance_after=self._tracked_balance,
         )
         self._portfolio.save_snapshot()
 
         logger.info(
             f"SETTLED: trade {trade_id} {outcome.upper()} "
-            f"pnl=${pnl:+,.6f} | wallet=${self._portfolio.balance:,.2f}"
+            f"pnl=${pnl:+,.6f} | tracked_balance=${self._tracked_balance:,.2f}"
         )
 
     def get_pending_trade_ids(self) -> list[int]:

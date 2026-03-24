@@ -400,7 +400,7 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int):
         )
 
         if winning_side:
-            simulator.settle_trade(trade_id, winning_side)
+            simulator.settle_trade(trade_id, winning_side, market.condition_id)
             dashboard.status_message = (
                 f"RESOLVED: {winning_side} won — "
                 f"balance=${portfolio.balance:,.2f} ({portfolio.pnl_pct:+.2f}%)"

@@ -84,7 +84,7 @@ class Simulator:
         )
         return trade_id
 
-    def settle_trade(self, trade_id: int, winning_side: str) -> None:
+    def settle_trade(self, trade_id: int, winning_side: str, condition_id: str = "") -> None:
         """Settle a pending trade after market resolution.
 
         Args:

@@ -1,6 +1,6 @@
 """Order execution via the Polymarket CLOB API.
 
-Handles placing market orders and checking balances.
+Handles placing market orders, checking balances, and redeeming winning positions.
 All methods are synchronous (py-clob-client is sync).
 """
 
@@ -8,6 +8,8 @@ import logging
 import sys
 from typing import Optional
 
+from eth_account import Account
+from web3 import Web3
 from py_clob_client.client import ClobClient
 from py_clob_client.clob_types import MarketOrderArgs, OrderType
 from py_clob_client.order_builder.constants import BUY
@@ -18,6 +20,33 @@ logger = logging.getLogger(__name__)
 
 HOST = "https://clob.polymarket.com"
 CHAIN_ID = 137  # Polygon mainnet
+
+# Polygon RPC endpoints (free, no API key needed)
+POLYGON_RPCS = [
+    "https://polygon-rpc.com",
+    "https://rpc.ankr.com/polygon",
+    "https://polygon.llamarpc.com",
+]
+
+# Polymarket Conditional Tokens Framework contract on Polygon
+CTF_ADDRESS = "0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"
+CTF_REDEEM_ABI = [{
+    "inputs": [
+        {"name": "collateralToken", "type": "address"},
+        {"name": "parentCollectionId", "type": "bytes32"},
+        {"name": "conditionId", "type": "bytes32"},
+        {"name": "indexSets", "type": "uint256[]"},
+    ],
+    "name": "redeemPositions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function",
+}]
+
+# USDC on Polygon
+USDC_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+# Parent collection ID for top-level positions (no parent)
+PARENT_COLLECTION_ID = bytes(32)
 
 
 def validate_live_credentials() -> tuple[bool, str]:
@@ -157,3 +186,68 @@ class Executor:
         except Exception as e:
             logger.error(f"Order placement failed: {type(e).__name__}: {e}")
             return None
+
+    def redeem_positions(self, condition_id: str) -> bool:
+        """Redeem winning positions for a resolved market, converting shares back to USDC.
+
+        Calls redeemPositions on the Conditional Tokens Framework contract on Polygon.
+        This is the on-chain equivalent of clicking "Claim" on the Polymarket website.
+
+        Args:
+            condition_id: the market's conditionId (from MarketInfo)
+
+        Returns:
+            True if redemption tx was sent successfully, False otherwise.
+        """
+        if not condition_id:
+            logger.warning("Cannot redeem: no condition_id")
+            return False
+
+        logger.info(f"Attempting to redeem positions for condition {condition_id[:16]}...")
+
+        for rpc_url in POLYGON_RPCS:
+            try:
+                w3 = Web3(Web3.HTTPProvider(rpc_url, request_kwargs={"timeout": 15}))
+                if not w3.is_connected():
+                    continue
+
+                account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
+                ctf = w3.eth.contract(
+                    address=Web3.to_checksum_address(CTF_ADDRESS),
+                    abi=CTF_REDEEM_ABI,
+                )
+
+                # Convert conditionId to bytes32
+                condition_bytes = bytes.fromhex(condition_id.replace("0x", ""))
+
+                # indexSets [1, 2] = redeem both outcomes (only winning one has value)
+                tx = ctf.functions.redeemPositions(
+                    Web3.to_checksum_address(USDC_ADDRESS),
+                    PARENT_COLLECTION_ID,
+                    condition_bytes,
+                    [1, 2],
+                ).build_transaction({
+                    "from": account.address,
+                    "nonce": w3.eth.get_transaction_count(account.address),
+                    "gas": 300000,
+                    "gasPrice": w3.eth.gas_price,
+                    "chainId": CHAIN_ID,
+                })
+
+                signed = account.sign_transaction(tx)
+                tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+                receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=30)
+
+                if receipt["status"] == 1:
+                    logger.info(f"Redemption successful: tx={tx_hash.hex()}")
+                    return True
+                else:
+                    logger.warning(f"Redemption tx reverted: tx={tx_hash.hex()}")
+                    return False
+
+            except Exception as e:
+                logger.debug(f"Redemption via {rpc_url} failed: {type(e).__name__}: {e}")
+                continue
+
+        logger.warning(f"Redemption failed for condition {condition_id[:16]}... (all RPCs failed)")
+        return False
