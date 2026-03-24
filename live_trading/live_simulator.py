@@ -95,8 +95,8 @@ class LiveSimulator:
             else market.clob_token_id_down
         )
 
-        # Max price = quoted odds + slippage tolerance
-        max_price = entry_odds * (1.0 + config.LIVE_MAX_SLIPPAGE_PCT / 100.0)
+        # Max price = quoted odds + slippage tolerance, capped at 0.99 (Polymarket limit)
+        max_price = min(entry_odds * (1.0 + config.LIVE_MAX_SLIPPAGE_PCT / 100.0), 0.99)
         logger.info(
             f"Placing order: {decision.side} | quoted={entry_odds:.3f} "
             f"max_price={max_price:.3f} ({config.LIVE_MAX_SLIPPAGE_PCT}% slippage)"
