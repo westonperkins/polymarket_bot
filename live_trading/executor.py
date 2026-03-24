@@ -131,7 +131,21 @@ class Executor:
             )
             signed_order = self._client.create_market_order(order_args)
             response = self._client.post_order(signed_order, OrderType.FOK)
-            logger.info(f"Order placed: ${amount:.2f} on token {token_id[:16]}... -> {response}")
+
+            # Extract actual fill amounts from CLOB response
+            taking = float(response.get("takingAmount", 0)) if isinstance(response, dict) else 0
+            making = float(response.get("makingAmount", 0)) if isinstance(response, dict) else 0
+
+            logger.info(
+                f"Order placed: ${amount:.2f} on token {token_id[:16]}... | "
+                f"cost=${making:.6f} shares={taking:.6f} -> {response}"
+            )
+
+            # Attach parsed fill amounts for live_simulator
+            if isinstance(response, dict):
+                response["_fill_cost"] = making      # USDC spent
+                response["_fill_shares"] = taking     # shares received (payout if win)
+
             return response
         except Exception as e:
             logger.error(f"Order placement failed: {type(e).__name__}: {e}")

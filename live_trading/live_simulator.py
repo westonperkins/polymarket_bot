@@ -98,7 +98,6 @@ class LiveSimulator:
 
         if order_response is None:
             logger.error(f"ORDER FAILED: {decision.side} on {market.slug}")
-            # Record as skip since the order didn't go through
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
@@ -114,14 +113,21 @@ class LiveSimulator:
             self._save_signals(trade_id, signal_data)
             return None
 
-        # Order placed successfully — record in DB
+        # Use actual fill amounts from the CLOB response
+        fill_cost = order_response.get("_fill_cost", position_size)
+        fill_shares = order_response.get("_fill_shares", 0)
+
+        # Real payout rate: if we win, we get fill_shares (each share pays $1)
+        # so profit = fill_shares - fill_cost, payout_rate = profit / fill_cost
+        real_payout_rate = (fill_shares - fill_cost) / fill_cost if fill_cost > 0 else 0.0
+
         trade_id = db.insert_trade(
             self._conn,
             market_id=market.slug,
             side=decision.side,
             entry_odds=entry_odds,
-            position_size=position_size,
-            payout_rate=payout_rate,
+            position_size=fill_cost,
+            payout_rate=real_payout_rate,
             confidence_level=decision.confidence,
             outcome="pending",
             pnl=0.0,
@@ -131,8 +137,8 @@ class LiveSimulator:
 
         logger.info(
             f"LIVE TRADE: {decision.side} on {market.slug} | "
-            f"odds={entry_odds:.3f} size=${position_size:,.2f} "
-            f"payout={payout_rate:.1%} confidence={decision.confidence}"
+            f"cost=${fill_cost:.6f} shares={fill_shares:.6f} "
+            f"payout={real_payout_rate:.1%} confidence={decision.confidence}"
         )
         return trade_id
 
@@ -162,38 +168,39 @@ class LiveSimulator:
             logger.warning(f"Trade {trade_id} already settled as {trade['outcome']}")
             return
 
-        position_size = trade["position_size"]
-        payout_rate = trade["payout_rate"]
+        fill_cost = trade["position_size"]    # actual USDC spent (from fill)
+        payout_rate = trade["payout_rate"]      # actual (shares - cost) / cost
         trade_side = trade["side"]
 
         if trade_side == winning_side:
-            pnl = self._portfolio.settle_win(position_size, payout_rate)
+            # Win: we get fill_shares back ($1 per share)
+            # fill_shares = fill_cost * (1 + payout_rate)
+            fill_shares = fill_cost * (1.0 + payout_rate)
+            pnl = fill_shares - fill_cost  # profit = shares received - cost
             outcome = "win"
         else:
-            pnl = self._portfolio.settle_loss(position_size)
+            # Loss: shares are worthless, we lose the cost
+            pnl = -fill_cost
             outcome = "loss"
+
+        # Sync portfolio balance from real wallet
+        real_balance = self._executor.get_balance()
+        if real_balance > 0:
+            self._portfolio._balance = real_balance
 
         db.update_trade_outcome(
             self._conn,
             trade_id=trade_id,
             outcome=outcome,
-            pnl=pnl,
+            pnl=round(pnl, 6),
             portfolio_balance_after=self._portfolio.balance,
         )
         self._portfolio.save_snapshot()
 
-        # Sync balance from wallet after settlement
-        real_balance = self._executor.get_balance()
-        if real_balance > 0:
-            logger.info(
-                f"SETTLED: trade {trade_id} {outcome.upper()} "
-                f"pnl=${pnl:+,.2f} | wallet=${real_balance:,.2f}"
-            )
-        else:
-            logger.info(
-                f"SETTLED: trade {trade_id} {outcome.upper()} "
-                f"pnl=${pnl:+,.2f} → balance=${self._portfolio.balance:,.2f}"
-            )
+        logger.info(
+            f"SETTLED: trade {trade_id} {outcome.upper()} "
+            f"pnl=${pnl:+,.6f} | wallet=${self._portfolio.balance:,.2f}"
+        )
 
     def get_pending_trade_ids(self) -> list[int]:
         """Return IDs of all pending trades."""
