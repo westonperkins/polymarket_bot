@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS trades (
     outcome TEXT NOT NULL DEFAULT 'pending' CHECK (outcome IN ('win', 'loss', 'skip', 'pending')),
     pnl DOUBLE PRECISION DEFAULT 0.0,
     portfolio_balance_after DOUBLE PRECISION,
-    trading_mode TEXT NOT NULL DEFAULT 'paper' CHECK (trading_mode IN ('paper', 'live'))
+    trading_mode TEXT NOT NULL DEFAULT 'paper' CHECK (trading_mode IN ('paper', 'live')),
+    skip_reason TEXT
 );
 
 -- Migration: add trading_mode column if it doesn't exist (for existing databases)
@@ -25,6 +26,17 @@ BEGIN
         ALTER TABLE trades ALTER COLUMN trading_mode SET NOT NULL;
         ALTER TABLE trades ADD CONSTRAINT trades_trading_mode_check
             CHECK (trading_mode IN ('paper', 'live'));
+    END IF;
+END $$;
+
+-- Migration: add skip_reason column
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'trades' AND column_name = 'skip_reason'
+    ) THEN
+        ALTER TABLE trades ADD COLUMN skip_reason TEXT;
     END IF;
 END $$;
 

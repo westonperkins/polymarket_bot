@@ -54,9 +54,27 @@ def query_state(conn):
     s = cur.fetchone()
     total = s["total"] or 0
     wins = s["wins"] or 0
+    # Detailed skip breakdown
+    cur.execute("""
+        SELECT
+            COUNT(*) FILTER (WHERE COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) = 'no_consensus') AS no_consensus,
+            COUNT(*) FILTER (WHERE COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) = 'risk_blocked') AS risk_blocked,
+            COUNT(*) FILTER (WHERE COALESCE(t.skip_reason, CASE WHEN s.final_vote = 'ABSTAIN' THEN 'no_consensus' ELSE 'order_rejected' END) = 'order_rejected') AS order_rejected
+        FROM trades t
+        LEFT JOIN signals s ON s.trade_id = t.id
+        WHERE t.trading_mode = 'live' AND t.outcome = 'skip'
+    """)
+    sb = cur.fetchone()
+    skip_detail = {
+        "no_consensus": sb["no_consensus"] or 0,
+        "risk_blocked": sb["risk_blocked"] or 0,
+        "order_rejected": sb["order_rejected"] or 0,
+    }
+
     stats = {
         "total": total, "wins": wins,
         "losses": s["losses"] or 0, "skips": s["skips"] or 0,
+        "skip_detail": skip_detail,
         "win_rate": round(wins / total * 100, 1) if total > 0 else 0,
     }
 
@@ -92,6 +110,17 @@ def query_state(conn):
         sig = cur.fetchone()
         t["signals"] = dict(sig) if sig else None
 
+    # Equity curve — balance after each settled trade
+    cur.execute("""
+        SELECT id, timestamp, portfolio_balance_after, outcome, pnl
+        FROM trades
+        WHERE trading_mode = 'live'
+          AND outcome IN ('win', 'loss')
+          AND portfolio_balance_after IS NOT NULL
+        ORDER BY id ASC
+    """)
+    equity_curve = [dict(r) for r in cur.fetchall()]
+
     cur.close()
 
     return {
@@ -106,6 +135,7 @@ def query_state(conn):
             **stats,
         },
         "trades": trades,
+        "equity_curve": equity_curve,
     }
 
 
@@ -143,6 +173,7 @@ HTML = """<!DOCTYPE html>
   .b-loss { background:rgba(248,81,73,.15); color:var(--red); }
   .b-skip { background:rgba(139,148,158,.15); color:var(--dim); }
   .b-pending { background:rgba(210,153,34,.15); color:var(--yellow); }
+  .b-failed { background:rgba(248,81,73,.1); color:#f0883e; }
   .trade-row { cursor:pointer; transition:background 0.15s; }
   .trade-row:hover { background:rgba(88,166,255,0.06); }
   .trade-row td:first-child::before { content:'\\25B6'; font-size:8px; margin-right:4px;
@@ -177,6 +208,19 @@ HTML = """<!DOCTYPE html>
   <h2>Portfolio</h2>
   <div id="portfolio">Loading...</div>
 </div>
+<div class="card" style="display:flex; gap:24px; align-items:center;">
+  <div style="flex:1;">
+    <h2 style="color:var(--dim)">Skip Breakdown</h2>
+    <canvas id="skipChart" height="160" width="160"></canvas>
+  </div>
+  <div style="flex:2;">
+    <div id="skipLegend" style="font-size:12px;"></div>
+  </div>
+</div>
+<div class="card">
+  <h2 style="color:var(--yellow)">Equity Curve</h2>
+  <canvas id="equityChart" height="120"></canvas>
+</div>
 <div class="card">
   <h2 style="color:var(--cyan)">Recent Trades</h2>
   <button class="toggle-btn active" id="btn-hide-skips" onclick="toggleSkips()">HIDE SKIPS</button>
@@ -186,7 +230,10 @@ HTML = """<!DOCTYPE html>
   </tr></thead><tbody id="tbody"><tr><td colspan="7" style="color:var(--dim);text-align:center">Loading...</td></tr></tbody></table>
 </div>
 <div class="footer" id="footer">Connecting...</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
+let equityChart = null;
+let skipChart = null;
 let hideSkips = localStorage.getItem('hideSkips') !== 'false';
 function toggleSkips() {
   hideSkips = !hideSkips;
@@ -257,7 +304,7 @@ function toggleDetail(row) {
   detail.classList.toggle('open');
 }
 function badge(outcome) {
-  const m = {win:'b-win',loss:'b-loss',skip:'b-skip',pending:'b-pending'};
+  const m = {win:'b-win',loss:'b-loss',skip:'b-skip',pending:'b-pending',failed:'b-failed'};
   return '<span class="badge '+(m[outcome]||'')+'">'+ outcome.toUpperCase()+'</span>';
 }
 async function poll() {
@@ -273,7 +320,8 @@ async function poll() {
         <div class="row"><span class="lbl">Starting</span><span class="val">$${fmt(p.starting)}</span></div>
         <div class="row"><span class="lbl">Win Rate</span><span class="val">${fmt(p.win_rate,1)}%</span></div>
         <div class="row"><span class="lbl">Trades</span><span class="val">${p.total}</span></div>
-        <div class="row"><span class="lbl">Record</span><span class="val"><span class="pos">${p.wins}W</span> / <span class="neg">${p.losses}L</span> / ${p.skips}S</span></div>
+        <div class="row"><span class="lbl">Record</span><span class="val"><span class="pos">${p.wins}W</span> / <span class="neg">${p.losses}L</span></span></div>
+        <div class="row"><span class="lbl">Skips</span><span class="val">${p.skip_detail.no_consensus} no consensus / ${p.skip_detail.order_rejected} rejected / ${p.skip_detail.risk_blocked} risk blocked</span></div>
         <div class="row"><span class="lbl">Best Trade</span><span class="val pos">$+${fmt(p.best_trade)}</span></div>
         <div class="row"><span class="lbl">Worst Trade</span><span class="val neg">$${fmt(p.worst_trade)}</span></div>
         <div class="row"><span class="lbl">Peak Balance</span><span class="val">$${fmt(p.peak_balance)}</span></div>
@@ -293,11 +341,121 @@ async function poll() {
       html += '<tr class="trade-row'+(isOpen?' expanded':'')+'" data-id="'+t.id+'" onclick="toggleDetail(this)">'
         +'<td>'+t.id+'</td><td>'+slug+'</td><td>'+(isSkip?'-':t.side)+'</td>'
         +'<td class="r">'+(t.position_size?'$'+fmt(t.position_size):'-')+'</td>'
-        +'<td>'+badge(t.outcome)+'</td><td class="r">'+pnlStr+'</td>'
+        +'<td>'+(isSkip && t.signals && t.signals.final_vote !== 'ABSTAIN' ? badge('failed') : badge(t.outcome))+'</td><td class="r">'+pnlStr+'</td>'
         +'<td class="r">'+(t.portfolio_balance_after?'$'+fmt(t.portfolio_balance_after):'-')+'</td></tr>';
       html += '<tr class="trade-detail'+(isOpen?' open':'')+'" data-id="'+t.id+'"><td colspan="7">'+buildDetail(t)+'</td></tr>';
     }
     document.getElementById('tbody').innerHTML = html || '<tr><td colspan="7" style="color:var(--dim);text-align:center">No trades</td></tr>';
+
+    // Skip breakdown pie chart
+    const sd = p.skip_detail;
+    const skipData = [sd.no_consensus, sd.order_rejected, sd.risk_blocked];
+    const skipLabels = ['No Consensus', 'Order Rejected', 'Risk Blocked'];
+    const skipColors = ['#8b949e', '#f0883e', '#f85149'];
+    const skipCtx = document.getElementById('skipChart').getContext('2d');
+    if (skipChart) {
+      skipChart.data.datasets[0].data = skipData;
+      skipChart.update('none');
+    } else if (skipData.some(v => v > 0)) {
+      skipChart = new Chart(skipCtx, {
+        type: 'doughnut',
+        data: {
+          labels: skipLabels,
+          datasets: [{ data: skipData, backgroundColor: skipColors, borderWidth: 0 }]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                  const pct = total > 0 ? Math.round(ctx.raw / total * 100) : 0;
+                  return ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    // Legend
+    const totalSkips = skipData.reduce((a,b) => a+b, 0);
+    let legendHtml = '';
+    for (let i = 0; i < skipLabels.length; i++) {
+      const pct = totalSkips > 0 ? Math.round(skipData[i] / totalSkips * 100) : 0;
+      if (skipData[i] > 0) {
+        legendHtml += '<div class="row"><span class="lbl"><span style="color:'+skipColors[i]+'">&#9679;</span> '+skipLabels[i]+'</span><span class="val">'+skipData[i]+' ('+pct+'%)</span></div>';
+      }
+    }
+    document.getElementById('skipLegend').innerHTML = legendHtml;
+
+    // Equity curve
+    if (d.equity_curve && d.equity_curve.length > 0) {
+      const labels = d.equity_curve.map(e => '#' + e.id);
+      const balances = d.equity_curve.map(e => e.portfolio_balance_after);
+      const colors = d.equity_curve.map(e => e.outcome === 'win' ? '#3fb950' : '#f85149');
+
+      const ctx = document.getElementById('equityChart').getContext('2d');
+      if (equityChart) {
+        equityChart.data.labels = labels;
+        equityChart.data.datasets[0].data = balances;
+        equityChart.data.datasets[0].pointBackgroundColor = colors;
+        equityChart.update('none');
+      } else {
+        equityChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Balance',
+              data: balances,
+              borderColor: '#39d2c0',
+              borderWidth: 2,
+              pointBackgroundColor: colors,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: {
+                target: 'origin',
+                above: 'rgba(57,210,192,0.08)',
+              },
+              tension: 0.3,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(ctx) {
+                    const e = d.equity_curve[ctx.dataIndex];
+                    const pnl = e.pnl >= 0 ? '+$'+e.pnl.toFixed(2) : '-$'+Math.abs(e.pnl).toFixed(2);
+                    return '$' + ctx.parsed.y.toFixed(2) + ' (' + e.outcome.toUpperCase() + ' ' + pnl + ')';
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#8b949e', font: { size: 9 } },
+                grid: { color: 'rgba(48,54,61,0.5)' },
+              },
+              y: {
+                ticks: {
+                  color: '#8b949e',
+                  font: { size: 10 },
+                  callback: function(v) { return '$' + v.toFixed(0); }
+                },
+                grid: { color: 'rgba(48,54,61,0.5)' },
+              }
+            }
+          }
+        });
+      }
+    }
+
     document.getElementById('footer').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
   } catch(e) { document.getElementById('footer').textContent = 'Error: ' + e.message; }
 }

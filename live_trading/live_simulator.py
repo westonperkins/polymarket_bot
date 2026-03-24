@@ -55,6 +55,7 @@ class LiveSimulator:
                 outcome="skip",
                 pnl=0.0,
                 portfolio_balance_after=self._tracked_balance,
+                skip_reason="no_consensus",
             )
             self._save_signals(trade_id, signal_data)
             logger.info(f"SKIP: {market.slug} — {decision.reason}")
@@ -86,6 +87,7 @@ class LiveSimulator:
                 outcome="skip",
                 pnl=0.0,
                 portfolio_balance_after=self._tracked_balance,
+                skip_reason="risk_blocked",
             )
             self._save_signals(trade_id, signal_data)
             return None
@@ -123,6 +125,7 @@ class LiveSimulator:
                 outcome="skip",
                 pnl=0.0,
                 portfolio_balance_after=self._tracked_balance,
+                skip_reason="order_rejected",
             )
             self._save_signals(trade_id, signal_data)
             return None
