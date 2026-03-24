@@ -192,17 +192,13 @@ class SessionManager:
 
 session_mgr = SessionManager()
 
-# Limit concurrent outbound HTTP requests to prevent DNS thread pool exhaustion
-_http_semaphore = asyncio.Semaphore(config.MAX_CONCURRENT_REQUESTS)
-
 
 # ── Spot price polling task ─────────────────────────────────────────────
 async def poll_spot_price():
     """Adaptively sample spot price: 5s active, 60s tracking, 180s between markets."""
     while engine.running:
         try:
-            async with _http_semaphore:
-                price = await fetch_spot_price(client=session_mgr.client)
+            price = await fetch_spot_price(client=session_mgr.client)
             if price:
                 spot_tracker.record(price)
                 session_mgr.record_success()
@@ -262,22 +258,18 @@ async def on_signal_window(
     try:
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
-        # ── Fetch all signals with concurrency limit ─────────────────
-        # Semaphore ensures at most MAX_CONCURRENT_REQUESTS in flight,
-        # preventing DNS thread pool exhaustion on the VPS.
+        # ── Fetch all signals in parallel ─────────────────────────────
+        # HTTP/2 multiplexing + expanded thread pool handle concurrency;
+        # no semaphore needed.
         sig_client = session_mgr.client
-
-        async def _limited(coro):
-            async with _http_semaphore:
-                return await coro
 
         chainlink_price, spot_price, cvd_result, ob_result, liq_result = (
             await asyncio.gather(
-                _limited(fetch_chainlink_price(client=sig_client)),
-                _limited(fetch_spot_price(client=sig_client)),
-                _limited(fetch_cvd(client=sig_client)),
-                _limited(fetch_orderbook(client=sig_client)),
-                _limited(fetch_liquidations(client=sig_client)),
+                fetch_chainlink_price(client=sig_client),
+                fetch_spot_price(client=sig_client),
+                fetch_cvd(client=sig_client),
+                fetch_orderbook(client=sig_client),
+                fetch_liquidations(client=sig_client),
                 return_exceptions=True,
             )
         )
