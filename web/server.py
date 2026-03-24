@@ -104,7 +104,7 @@ def build_state_dict(
         }
 
     # Recent trades with their signal snapshots
-    trades = db.get_recent_trades(conn, limit=10, mode=mode)
+    trades = db.get_recent_trades(conn, limit=25, mode=mode)
     state["trades"] = []
     for t in trades:
         real_id = t["id"]

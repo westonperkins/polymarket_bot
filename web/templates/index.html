@@ -137,6 +137,13 @@
   }
   .mode-btn:hover { border-color: var(--cyan); color: var(--text); }
   .mode-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(57,210,192,0.1); }
+  .hide-btn { margin-left: 8px; }
+  .hide-btn.active { border-color: var(--red); color: var(--red); background: rgba(248,81,73,0.1); }
+  .portfolio-hidden .balance-big,
+  .portfolio-hidden .pnl-line,
+  .portfolio-hidden .sensitive { visibility: hidden; }
+  .portfolio-hidden .balance-big::after,
+  .portfolio-hidden .pnl-line::after { content: '••••••'; visibility: visible; color: var(--dim); }
   @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .card-trades { grid-row: auto; grid-column: auto; }
@@ -154,6 +161,7 @@
       <button class="mode-btn" id="btn-all" onclick="setMode(null)">ALL</button>
     </div>
     <a href="/calendar" style="color: var(--cyan); text-decoration: none; font-size: 12px; letter-spacing: 1px;">P&L CALENDAR →</a>
+    <button class="mode-btn hide-btn" id="btn-hide" onclick="togglePortfolio()">HIDE $</button>
   </div>
 </div>
 
@@ -163,14 +171,14 @@
     <h2>Portfolio</h2>
     <div class="balance-big" id="balance">$10,000.00</div>
     <div class="pnl-line" id="pnl-line">+0.00%</div>
-    <div class="stat-row"><span class="stat-label">Daily P&L</span><span class="stat-value" id="daily-pnl">$0.00</span></div>
+    <div class="stat-row"><span class="stat-label">Daily P&L</span><span class="stat-value sensitive" id="daily-pnl">$0.00</span></div>
     <div class="stat-row"><span class="stat-label">Trades</span><span class="stat-value" id="total-trades">0</span></div>
     <div class="stat-row"><span class="stat-label">Record</span><span class="stat-value" id="record">0W / 0L / 0S</span></div>
     <div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-value" id="win-rate">0.0%</span></div>
     <div style="border-top: 1px solid var(--border); margin: 8px 0;"></div>
-    <div class="stat-row"><span class="stat-label">Peak Balance</span><span class="stat-value" id="peak-balance">$0.00</span></div>
-    <div class="stat-row"><span class="stat-label">Best Trade</span><span class="stat-value" id="best-trade">$0.00</span></div>
-    <div class="stat-row"><span class="stat-label">Worst Trade</span><span class="stat-value" id="worst-trade">$0.00</span></div>
+    <div class="stat-row"><span class="stat-label">Peak Balance</span><span class="stat-value sensitive" id="peak-balance">$0.00</span></div>
+    <div class="stat-row"><span class="stat-label">Best Trade</span><span class="stat-value sensitive" id="best-trade">$0.00</span></div>
+    <div class="stat-row"><span class="stat-label">Worst Trade</span><span class="stat-value sensitive" id="worst-trade">$0.00</span></div>
   </div>
 
   <!-- Market -->
@@ -216,7 +224,31 @@
 <script>
 let currentMode = null; // will be set from server on first poll
 let modeInitialized = false;
+let portfolioHidden = localStorage.getItem('hidePortfolio') === 'true';
 const REFRESH = 5000;
+
+// Apply saved portfolio visibility on load
+if (portfolioHidden) {
+  document.getElementById('portfolio-card').classList.add('portfolio-hidden');
+  document.getElementById('btn-hide').textContent = 'SHOW $';
+  document.getElementById('btn-hide').classList.add('active');
+}
+
+function togglePortfolio() {
+  portfolioHidden = !portfolioHidden;
+  localStorage.setItem('hidePortfolio', portfolioHidden);
+  const card = document.getElementById('portfolio-card');
+  const btn = document.getElementById('btn-hide');
+  if (portfolioHidden) {
+    card.classList.add('portfolio-hidden');
+    btn.textContent = 'SHOW $';
+    btn.classList.add('active');
+  } else {
+    card.classList.remove('portfolio-hidden');
+    btn.textContent = 'HIDE $';
+    btn.classList.remove('active');
+  }
+}
 
 function setMode(mode) {
   currentMode = mode;
