@@ -61,8 +61,8 @@ class RiskManager:
                 f"-${self._max_daily_loss:,.2f} max)"
             )
 
-        # Check max position size
-        if position_size > self._max_position_size:
+        # Check max position size (round to cents to avoid float precision issues)
+        if round(position_size, 2) > round(self._max_position_size, 2):
             return False, (
                 f"Position size ${position_size:,.2f} exceeds "
                 f"max ${self._max_position_size:,.2f} "

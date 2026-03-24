@@ -17,8 +17,8 @@ STARTING_BALANCE = 10_000.00  # virtual USDC for paper trading
 LIVE_STARTING_BALANCE = float(os.environ.get("LIVE_STARTING_BALANCE", "9.00"))  # real USDC for live
 
 # Risk per trade as fraction of current portfolio
-RISK_HIGH_CONFIDENCE = 0.05    # 5%
-RISK_MEDIUM_CONFIDENCE = 0.025 # 2.5%
+RISK_HIGH_CONFIDENCE = float(os.environ.get("RISK_HIGH_CONFIDENCE", "0.05"))      # 5% default
+RISK_MEDIUM_CONFIDENCE = float(os.environ.get("RISK_MEDIUM_CONFIDENCE", "0.025")) # 2.5% default
 
 # ── Tradeable Window Filter ────────────────────────────────────────────
 # Skip if "Up" odds are outside this range (outcome already priced in)
