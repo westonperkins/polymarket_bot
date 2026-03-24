@@ -252,7 +252,7 @@ class Executor:
                     return False
 
             except Exception as e:
-                logger.debug(f"Redemption via {rpc_url} failed: {type(e).__name__}: {e}")
+                logger.warning(f"Redemption via {rpc_url} failed: {type(e).__name__}: {e}")
                 continue
 
         logger.warning(f"Redemption failed for condition {condition_id[:16]}... (all RPCs failed)")
