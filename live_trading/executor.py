@@ -213,11 +213,14 @@ class Executor:
 
         for rpc_url in POLYGON_RPCS:
             try:
+                logger.info(f"Trying redemption via {rpc_url}...")
                 w3 = Web3(Web3.HTTPProvider(rpc_url, request_kwargs={"timeout": 15}))
                 if not w3.is_connected():
+                    logger.warning(f"RPC {rpc_url} not connected, skipping")
                     continue
 
                 account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
+                logger.info(f"Redeeming from address: {account.address}")
                 ctf = w3.eth.contract(
                     address=Web3.to_checksum_address(CTF_ADDRESS),
                     abi=CTF_REDEEM_ABI,
