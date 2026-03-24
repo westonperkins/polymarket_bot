@@ -58,7 +58,7 @@ class LiveSimulator:
                 skip_reason="no_consensus",
             )
             self._save_signals(trade_id, signal_data)
-            logger.info(f"SKIP: {market.slug} — {decision.reason}")
+            logger.info(f"⏭️  SKIP: {market.slug} — {decision.reason}")
             return None
 
         # Determine entry odds and position size
@@ -75,7 +75,7 @@ class LiveSimulator:
         # Risk check
         allowed, reason = self._risk.check_trade_allowed(position_size)
         if not allowed:
-            logger.warning(f"RISK BLOCKED: {reason}")
+            logger.warning(f"🚫 RISK BLOCKED: {reason}")
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
@@ -128,7 +128,7 @@ class LiveSimulator:
             else:
                 reject_reason = "order_rejected"
 
-            logger.error(f"ORDER FAILED: {decision.side} on {market.slug} ({reject_reason})")
+            logger.error(f"❌ ORDER FAILED: {decision.side} on {market.slug} ({reject_reason})")
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
@@ -154,10 +154,11 @@ class LiveSimulator:
         slippage_pct = ((effective_price - entry_odds) / entry_odds * 100) if entry_odds > 0 else 0
         real_payout_rate = (fill_shares - fill_cost) / fill_cost if fill_cost > 0 else 0.0
 
+        slip_emoji = "🟢" if slippage_pct <= 10 else "🟡" if slippage_pct <= 30 else "🔴"
         logger.info(
-            f"FILL QUALITY: quoted=${entry_odds:.3f}/share actual=${effective_price:.3f}/share "
+            f"{slip_emoji} FILL: quoted=${entry_odds:.3f} actual=${effective_price:.3f} "
             f"slippage={slippage_pct:+.1f}% | "
-            f"if_win=${fill_shares - fill_cost:.4f} if_loss=-${fill_cost:.4f}"
+            f"if_win=+${fill_shares - fill_cost:.4f} if_loss=-${fill_cost:.4f}"
         )
 
         trade_id = db.insert_trade(
@@ -178,8 +179,8 @@ class LiveSimulator:
         self._save_signals(trade_id, signal_data)
 
         logger.info(
-            f"LIVE TRADE: {decision.side} on {market.slug} | "
-            f"cost=${fill_cost:.6f} shares={fill_shares:.6f} "
+            f"💰 TRADE: {decision.side} on {market.slug} | "
+            f"cost=${fill_cost:.2f} shares={fill_shares:.2f} "
             f"payout={real_payout_rate:.1%} confidence={decision.confidence}"
         )
         return trade_id
@@ -223,9 +224,9 @@ class LiveSimulator:
             if condition_id:
                 redeemed = self._executor.redeem_positions(condition_id)
                 if redeemed:
-                    logger.info(f"Auto-claimed winning position for trade {trade_id}")
+                    logger.info(f"🔓 AUTO-CLAIMED: trade {trade_id}")
                 else:
-                    logger.warning(f"Auto-claim failed for trade {trade_id} — claim manually on Polymarket")
+                    logger.warning(f"⚠️  CLAIM FAILED: trade {trade_id} — claim manually on Polymarket")
         else:
             pnl = -fill_cost
 
@@ -241,9 +242,10 @@ class LiveSimulator:
         )
         self._portfolio.save_snapshot()
 
+        settle_emoji = "✅" if outcome == "win" else "💀"
         logger.info(
-            f"SETTLED: trade {trade_id} {outcome.upper()} "
-            f"pnl=${pnl:+,.6f} | tracked_balance=${self._tracked_balance:,.2f}"
+            f"{settle_emoji} SETTLED: trade {trade_id} {outcome.upper()} "
+            f"pnl=${pnl:+,.2f} | balance=${self._tracked_balance:,.2f}"
         )
 
     def get_pending_trade_ids(self) -> list[int]:
