@@ -207,6 +207,22 @@ def get_trade_by_id(conn, trade_id: int) -> Optional[dict]:
 
 
 @_retry
+def update_market_outcome(conn, market_id: str, winning_side: str) -> int:
+    """Set market_outcome for ALL trades (including skips) in this market.
+
+    Returns the number of rows updated.
+    """
+    with _cursor(conn) as cur:
+        cur.execute(
+            "UPDATE trades SET market_outcome = %s WHERE market_id = %s AND market_outcome IS NULL",
+            (winning_side, market_id),
+        )
+        count = cur.rowcount
+    conn.get_conn().commit()
+    return count
+
+
+@_retry
 def update_trade_outcome(
     conn,
     trade_id: int,

@@ -40,6 +40,17 @@ BEGIN
     END IF;
 END $$;
 
+-- Migration: add market_outcome column (what actually won, regardless of trade)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'trades' AND column_name = 'market_outcome'
+    ) THEN
+        ALTER TABLE trades ADD COLUMN market_outcome TEXT;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS signals (
     id SERIAL PRIMARY KEY,
     trade_id INTEGER NOT NULL,

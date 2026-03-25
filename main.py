@@ -406,46 +406,56 @@ async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
     """Called after market closes — launch background resolution."""
     try:
         trade_id = pending_trades.pop(market.slug, None)
-        if trade_id is None:
-            dashboard.status_message = "Market closed — no pending trade"
-            return
 
-        # Resolve in background so the engine can move on to the next market
+        # Always resolve in background to record market_outcome for skips too
         asyncio.create_task(
             _resolve_in_background(market, trade_id)
         )
-        dashboard.status_message = (
-            f"Market closed — resolving {market.slug} in background..."
-        )
+
+        if trade_id:
+            dashboard.status_message = (
+                f"Market closed — resolving {market.slug} in background..."
+            )
+        else:
+            dashboard.status_message = "Market closed — resolving outcome for records"
     except Exception as e:
         logger.error(f"on_market_close failed for {market.slug}: {e}", exc_info=True)
         dashboard.status_message = f"ERROR: Market close handler failed"
 
 
-async def _resolve_in_background(market: MarketInfo, trade_id: int):
-    """Background task to wait for Polymarket resolution and settle the trade."""
+async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
+    """Background task to wait for Polymarket resolution and settle the trade.
+
+    Also records market_outcome for all trades (including skips) in this market.
+    trade_id may be None if the market was skipped entirely.
+    """
     try:
-        logger.info(f"Background resolution started for {market.slug} (trade {trade_id})")
+        logger.info(f"Background resolution started for {market.slug} (trade {trade_id or 'skip-only'})")
         winning_side = await resolve_market(
             market.condition_id, market.slug,
             client_factory=lambda: session_mgr.session,
         )
 
         if winning_side:
-            simulator.settle_trade(trade_id, winning_side, market.condition_id)
-            # Send Discord notification
-            trade_data = db.get_trade_by_id(conn, trade_id)
-            if trade_data:
-                pnl = trade_data["pnl"] or 0
-                bal = trade_data["portfolio_balance_after"] or 0
-                if trade_data["outcome"] == "win":
-                    await notify_win(trade_id, pnl, bal)
-                elif trade_data["outcome"] == "loss":
-                    await notify_loss(trade_id, pnl, bal)
-            dashboard.status_message = (
-                f"RESOLVED: {winning_side} won — "
-                f"balance=${portfolio.balance:,.2f} ({portfolio.pnl_pct:+.2f}%)"
-            )
+            # Record market outcome for ALL trades in this market (including skips)
+            updated = db.update_market_outcome(conn, market.slug, winning_side)
+            logger.info(f"Market outcome recorded: {winning_side} for {market.slug} ({updated} trades updated)")
+
+            if trade_id:
+                simulator.settle_trade(trade_id, winning_side, market.condition_id)
+                # Send Discord notification
+                trade_data = db.get_trade_by_id(conn, trade_id)
+                if trade_data:
+                    pnl = trade_data["pnl"] or 0
+                    bal = trade_data["portfolio_balance_after"] or 0
+                    if trade_data["outcome"] == "win":
+                        await notify_win(trade_id, pnl, bal)
+                    elif trade_data["outcome"] == "loss":
+                        await notify_loss(trade_id, pnl, bal)
+                dashboard.status_message = (
+                    f"RESOLVED: {winning_side} won — "
+                    f"balance=${portfolio.balance:,.2f} ({portfolio.pnl_pct:+.2f}%)"
+                )
         else:
             logger.error(f"Could not resolve market {market.slug} after all retries")
             dashboard.status_message = f"ERROR: Resolution failed for {market.slug}"
