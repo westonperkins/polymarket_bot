@@ -27,7 +27,7 @@ ODDS_UPPER_BOUND = 0.70
 
 # ── Timing ─────────────────────────────────────────────────────────────
 CANDLE_DURATION_SECONDS = 300       # 5 minutes
-ENTRY_SECONDS_BEFORE_CLOSE = 30    # trigger signal analysis at T-30s
+ENTRY_SECONDS_BEFORE_CLOSE = int(os.environ.get("ENTRY_SECONDS_BEFORE_CLOSE", "30"))
 SIGNAL_FETCH_TIMEOUT = 10          # max seconds per API call
 SIGNAL_FETCH_BUDGET = 5            # total seconds allowed for all fetches
 DASHBOARD_REFRESH_INTERVAL = 5     # seconds between dashboard refreshes
