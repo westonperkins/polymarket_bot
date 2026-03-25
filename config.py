@@ -102,5 +102,6 @@ POLYMARKET_SIGNATURE_TYPE = int(os.environ.get("POLYMARKET_SIGNATURE_TYPE", "0")
 LIVE_MAX_DAILY_LOSS_PCT = float(os.environ.get("LIVE_MAX_DAILY_LOSS_PCT", "10"))     # stop if down X% today
 LIVE_MAX_POSITION_SIZE_PCT = float(os.environ.get("LIVE_MAX_POSITION_SIZE_PCT", "5"))  # max X% per trade
 LIVE_MIN_BALANCE_PCT = float(os.environ.get("LIVE_MIN_BALANCE_PCT", "20"))
-LIVE_MAX_SLIPPAGE_PCT = float(os.environ.get("LIVE_MAX_SLIPPAGE_PCT", "10"))  # max % above quoted odds to pay           # stop if balance drops below X% of starting
+LIVE_MAX_SLIPPAGE_PCT = float(os.environ.get("LIVE_MAX_SLIPPAGE_PCT", "10"))  # max % above quoted odds to pay
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")           # stop if balance drops below X% of starting
 

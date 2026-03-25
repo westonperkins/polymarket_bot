@@ -199,6 +199,14 @@ def insert_trade(
 
 
 @_retry
+def get_trade_by_id(conn, trade_id: int) -> Optional[dict]:
+    """Return a single trade by ID."""
+    with _cursor(conn) as cur:
+        cur.execute("SELECT * FROM trades WHERE id = %s", (trade_id,))
+        return cur.fetchone()
+
+
+@_retry
 def update_trade_outcome(
     conn,
     trade_id: int,

@@ -28,6 +28,7 @@ from signals.liquidations import fetch_liquidations
 from signals.market_structure import compute_round_number, get_time_regime, compute_streak
 from signals.polymarket_book import fetch_polymarket_book
 from timing_engine import TimingEngine
+from notifications import notify_win, notify_loss, notify_trade_placed
 
 logging.basicConfig(
     level=logging.INFO,
@@ -432,6 +433,15 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int):
 
         if winning_side:
             simulator.settle_trade(trade_id, winning_side, market.condition_id)
+            # Send Discord notification
+            trade_data = db.get_trade_by_id(conn, trade_id)
+            if trade_data:
+                pnl = trade_data["pnl"] or 0
+                bal = trade_data["portfolio_balance_after"] or 0
+                if trade_data["outcome"] == "win":
+                    await notify_win(trade_id, pnl, bal)
+                elif trade_data["outcome"] == "loss":
+                    await notify_loss(trade_id, pnl, bal)
             dashboard.status_message = (
                 f"RESOLVED: {winning_side} won — "
                 f"balance=${portfolio.balance:,.2f} ({portfolio.pnl_pct:+.2f}%)"
