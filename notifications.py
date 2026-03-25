@@ -52,3 +52,23 @@ async def notify_trade_placed(trade_id: int, side: str, cost: float, payout_pct:
         f"💰 **TRADE** — #{trade_id} {side}\n"
         f"Cost: ${cost:.2f} | Payout: {payout_pct:.1f}%"
     )
+
+
+def notify_critical_sync(message: str) -> None:
+    """Send a critical alert synchronously (for use in non-async crash handlers)."""
+    if not config.DISCORD_WEBHOOK_URL:
+        return
+    try:
+        import requests
+        requests.post(
+            config.DISCORD_WEBHOOK_URL,
+            json={"content": f"🚨 **CRITICAL** — {message}"},
+            timeout=5,
+        )
+    except Exception:
+        pass
+
+
+async def notify_critical(message: str) -> None:
+    """Send a critical alert about bot-breaking errors."""
+    await notify_discord(f"🚨 **CRITICAL** — {message}")

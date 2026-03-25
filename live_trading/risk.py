@@ -40,6 +40,8 @@ class RiskManager:
         """Emergency stop — no more trades until bot restarts."""
         self._killed = True
         logger.warning("KILL SWITCH ACTIVATED — no further trades will be placed")
+        from notifications import notify_critical_sync
+        notify_critical_sync("Kill switch activated — no further trades until restart")
 
     def check_trade_allowed(self, position_size: float) -> tuple[bool, str]:
         """Check if a trade is allowed under current risk limits.

@@ -29,7 +29,7 @@ from signals.market_structure import compute_round_number, get_time_regime, comp
 from signals.polymarket_book import fetch_polymarket_book
 from signals.fair_value import compute_fair_value
 from timing_engine import TimingEngine
-from notifications import notify_win, notify_loss, notify_trade_placed
+from notifications import notify_win, notify_loss, notify_trade_placed, notify_critical_sync
 
 logging.basicConfig(
     level=logging.INFO,
@@ -433,6 +433,7 @@ async def on_signal_window(
     except Exception as e:
         logger.error(f"Signal window failed for {market.slug}: {e}", exc_info=True)
         dashboard.status_message = f"ERROR: Signal window failed — {e}"
+        notify_critical_sync(f"Signal window failed: {type(e).__name__}: {e}")
 
 
 async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
@@ -576,6 +577,7 @@ def main():
             break
         except Exception as e:
             logger.error(f"Bot crashed: {type(e).__name__}: {e}", exc_info=True)
+            notify_critical_sync(f"Bot crashed: {type(e).__name__}: {e}\nAuto-restarting in 10s...")
             logger.info("Auto-restarting in 10 seconds...")
         finally:
             # Reset engine state for potential restart
