@@ -310,6 +310,7 @@ async def on_signal_window(
         time_regime = get_time_regime()
         outcomes = db.get_last_n_outcomes(conn)
         streak = compute_streak(outcomes)
+        secs_to_close = engine.seconds_until_close() or 0
 
         # ── Fair value model ──────────────────────────────────────────────
         fair = compute_fair_value(
@@ -356,7 +357,6 @@ async def on_signal_window(
         # ── Build signal data dict for DB + dashboard ───────────────────
         from datetime import datetime, timezone
         now_utc = datetime.now(timezone.utc)
-        secs_to_close = engine.seconds_until_close() or 0
 
         signal_data = {
             "chainlink_price": chainlink_price,
