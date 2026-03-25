@@ -220,13 +220,10 @@ class LiveSimulator:
             fill_shares = fill_cost * (1.0 + payout_rate)
             pnl = fill_shares - fill_cost
 
-            # Auto-redeem winning positions on-chain
-            if condition_id:
-                redeemed = self._executor.redeem_positions(condition_id)
-                if redeemed:
-                    logger.info(f"🔓 AUTO-CLAIMED: trade {trade_id}")
-                else:
-                    logger.warning(f"⚠️  CLAIM FAILED: trade {trade_id} — claim manually on Polymarket")
+            # Auto-redeem disabled — proxy wallet architecture requires claiming
+            # through Polymarket's website for Magic/Email wallets.
+            # TODO: implement proxy-aware redemption
+            logger.info(f"📋 WIN: claim trade {trade_id} on Polymarket website")
         else:
             pnl = -fill_cost
 
