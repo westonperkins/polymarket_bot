@@ -49,15 +49,19 @@ class SpotTracker:
 
     def __init__(self, max_samples: int = 100) -> None:
         self._history: deque[PriceSample] = deque(maxlen=max_samples)
+        self._candle_open_price: Optional[float] = None
 
     def reset(self) -> None:
         """Clear price history for a new market."""
         self._history.clear()
+        self._candle_open_price = None
 
     def record(self, price: float, timestamp: float | None = None) -> None:
         """Record a price sample."""
         ts = timestamp or time.time()
         self._history.append(PriceSample(timestamp=ts, price=price))
+        if self._candle_open_price is None:
+            self._candle_open_price = price
 
     @property
     def latest_price(self) -> Optional[float]:
@@ -65,6 +69,33 @@ class SpotTracker:
         if not self._history:
             return None
         return self._history[-1].price
+
+    @property
+    def candle_open_price(self) -> Optional[float]:
+        """Return the first recorded price in this candle."""
+        return self._candle_open_price
+
+    @property
+    def candle_high(self) -> Optional[float]:
+        """Return the highest price in this candle."""
+        if not self._history:
+            return None
+        return max(s.price for s in self._history)
+
+    @property
+    def candle_low(self) -> Optional[float]:
+        """Return the lowest price in this candle."""
+        if not self._history:
+            return None
+        return min(s.price for s in self._history)
+
+    def get_volatility(self) -> Optional[float]:
+        """Return standard deviation of recent prices (last 20 samples)."""
+        if len(self._history) < 3:
+            return None
+        import statistics
+        recent = [s.price for s in list(self._history)[-20:]]
+        return statistics.stdev(recent)
 
     def get_momentum(self) -> Optional[MomentumResult]:
         """Calculate momentum over 60s and 120s windows.

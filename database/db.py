@@ -568,6 +568,15 @@ def insert_signals(
     day_of_week: Optional[int] = None,
     fill_price_per_share: Optional[float] = None,
     fill_slippage_pct: Optional[float] = None,
+    # Price context
+    btc_open_price: Optional[float] = None,
+    btc_high: Optional[float] = None,
+    btc_low: Optional[float] = None,
+    btc_entry_price: Optional[float] = None,
+    btc_volatility: Optional[float] = None,
+    poly_spread: Optional[float] = None,
+    odds_velocity: Optional[float] = None,
+    prev_candle_outcome: Optional[str] = None,
 ) -> int:
     """Insert a signal snapshot for a trade and return its id."""
     with _cursor(conn) as cur:
@@ -585,9 +594,12 @@ def insert_signals(
                 poly_book_up_bids, poly_book_up_asks,
                 poly_book_down_bids, poly_book_down_asks, poly_book_bias,
                 momentum_direction, hour_of_day, day_of_week,
-                fill_price_per_share, fill_slippage_pct)
+                fill_price_per_share, fill_slippage_pct,
+                btc_open_price, btc_high, btc_low, btc_entry_price,
+                btc_volatility, poly_spread, odds_velocity, prev_candle_outcome)
                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                       %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 trade_id,
@@ -615,6 +627,8 @@ def insert_signals(
                 poly_book_down_bids, poly_book_down_asks, poly_book_bias,
                 momentum_direction, hour_of_day, day_of_week,
                 fill_price_per_share, fill_slippage_pct,
+                btc_open_price, btc_high, btc_low, btc_entry_price,
+                btc_volatility, poly_spread, odds_velocity, prev_candle_outcome,
             ),
         )
         signal_id = cur.fetchone()["id"]

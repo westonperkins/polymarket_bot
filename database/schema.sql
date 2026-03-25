@@ -132,6 +132,21 @@ BEGIN
     END IF;
 END $$;
 
+-- Migration: add price context columns for ML
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'signals' AND column_name = 'btc_open_price') THEN
+        ALTER TABLE signals ADD COLUMN btc_open_price DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN btc_high DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN btc_low DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN btc_entry_price DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN btc_volatility DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN poly_spread DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN odds_velocity DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN prev_candle_outcome TEXT;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL

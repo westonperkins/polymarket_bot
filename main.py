@@ -107,6 +107,8 @@ dashboard = Dashboard(engine, portfolio, conn)
 
 # Track pending trades for resolution: market_slug → trade_id
 pending_trades: dict[str, int] = {}
+# Track the last resolved market outcome for ML features
+last_market_outcome: str | None = None
 
 
 # ── Session manager ───────────────────────────────────────────────────────
@@ -379,6 +381,14 @@ async def on_signal_window(
             "momentum_direction": momentum.direction if momentum else None,
             "hour_of_day": now_utc.hour,
             "day_of_week": now_utc.weekday(),
+            # Price context
+            "btc_open_price": spot_tracker.candle_open_price,
+            "btc_high": spot_tracker.candle_high,
+            "btc_low": spot_tracker.candle_low,
+            "btc_entry_price": spot_price,
+            "btc_volatility": spot_tracker.get_volatility(),
+            "poly_spread": odds.spread if odds else None,
+            "prev_candle_outcome": last_market_outcome,
         }
 
         # Update dashboard
@@ -437,6 +447,8 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
         )
 
         if winning_side:
+            global last_market_outcome
+            last_market_outcome = winning_side
             # Record market outcome for ALL trades in this market (including skips)
             updated = db.update_market_outcome(conn, market.slug, winning_side)
             logger.info(f"Market outcome recorded: {winning_side} for {market.slug} ({updated} trades updated)")
