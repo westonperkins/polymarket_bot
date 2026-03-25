@@ -27,6 +27,7 @@ from signals.orderbook import fetch_orderbook
 from signals.liquidations import fetch_liquidations
 from signals.market_structure import compute_round_number, get_time_regime, compute_streak
 from signals.polymarket_book import fetch_polymarket_book
+from signals.fair_value import compute_fair_value
 from timing_engine import TimingEngine
 from notifications import notify_win, notify_loss, notify_trade_placed
 
@@ -310,6 +311,22 @@ async def on_signal_window(
         outcomes = db.get_last_n_outcomes(conn)
         streak = compute_streak(outcomes)
 
+        # ── Fair value model ──────────────────────────────────────────────
+        fair = compute_fair_value(
+            spot_price=spot_price or 0,
+            open_price=spot_tracker.candle_open_price or 0,
+            sigma=spot_tracker.get_volatility() or 0,
+            seconds_remaining=secs_to_close,
+            market_up_price=odds.up_price,
+            market_down_price=odds.down_price,
+        ) if spot_price and spot_tracker.candle_open_price else None
+
+        if fair:
+            logger.info(
+                f"📊 FAIR VALUE: up={fair.fair_up:.3f} down={fair.fair_down:.3f} "
+                f"z={fair.z_score:+.2f} | edge_up={fair.edge_up_bps:+.0f}bps edge_down={fair.edge_down_bps:+.0f}bps"
+            )
+
         # ── Sub-model votes ─────────────────────────────────────────────
         dashboard.status_message = "SIGNAL WINDOW — computing votes..."
 
@@ -389,6 +406,12 @@ async def on_signal_window(
             "btc_volatility": spot_tracker.get_volatility(),
             "poly_spread": odds.spread if odds else None,
             "prev_candle_outcome": last_market_outcome,
+            # Fair value model
+            "fair_up": fair.fair_up if fair else None,
+            "fair_down": fair.fair_down if fair else None,
+            "fair_z_score": fair.z_score if fair else None,
+            "edge_up_bps": fair.edge_up_bps if fair else None,
+            "edge_down_bps": fair.edge_down_bps if fair else None,
         }
 
         # Update dashboard

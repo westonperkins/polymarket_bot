@@ -147,6 +147,18 @@ BEGIN
     END IF;
 END $$;
 
+-- Migration: add fair value columns for ML
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'signals' AND column_name = 'fair_up') THEN
+        ALTER TABLE signals ADD COLUMN fair_up DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN fair_down DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN fair_z_score DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN edge_up_bps DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN edge_down_bps DOUBLE PRECISION;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
