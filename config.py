@@ -103,5 +103,6 @@ LIVE_MAX_DAILY_LOSS_PCT = float(os.environ.get("LIVE_MAX_DAILY_LOSS_PCT", "10"))
 LIVE_MAX_POSITION_SIZE_PCT = float(os.environ.get("LIVE_MAX_POSITION_SIZE_PCT", "5"))  # max X% per trade
 LIVE_MIN_BALANCE_PCT = float(os.environ.get("LIVE_MIN_BALANCE_PCT", "20"))
 LIVE_MAX_SLIPPAGE_PCT = float(os.environ.get("LIVE_MAX_SLIPPAGE_PCT", "10"))  # max % above quoted odds to pay
+LIVE_MIN_FILL_PRICE = float(os.environ.get("LIVE_MIN_FILL_PRICE", "0.20"))   # reject fills below this price per share
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")           # stop if balance drops below X% of starting
 
