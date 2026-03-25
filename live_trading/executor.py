@@ -177,15 +177,13 @@ class Executor:
                 logger.warning(f"Order got zero fill (empty book): ${amount:.2f} on token {token_id[:16]}...")
                 return None
 
-            # Reject fills below minimum price per share
+            # Log warning if fill is below minimum price (but still record it — order already executed)
             price_per_share = making / taking if taking > 0 else 0
             if config.LIVE_MIN_FILL_PRICE > 0 and price_per_share < config.LIVE_MIN_FILL_PRICE:
                 logger.warning(
-                    f"🚫 Fill rejected: ${price_per_share:.3f}/share below min ${config.LIVE_MIN_FILL_PRICE:.2f} | "
-                    f"cost=${making:.2f} shares={taking:.2f}"
+                    f"⚠️  CHEAP FILL: ${price_per_share:.3f}/share below min ${config.LIVE_MIN_FILL_PRICE:.2f} | "
+                    f"cost=${making:.2f} shares={taking:.2f} — trade still recorded (already executed on CLOB)"
                 )
-                self._last_order_error = f"fill price ${price_per_share:.3f} below min ${config.LIVE_MIN_FILL_PRICE}"
-                return None
 
             fill_pct = round(making / amount * 100, 1) if amount > 0 else 0
             logger.info(
