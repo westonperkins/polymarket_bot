@@ -223,9 +223,9 @@ HTML = """<!DOCTYPE html>
   <h2 style="color:var(--cyan)">Recent Trades</h2>
   <button class="toggle-btn active" id="btn-hide-skips" onclick="toggleSkips()">HIDE SKIPS</button>
   <table><thead><tr>
-    <th>#</th><th>Market</th><th>Side</th><th class="r">Cost</th>
+    <th>#</th><th>Market</th><th>Side</th><th class="r">Cost</th><th class="r">R:R</th>
     <th>Result</th><th class="r">P&L</th><th class="r">Balance</th>
-  </tr></thead><tbody id="tbody"><tr><td colspan="7" style="color:var(--dim);text-align:center">Loading...</td></tr></tbody></table>
+  </tr></thead><tbody id="tbody"><tr><td colspan="8" style="color:var(--dim);text-align:center">Loading...</td></tr></tbody></table>
 </div>
 <div class="footer" id="footer">Connecting...</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -265,6 +265,7 @@ function buildDetail(t) {
   h += detailRow('Entry Odds', t.entry_odds ? fmt(t.entry_odds,3) : '-');
   h += detailRow('Cost', t.position_size ? '$'+fmt(t.position_size) : '-');
   h += detailRow('Payout Rate', t.payout_rate ? (t.payout_rate*100).toFixed(1)+'%' : '-');
+  h += detailRow('Risk/Reward', t.risk_reward_ratio ? t.risk_reward_ratio.toFixed(2)+':1' : '-');
   h += detailRow('Confidence', t.confidence_level.toUpperCase());
   h += detailRow('Outcome', t.outcome.toUpperCase());
   h += detailRow('P&L', t.pnl!=null ? '$'+(t.pnl>=0?'+':'')+fmt(t.pnl) : '-');
@@ -336,14 +337,16 @@ async function poll() {
       const pnl = t.pnl || 0;
       const pnlStr = isSkip ? '-' : '<span class="'+(pnl>=0?'pos':'neg')+'">$'+(pnl>=0?'+':'')+fmt(pnl)+'</span>';
       const isOpen = wasExpanded.has(String(t.id));
+      const rrStr = t.risk_reward_ratio ? t.risk_reward_ratio.toFixed(1)+':1' : '-';
       html += '<tr class="trade-row'+(isOpen?' expanded':'')+'" data-id="'+t.id+'" onclick="toggleDetail(this)">'
         +'<td>'+t.id+'</td><td>'+slug+'</td><td>'+(isSkip?'-':t.side)+'</td>'
         +'<td class="r">'+(t.position_size?'$'+fmt(t.position_size):'-')+'</td>'
+        +'<td class="r">'+rrStr+'</td>'
         +'<td>'+(isSkip && t.signals && t.signals.final_vote !== 'ABSTAIN' ? badge('failed') : badge(t.outcome))+'</td><td class="r">'+pnlStr+'</td>'
         +'<td class="r">'+(t.portfolio_balance_after?'$'+fmt(t.portfolio_balance_after):'-')+'</td></tr>';
-      html += '<tr class="trade-detail'+(isOpen?' open':'')+'" data-id="'+t.id+'"><td colspan="7">'+buildDetail(t)+'</td></tr>';
+      html += '<tr class="trade-detail'+(isOpen?' open':'')+'" data-id="'+t.id+'"><td colspan="8">'+buildDetail(t)+'</td></tr>';
     }
-    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="7" style="color:var(--dim);text-align:center">No trades</td></tr>';
+    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="8" style="color:var(--dim);text-align:center">No trades</td></tr>';
 
     // Skip breakdown pie chart
     const sd = p.skip_detail;

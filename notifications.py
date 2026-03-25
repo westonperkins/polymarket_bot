@@ -23,21 +23,25 @@ async def notify_discord(message: str) -> None:
         logger.debug(f"Discord notification failed: {e}")
 
 
-async def notify_win(trade_id: int, pnl: float, balance: float) -> None:
+async def notify_win(trade_id: int, pnl: float, balance: float, rr_ratio: float = 0) -> None:
     """Notify about a winning trade that needs claiming."""
+    rr_line = f"R:R: {rr_ratio}:1\n" if rr_ratio else ""
     await notify_discord(
         f"🏆 **WIN** — Trade #{trade_id}\n"
         f"P&L: **+${pnl:.2f}**\n"
+        f"{rr_line}"
         f"Balance: ${balance:.2f}\n"
         f"→ Claim on Polymarket"
     )
 
 
-async def notify_loss(trade_id: int, pnl: float, balance: float) -> None:
+async def notify_loss(trade_id: int, pnl: float, balance: float, rr_ratio: float = 0) -> None:
     """Notify about a losing trade."""
+    rr_line = f"R:R: {rr_ratio}:1\n" if rr_ratio else ""
     await notify_discord(
         f"💀 **LOSS** — Trade #{trade_id}\n"
         f"P&L: **-${abs(pnl):.2f}**\n"
+        f"{rr_line}"
         f"Balance: ${balance:.2f}"
     )
 

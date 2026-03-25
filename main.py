@@ -448,10 +448,11 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
                 if trade_data:
                     pnl = trade_data["pnl"] or 0
                     bal = trade_data["portfolio_balance_after"] or 0
+                    rr = trade_data.get("risk_reward_ratio") or 0
                     if trade_data["outcome"] == "win":
-                        await notify_win(trade_id, pnl, bal)
+                        await notify_win(trade_id, pnl, bal, rr)
                     elif trade_data["outcome"] == "loss":
-                        await notify_loss(trade_id, pnl, bal)
+                        await notify_loss(trade_id, pnl, bal, rr)
                 dashboard.status_message = (
                     f"RESOLVED: {winning_side} won — "
                     f"balance=${portfolio.balance:,.2f} ({portfolio.pnl_pct:+.2f}%)"

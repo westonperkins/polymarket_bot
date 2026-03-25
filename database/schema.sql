@@ -51,6 +51,17 @@ BEGIN
     END IF;
 END $$;
 
+-- Migration: add risk_reward_ratio column
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'trades' AND column_name = 'risk_reward_ratio'
+    ) THEN
+        ALTER TABLE trades ADD COLUMN risk_reward_ratio DOUBLE PRECISION;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS signals (
     id SERIAL PRIMARY KEY,
     trade_id INTEGER NOT NULL,

@@ -154,11 +154,16 @@ class LiveSimulator:
         slippage_pct = ((effective_price - entry_odds) / entry_odds * 100) if entry_odds > 0 else 0
         real_payout_rate = (fill_shares - fill_cost) / fill_cost if fill_cost > 0 else 0.0
 
+        # Risk/reward ratio: potential win / potential loss
+        potential_win = fill_shares - fill_cost
+        potential_loss = fill_cost
+        rr_ratio = round(potential_win / potential_loss, 2) if potential_loss > 0 else 0
+
         slip_emoji = "🟢" if slippage_pct <= 10 else "🟡" if slippage_pct <= 30 else "🔴"
         logger.info(
             f"{slip_emoji} FILL: quoted=${entry_odds:.3f} actual=${effective_price:.3f} "
             f"slippage={slippage_pct:+.1f}% | "
-            f"if_win=+${fill_shares - fill_cost:.4f} if_loss=-${fill_cost:.4f}"
+            f"R:R={rr_ratio}:1 (win +${potential_win:.2f} / lose -${potential_loss:.2f})"
         )
 
         trade_id = db.insert_trade(
@@ -172,6 +177,7 @@ class LiveSimulator:
             outcome="pending",
             pnl=0.0,
             portfolio_balance_after=self._tracked_balance,
+            risk_reward_ratio=rr_ratio,
         )
         # Add fill quality data to signal record for ML training
         signal_data["fill_price_per_share"] = effective_price

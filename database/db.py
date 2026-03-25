@@ -167,6 +167,7 @@ def insert_trade(
     portfolio_balance_after: Optional[float] = None,
     trading_mode: Optional[str] = None,
     skip_reason: Optional[str] = None,
+    risk_reward_ratio: Optional[float] = None,
 ) -> int:
     """Insert a trade record and return its id."""
     mode = trading_mode or config.TRADING_MODE
@@ -175,8 +176,8 @@ def insert_trade(
             """INSERT INTO trades
                (timestamp, market_id, side, entry_odds, position_size,
                 payout_rate, confidence_level, outcome, pnl, portfolio_balance_after,
-                trading_mode, skip_reason)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                trading_mode, skip_reason, risk_reward_ratio)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 datetime.now(timezone.utc).isoformat(),
@@ -191,6 +192,7 @@ def insert_trade(
                 portfolio_balance_after,
                 mode,
                 skip_reason,
+                risk_reward_ratio,
             ),
         )
         trade_id = cur.fetchone()["id"]
