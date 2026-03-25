@@ -1,0 +1,83 @@
+======================================================================
+POLYMARKET BOT — ML ANALYSIS REPORT
+======================================================================
+
+--- DATA OVERVIEW ---
+Total resolved trades: 71
+Total skipped cycles: 433
+Wins: 39 | Losses: 32
+Win rate: 54.9%
+Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-03-25T19:49:02.896845+00:00
+
+Signals with >20% missing data:
+  odds_velocity: 100.0% null
+  fair_up: 100.0% null
+  fair_down: 100.0% null
+  fair_z_score: 100.0% null
+  edge_up_bps: 100.0% null
+  edge_down_bps: 100.0% null
+  btc_open_price: 98.6% null
+  btc_high: 98.6% null
+  btc_low: 98.6% null
+  btc_entry_price: 98.6% null
+
+--- MODEL PERFORMANCE (Cross-Validated) ---
+  Fold 1: acc=34.8% prec=34.8% rec=100.0% f1=0.516 brier=0.384
+  Fold 2: acc=47.8% prec=47.8% rec=100.0% f1=0.647 brier=0.253
+
+  Average accuracy: 41.3% (baseline: 54.9%)
+  Model does NOT outperform baseline — signals may not be predictive yet
+
+--- TOP 10 PREDICTIVE SIGNALS ---
+   1. up_odds                             importance=0.0000
+   2. down_odds                           importance=0.0000
+   3. odds_spread                         importance=0.0000
+   4. entry_odds                          importance=0.0000
+   5. seconds_before_close                importance=0.0000
+   6. hour_of_day                         importance=0.0000
+   7. day_of_week                         importance=0.0000
+   8. is_us_market_hours                  importance=0.0000
+   9. is_asian_hours                      importance=0.0000
+  10. is_weekend                          importance=0.0000
+
+--- BOTTOM 10 (LEAST USEFUL) ---
+      streak_is_up                        importance=0.0000
+      prev_candle_up                      importance=0.0000
+      fill_price_per_share                importance=0.0000
+      fill_slippage_pct                   importance=0.0000
+      risk_reward_ratio                   importance=0.0000
+      has_cvd                             importance=0.0000
+      has_orderbook                       importance=0.0000
+      has_liquidations                    importance=0.0000
+      has_poly_book                       importance=0.0000
+      has_fair_value                      importance=0.0000
+
+--- SKIP VERIFICATION ---
+Skips with known outcome: 21
+Skips where ensemble had a direction: 17 (would have won 15/17 = 88.2%)
+
+By skip reason:
+  empty_book               :   15 skips,  15 would have won (100.0%)
+  no_consensus             :    4 skips,   0 would have won (0.0%)
+  invalid_amount           :    2 skips,   0 would have won (0.0%)
+
+Average model P(win) on skips: 0.500
+
+--- STRATEGY COMPARISON ---
+Strategy                             Trades   Win%        PnL  Avg PnL    MaxDD     PF
+-------------------------------------------------------------------------------------
+Baseline (actual)                        71 54.9% $   112.18 $   1.58 $ 186.75  1.28
+Entry T-20s to T-35s                     54 50.0% $   116.73 $   2.16 $ 186.75  1.30
+Entry T-50s to T-70s                      9 55.6% $    -7.09 $  -0.79 $   9.71  0.35
+Slippage <=10%                           43 34.9% $   157.46 $   3.66 $ 181.28  1.50
+Slippage <=20%                           45 37.8% $   163.38 $   3.63 $ 181.28  1.52
+Slippage <=30%                           49 40.8% $   163.56 $   3.34 $ 184.98  1.51
+Slippage <=50%                           59 47.5% $    96.05 $   1.63 $ 197.40  1.24
+Best hours ([0.0, 20.0, 14.0])           10 100.0% $    55.27 $   5.53 $   0.00   inf
+High confidence only (3/3)                8 50.0% $     7.14 $   0.89 $  89.27  1.07
+
+--- ACTIONABLE RECOMMENDATIONS ---
+
+1. SLIPPAGE: Slippage <=30% improves PnL to $163.56 vs $112.18. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
+
+======================================================================

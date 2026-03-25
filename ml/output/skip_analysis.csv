@@ -1,0 +1,64 @@
+trade_id,skip_reason,final_vote,market_outcome,would_have_won,model_win_prob,up_odds,hour_of_day
+"trade_id    1016
+trade_id    1016
+Name: 473, dtype: object",empty_book,Up,Up,True,0.5,0.505,18.0
+"trade_id    1017
+trade_id    1017
+Name: 474, dtype: object",invalid_amount,Down,Up,False,0.5,0.505,18.0
+"trade_id    1018
+trade_id    1018
+Name: 475, dtype: object",invalid_amount,Down,Up,False,0.5,0.505,18.0
+"trade_id    1019
+trade_id    1019
+Name: 476, dtype: object",empty_book,Down,Down,True,0.5,0.475,18.0
+"trade_id    1021
+trade_id    1021
+Name: 478, dtype: object",empty_book,Down,Down,True,0.5,0.505,18.0
+"trade_id    1022
+trade_id    1022
+Name: 479, dtype: object",empty_book,Down,Down,True,0.5,0.495,18.0
+"trade_id    1023
+trade_id    1023
+Name: 480, dtype: object",no_consensus,ABSTAIN,Up,,0.5,0.525,18.0
+"trade_id    1026
+trade_id    1026
+Name: 483, dtype: object",empty_book,Up,Up,True,0.5,0.505,19.0
+"trade_id    1027
+trade_id    1027
+Name: 484, dtype: object",empty_book,Down,Down,True,0.5,0.525,19.0
+"trade_id    1030
+trade_id    1030
+Name: 487, dtype: object",empty_book,Up,Up,True,0.5,0.525,19.0
+"trade_id    1031
+trade_id    1031
+Name: 488, dtype: object",empty_book,Down,Down,True,0.5,0.515,19.0
+"trade_id    1033
+trade_id    1033
+Name: 490, dtype: object",empty_book,Up,Up,True,0.5,0.505,19.0
+"trade_id    1034
+trade_id    1034
+Name: 491, dtype: object",empty_book,Up,Up,True,0.5,0.485,19.0
+"trade_id    1037
+trade_id    1037
+Name: 494, dtype: object",no_consensus,ABSTAIN,Down,,0.5,0.505,19.0
+"trade_id    1039
+trade_id    1039
+Name: 496, dtype: object",empty_book,Down,Down,True,0.5,0.555,20.0
+"trade_id    1040
+trade_id    1040
+Name: 497, dtype: object",empty_book,Down,Down,True,0.5,0.525,20.0
+"trade_id    1041
+trade_id    1041
+Name: 498, dtype: object",empty_book,Up,Up,True,0.5,0.525,20.0
+"trade_id    1042
+trade_id    1042
+Name: 499, dtype: object",no_consensus,ABSTAIN,Up,,0.5,0.545,20.0
+"trade_id    1043
+trade_id    1043
+Name: 500, dtype: object",empty_book,Down,Down,True,0.5,0.535,20.0
+"trade_id    1045
+trade_id    1045
+Name: 502, dtype: object",no_consensus,ABSTAIN,Up,,0.5,0.535,20.0
+"trade_id    1046
+trade_id    1046
+Name: 503, dtype: object",empty_book,Up,Up,True,0.5,0.525,20.0
