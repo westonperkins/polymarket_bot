@@ -119,6 +119,27 @@ def query_state(conn):
     """)
     equity_curve = [dict(r) for r in cur.fetchall()]
 
+    # P&L calendar — daily P&L grouped by date
+    cur.execute("""
+        SELECT
+            TO_CHAR(DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles'), 'YYYY-MM-DD') AS day,
+            SUM(pnl) AS daily_pnl,
+            COUNT(*) FILTER (WHERE outcome = 'win') AS wins,
+            COUNT(*) FILTER (WHERE outcome = 'loss') AS losses
+        FROM trades
+        WHERE trading_mode = 'live' AND outcome IN ('win', 'loss')
+        GROUP BY DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
+        ORDER BY DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
+    """)
+    calendar = []
+    for r in cur.fetchall():
+        calendar.append({
+            "day": r["day"],
+            "daily_pnl": float(r["daily_pnl"] or 0),
+            "wins": int(r["wins"] or 0),
+            "losses": int(r["losses"] or 0),
+        })
+
     cur.close()
 
     return {
@@ -134,6 +155,7 @@ def query_state(conn):
         },
         "trades": trades,
         "equity_curve": equity_curve,
+        "calendar": calendar,
     }
 
 
@@ -196,13 +218,32 @@ HTML = """<!DOCTYPE html>
   .toggle-btn:hover { border-color:var(--cyan); color:var(--text); }
   .toggle-btn.active { border-color:var(--cyan); color:var(--cyan); background:rgba(57,210,192,0.1); }
   .footer { text-align:center; font-size:11px; color:var(--dim); margin-top:12px; }
+  .header-btns { display:flex; justify-content:center; gap:8px; margin-top:8px; }
+  .hdr-btn { background:var(--card); color:var(--dim); border:1px solid var(--border);
+    border-radius:4px; padding:3px 10px; cursor:pointer; font-family:inherit;
+    font-size:11px; letter-spacing:1px; font-weight:600; }
+  .hdr-btn:hover { border-color:var(--cyan); color:var(--text); }
+  .hdr-btn.active { border-color:var(--red); color:var(--red); background:rgba(248,81,73,0.1); }
+  .hidden .balance, .hidden .pnl, .hidden .sensitive { visibility:hidden; }
+  .hidden .balance::after, .hidden .pnl::after { content:'••••••'; visibility:visible; color:var(--dim); }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:11px; }
+  .cal-header { text-align:center; color:var(--dim); font-weight:600; padding:4px; }
+  .cal-day { text-align:center; padding:6px 2px; border-radius:4px; border:1px solid var(--border); }
+  .cal-day.win { background:rgba(63,185,80,0.15); border-color:var(--green); }
+  .cal-day.loss { background:rgba(248,81,73,0.15); border-color:var(--red); }
+  .cal-day.empty { border-color:transparent; }
+  .cal-pnl { font-weight:700; font-size:10px; }
+  .cal-record { font-size:9px; color:var(--dim); }
 </style>
 </head><body>
 <div class="header">
   <h1>POLYMARKET LIVE TRADING BOT</h1>
   <div class="sub">Direct from Supabase &middot; Auto-refreshes every 5s</div>
+  <div class="header-btns">
+    <button class="hdr-btn" id="btn-hide" onclick="toggleHide()">HIDE $</button>
+  </div>
 </div>
-<div class="card">
+<div class="card" id="portfolio-card">
   <h2>Portfolio</h2>
   <div id="portfolio">Loading...</div>
 </div>
@@ -220,6 +261,10 @@ HTML = """<!DOCTYPE html>
   <canvas id="equityChart" height="120"></canvas>
 </div>
 <div class="card">
+  <h2 style="color:var(--yellow)">P&L Calendar</h2>
+  <div id="calendar">Loading...</div>
+</div>
+<div class="card">
   <h2 style="color:var(--cyan)">Recent Trades</h2>
   <button class="toggle-btn active" id="btn-hide-skips" onclick="toggleSkips()">HIDE SKIPS</button>
   <table><thead><tr>
@@ -233,6 +278,30 @@ HTML = """<!DOCTYPE html>
 let equityChart = null;
 let skipChart = null;
 let hideSkips = localStorage.getItem('hideSkips') !== 'false';
+let portfolioHidden = localStorage.getItem('hidePortfolio') === 'true';
+
+// Apply saved hide state on load
+if (portfolioHidden) {
+  document.getElementById('portfolio-card').classList.add('hidden');
+  document.getElementById('btn-hide').textContent = 'SHOW $';
+  document.getElementById('btn-hide').classList.add('active');
+}
+
+function toggleHide() {
+  portfolioHidden = !portfolioHidden;
+  localStorage.setItem('hidePortfolio', portfolioHidden);
+  const card = document.getElementById('portfolio-card');
+  const btn = document.getElementById('btn-hide');
+  if (portfolioHidden) {
+    card.classList.add('hidden');
+    btn.textContent = 'SHOW $';
+    btn.classList.add('active');
+  } else {
+    card.classList.remove('hidden');
+    btn.textContent = 'HIDE $';
+    btn.classList.remove('active');
+  }
+}
 function toggleSkips() {
   hideSkips = !hideSkips;
   localStorage.setItem('hideSkips', hideSkips);
@@ -316,13 +385,13 @@ async function poll() {
       <div class="balance">$${fmt(p.balance)}</div>
       <div class="pnl ${pc}">${p.pnl>=0?'+':''}$${fmt(p.pnl)} (${p.pnl_pct>=0?'+':''}${fmt(p.pnl_pct,1)}%)</div>
       <div class="stats">
-        <div class="row"><span class="lbl">Starting</span><span class="val">$${fmt(p.starting)}</span></div>
+        <div class="row"><span class="lbl">Starting</span><span class="val sensitive">$${fmt(p.starting)}</span></div>
         <div class="row"><span class="lbl">Win Rate</span><span class="val">${fmt(p.win_rate,1)}%</span></div>
         <div class="row"><span class="lbl">Trades</span><span class="val">${p.total}</span></div>
         <div class="row"><span class="lbl">Record</span><span class="val"><span class="pos">${p.wins}W</span> / <span class="neg">${p.losses}L</span></span></div>
         <div class="row"><span class="lbl">Skips</span><span class="val">${p.skips} total</span></div>
-        <div class="row"><span class="lbl">Best Trade</span><span class="val pos">$+${fmt(p.best_trade)}</span></div>
-        <div class="row"><span class="lbl">Worst Trade</span><span class="val neg">$${fmt(p.worst_trade)}</span></div>
+        <div class="row"><span class="lbl">Best Trade</span><span class="val sensitive pos">$+${fmt(p.best_trade)}</span></div>
+        <div class="row"><span class="lbl">Worst Trade</span><span class="val sensitive neg">$${fmt(p.worst_trade)}</span></div>
         <div class="row"><span class="lbl">Peak Balance</span><span class="val">$${fmt(p.peak_balance)}</span></div>
       </div>`;
     // Preserve expanded rows across polls
@@ -416,6 +485,49 @@ async function poll() {
       legendHtml += '<div class="row"><span class="lbl"><span style="color:'+skipColors[i]+'">&#9679;</span> '+skipLabels[i]+'</span><span class="val">'+skipData[i]+' ('+pct+'%)</span></div>';
     }
     document.getElementById('skipLegend').innerHTML = legendHtml;
+
+    // P&L Calendar
+    if (d.calendar && d.calendar.length > 0) {
+      let calHtml = '<div class="cal-grid">';
+      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      days.forEach(d => calHtml += '<div class="cal-header">'+d+'</div>');
+
+      // Group by date, find the month range
+      const calData = {};
+      d.calendar.forEach(c => { calData[c.day] = c; });
+
+      const dates = d.calendar.map(c => new Date(c.day + 'T00:00:00'));
+      const firstDate = new Date(Math.min(...dates));
+      const lastDate = new Date(Math.max(...dates));
+
+      // Start from first Monday on or before firstDate
+      const start = new Date(firstDate);
+      start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+
+      // End on Sunday on or after lastDate
+      const end = new Date(lastDate);
+      end.setDate(end.getDate() + (7 - end.getDay()) % 7);
+
+      for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
+        const key = dt.toISOString().split('T')[0];
+        const c = calData[key];
+        if (c) {
+          const cls = c.daily_pnl >= 0 ? 'win' : 'loss';
+          const sign = c.daily_pnl >= 0 ? '+' : '';
+          calHtml += '<div class="cal-day '+cls+'">'
+            + '<div>'+dt.getDate()+'</div>'
+            + '<div class="cal-pnl '+(c.daily_pnl>=0?'pos':'neg')+'">'+sign+'$'+Math.abs(c.daily_pnl).toFixed(0)+'</div>'
+            + '<div class="cal-record">'+c.wins+'W/'+c.losses+'L</div>'
+            + '</div>';
+        } else {
+          calHtml += '<div class="cal-day empty"><div style="color:var(--dim)">'+dt.getDate()+'</div></div>';
+        }
+      }
+      calHtml += '</div>';
+      document.getElementById('calendar').innerHTML = calHtml;
+    } else {
+      document.getElementById('calendar').innerHTML = '<div style="color:var(--dim)">No data yet</div>';
+    }
 
     // Equity curve
     if (d.equity_curve && d.equity_curve.length > 0) {
