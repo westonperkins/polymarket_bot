@@ -44,6 +44,8 @@ class LiveSimulator:
         """Place a real trade or record a skip."""
 
         if decision.side is None:
+            # Determine skip reason from decision
+            skip_reason = "ml_gate" if "ML gate" in (decision.reason or "") else "no_consensus"
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
@@ -55,7 +57,7 @@ class LiveSimulator:
                 outcome="skip",
                 pnl=0.0,
                 portfolio_balance_after=self._tracked_balance,
-                skip_reason="no_consensus",
+                skip_reason=skip_reason,
             )
             self._save_signals(trade_id, signal_data)
             logger.info(f"⏭️  SKIP: {market.slug} — {decision.reason}")

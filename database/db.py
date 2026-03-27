@@ -583,6 +583,7 @@ def insert_signals(
     fair_z_score: Optional[float] = None,
     edge_up_bps: Optional[float] = None,
     edge_down_bps: Optional[float] = None,
+    ml_win_prob: Optional[float] = None,
 ) -> int:
     """Insert a signal snapshot for a trade and return its id."""
     with _cursor(conn) as cur:
@@ -603,10 +604,11 @@ def insert_signals(
                 fill_price_per_share, fill_slippage_pct,
                 btc_open_price, btc_high, btc_low, btc_entry_price,
                 btc_volatility, poly_spread, odds_velocity, prev_candle_outcome,
-                fair_up, fair_down, fair_z_score, edge_up_bps, edge_down_bps)
+                fair_up, fair_down, fair_z_score, edge_up_bps, edge_down_bps,
+                ml_win_prob)
                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 trade_id,
@@ -637,6 +639,7 @@ def insert_signals(
                 btc_open_price, btc_high, btc_low, btc_entry_price,
                 btc_volatility, poly_spread, odds_velocity, prev_candle_outcome,
                 fair_up, fair_down, fair_z_score, edge_up_bps, edge_down_bps,
+                ml_win_prob,
             ),
         )
         signal_id = cur.fetchone()["id"]

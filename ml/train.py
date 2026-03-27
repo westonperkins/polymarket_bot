@@ -24,7 +24,7 @@ except ImportError:
     sys.exit(1)
 
 from ml.data import pull_raw_data, clean_data, get_data_summary
-from ml.features import build_features, FEATURE_COLS
+from ml.features import build_features, FEATURE_COLS, GATE_FEATURE_COLS
 from ml.backtest import run_all_backtests
 from ml.report import generate_report
 
@@ -35,15 +35,17 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 
-def train_model(decided: pd.DataFrame) -> tuple:
+def train_model(decided: pd.DataFrame, feature_cols: list = None) -> tuple:
     """Train XGBoost with time-series cross-validation.
 
     Returns (model, cv_results, feature_importances).
     """
+    if feature_cols is None:
+        feature_cols = FEATURE_COLS
     df = build_features(decided)
-    X = df[FEATURE_COLS].values
+    X = df[feature_cols].values
     y = df["y"].values
-    feature_names = FEATURE_COLS
+    feature_names = feature_cols
 
     # Class balance
     n_pos = y.sum()
@@ -182,19 +184,31 @@ def main():
             json.dump(summary, f, indent=2, default=str)
         return
 
-    # Train model
-    logger.info("\n2. Training XGBoost model...")
+    # Train full model (all features including execution)
+    logger.info("\n2. Training full XGBoost model...")
     model, cv_results, importances = train_model(decided)
-
-    # Save model
     model.save_model(str(OUTPUT_DIR / "model.json"))
-    logger.info(f"   Model saved to {OUTPUT_DIR / 'model.json'}")
+    logger.info(f"   Full model saved to {OUTPUT_DIR / 'model.json'}")
+
+    # Train gate model (pre-trade features only — no execution data)
+    logger.info("\n2b. Training gate model (pre-trade features only)...")
+    gate_model, gate_cv, gate_imp = train_model(decided, feature_cols=GATE_FEATURE_COLS)
+    gate_model.save_model(str(OUTPUT_DIR / "gate_model.json"))
+    logger.info(f"   Gate model saved to {OUTPUT_DIR / 'gate_model.json'}")
+
+    avg_gate_acc = sum(r["accuracy"] for r in gate_cv) / len(gate_cv)
+    logger.info(f"   Gate model accuracy: {avg_gate_acc:.1%} (baseline: {summary['win_rate']:.1%})")
 
     # Save feature importance
     imp_df = pd.DataFrame(
         [{"feature": k, "importance": v} for k, v in importances.items()]
     )
     imp_df.to_csv(OUTPUT_DIR / "feature_importance.csv", index=False)
+
+    gate_imp_df = pd.DataFrame(
+        [{"feature": k, "importance": v} for k, v in gate_imp.items()]
+    )
+    gate_imp_df.to_csv(OUTPUT_DIR / "gate_feature_importance.csv", index=False)
 
     # Save CV results
     cv_df = pd.DataFrame(cv_results)

@@ -159,6 +159,14 @@ BEGIN
     END IF;
 END $$;
 
+-- Migration: add ml_win_prob column
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'signals' AND column_name = 'ml_win_prob') THEN
+        ALTER TABLE signals ADD COLUMN ml_win_prob DOUBLE PRECISION;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL

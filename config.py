@@ -104,5 +104,10 @@ LIVE_MAX_POSITION_SIZE_PCT = float(os.environ.get("LIVE_MAX_POSITION_SIZE_PCT", 
 LIVE_MIN_BALANCE_PCT = float(os.environ.get("LIVE_MIN_BALANCE_PCT", "20"))
 LIVE_MAX_SLIPPAGE_PCT = float(os.environ.get("LIVE_MAX_SLIPPAGE_PCT", "10"))  # max % above quoted odds to pay
 LIVE_MIN_FILL_PRICE = float(os.environ.get("LIVE_MIN_FILL_PRICE", "0.20"))   # reject fills below this price per share
-DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")           # stop if balance drops below X% of starting
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
+
+# ── ML Gate ──────────────────────────────────────────────────────────
+ML_GATE_ENABLED = os.environ.get("ML_GATE_ENABLED", "false").lower() == "true"
+ML_CONFIDENCE_THRESHOLD = float(os.environ.get("ML_CONFIDENCE_THRESHOLD", "0.60"))
+ML_MODEL_PATH = os.environ.get("ML_MODEL_PATH", "ml/output/gate_model.json")           # stop if balance drops below X% of starting
 

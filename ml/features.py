@@ -45,6 +45,11 @@ FEATURE_COLS = [
     "has_cvd", "has_orderbook", "has_liquidations", "has_poly_book", "has_fair_value",
 ]
 
+# Pre-trade features only — used by the ML gate (no execution data available yet)
+GATE_FEATURE_COLS = [c for c in FEATURE_COLS if c not in [
+    "fill_price_per_share", "fill_slippage_pct", "risk_reward_ratio",
+]]
+
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     """Engineer features from raw signal data. Returns DataFrame with FEATURE_COLS."""
@@ -112,3 +117,62 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     df[FEATURE_COLS] = df[FEATURE_COLS].fillna(0)
 
     return df
+
+
+def build_features_from_signal_data(
+    signal_data: dict,
+    side: str,
+    confidence: str,
+    entry_odds: float,
+) -> np.ndarray:
+    """Build a feature vector from live signal_data for the ML gate.
+
+    Converts raw signal_data dict (as built in main.py on_signal_window)
+    into the same feature format the model was trained on.
+
+    Returns numpy array of shape (1, len(GATE_FEATURE_COLS)).
+    """
+    # Start with raw signal values
+    row = dict(signal_data)
+
+    # Encode votes as numeric (same as ml/data.py clean_data)
+    vote_map = {"Up": 1, "Down": -1, "ABSTAIN": 0}
+    row["momentum_vote_num"] = vote_map.get(row.get("momentum_vote", "ABSTAIN"), 0)
+    row["reversion_vote_num"] = vote_map.get(row.get("reversion_vote", "ABSTAIN"), 0)
+    row["structure_vote_num"] = vote_map.get(row.get("structure_vote", "ABSTAIN"), 0)
+    row["final_vote_num"] = vote_map.get(row.get("final_vote", "ABSTAIN"), 0)
+
+    # Encode side and confidence
+    row["side_num"] = 1 if side == "Up" else 0
+    conf_map = {"high": 2, "medium": 1, "skip": 0}
+    row["confidence_num"] = conf_map.get(confidence, 0)
+
+    # Entry odds
+    row["entry_odds"] = entry_odds
+
+    # Parse streak
+    streak = row.get("candle_streak", "none")
+    if isinstance(streak, str) and streak != "none" and "x" in streak:
+        try:
+            row["streak_length"] = int(streak.split("x")[0])
+        except (ValueError, IndexError):
+            row["streak_length"] = 0
+        row["streak_is_up"] = 1 if "Up" in streak else 0
+    else:
+        row["streak_length"] = 0
+        row["streak_is_up"] = 0
+
+    # Previous candle outcome
+    row["prev_candle_up"] = 1 if row.get("prev_candle_outcome") == "Up" else 0
+
+    # Execution features not available pre-trade
+    row["fill_price_per_share"] = 0
+    row["fill_slippage_pct"] = 0
+    row["risk_reward_ratio"] = 0
+
+    # Build DataFrame and apply feature engineering
+    df = pd.DataFrame([row])
+    df = build_features(df)
+
+    # Return gate features only
+    return df[GATE_FEATURE_COLS].values

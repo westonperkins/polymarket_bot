@@ -261,6 +261,10 @@ HTML = """<!DOCTYPE html>
   <canvas id="equityChart" height="120"></canvas>
 </div>
 <div class="card">
+  <h2 style="color:var(--green)">Win Rate Over Time</h2>
+  <canvas id="winrateChart" height="100"></canvas>
+</div>
+<div class="card">
   <h2 style="color:var(--yellow)">P&L Calendar</h2>
   <div id="calendar">Loading...</div>
 </div>
@@ -277,6 +281,7 @@ HTML = """<!DOCTYPE html>
 <script>
 let equityChart = null;
 let skipChart = null;
+let winrateChart = null;
 let hideSkips = localStorage.getItem('hideSkips') !== 'false';
 let portfolioHidden = localStorage.getItem('hidePortfolio') === 'true';
 
@@ -585,6 +590,81 @@ async function poll() {
                   color: '#8b949e',
                   font: { size: 10 },
                   callback: function(v) { return '$' + v.toFixed(0); }
+                },
+                grid: { color: 'rgba(48,54,61,0.5)' },
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // Win rate over time
+    if (d.equity_curve && d.equity_curve.length > 1) {
+      let cumWins = 0;
+      const wrLabels = [];
+      const wrData = [];
+      for (let i = 0; i < d.equity_curve.length; i++) {
+        if (d.equity_curve[i].outcome === 'win') cumWins++;
+        wrLabels.push('#' + d.equity_curve[i].id);
+        wrData.push(Math.round(cumWins / (i + 1) * 100 * 10) / 10);
+      }
+      const wrCtx = document.getElementById('winrateChart').getContext('2d');
+      if (winrateChart) {
+        winrateChart.data.labels = wrLabels;
+        winrateChart.data.datasets[0].data = wrData;
+        winrateChart.update('none');
+      } else {
+        winrateChart = new Chart(wrCtx, {
+          type: 'line',
+          data: {
+            labels: wrLabels,
+            datasets: [{
+              label: 'Win Rate %',
+              data: wrData,
+              borderColor: '#3fb950',
+              borderWidth: 2,
+              pointRadius: 1,
+              pointHoverRadius: 4,
+              fill: {
+                target: 'origin',
+                above: 'rgba(63,185,80,0.08)',
+              },
+              tension: 0.3,
+            }, {
+              label: '50%',
+              data: wrData.map(() => 50),
+              borderColor: 'rgba(139,148,158,0.4)',
+              borderWidth: 1,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(ctx) {
+                    if (ctx.datasetIndex === 0) return 'Win Rate: ' + ctx.parsed.y.toFixed(1) + '%';
+                    return null;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#8b949e', font: { size: 9 } },
+                grid: { color: 'rgba(48,54,61,0.5)' },
+              },
+              y: {
+                min: 0, max: 100,
+                ticks: {
+                  color: '#8b949e',
+                  font: { size: 10 },
+                  callback: function(v) { return v + '%'; }
                 },
                 grid: { color: 'rgba(48,54,61,0.5)' },
               }
