@@ -395,14 +395,42 @@ async def on_signal_window(
     try:
         # Check if a limit order already filled for this market
         if market.slug in pending_limit_orders:
-            order_id = pending_limit_orders[market.slug]
+            order_id = pending_limit_orders.pop(market.slug)
             status = simulator._executor.get_order_status(order_id) if config.TRADING_MODE == "live" else None
             if status:
-                filled = float(status.get("filledSize") or status.get("size_matched") or 0)
-                if filled > 0:
-                    logger.info(f"📋 Limit order already filled ({filled} shares) — skipping FAK")
-                    dashboard.status_message = f"LIMIT FILLED: {filled:.0f} shares"
-                    # Don't place another order — the limit order is the trade
+                filled_size = float(status.get("filledSize") or status.get("size_matched") or 0)
+                if filled_size > 0:
+                    # Extract fill details
+                    fill_price = float(status.get("price") or status.get("original_price") or 0)
+                    fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
+                    side = status.get("asset_id", "")
+                    # Determine side from token ID
+                    limit_side = "Up" if side == market.clob_token_id_up else "Down"
+                    entry_odds = odds.up_price if limit_side == "Up" else odds.down_price
+                    payout_rate = (1.0 - fill_price) / fill_price if fill_price > 0 else 0
+                    rr_ratio = round(payout_rate, 2)
+
+                    logger.info(
+                        f"📋 LIMIT FILLED: {limit_side} | {filled_size:.2f} shares @ ${fill_price:.3f} "
+                        f"cost=${fill_cost:.2f} R:R={rr_ratio:.1f}:1"
+                    )
+
+                    # Record the trade in DB
+                    trade_id = db.insert_trade(
+                        conn,
+                        market_id=market.slug,
+                        side=limit_side,
+                        entry_odds=entry_odds,
+                        position_size=fill_cost,
+                        payout_rate=payout_rate,
+                        confidence_level="medium",
+                        outcome="pending",
+                        pnl=0.0,
+                        portfolio_balance_after=getattr(simulator, '_tracked_balance', 0),
+                        risk_reward_ratio=rr_ratio,
+                    )
+                    pending_trades[market.slug] = trade_id
+                    dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
                     return
 
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
