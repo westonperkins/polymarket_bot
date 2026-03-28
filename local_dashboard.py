@@ -96,7 +96,7 @@ def query_state(conn):
     cur.execute("""
         SELECT id, timestamp, market_id, side, entry_odds, position_size,
                payout_rate, confidence_level, outcome, pnl,
-               portfolio_balance_after, trading_mode
+               portfolio_balance_after, trading_mode, risk_reward_ratio
         FROM trades WHERE trading_mode = 'live'
         ORDER BY id DESC LIMIT 100
     """)
@@ -237,7 +237,7 @@ HTML = """<!DOCTYPE html>
 </style>
 </head><body>
 <div class="header">
-  <h1>POLYMARKET LIVE TRADING BOT</h1>
+  <h1>Terminal</h1>
   <div class="sub">Direct from Supabase &middot; Auto-refreshes every 5s</div>
   <div class="header-btns">
     <button class="hdr-btn" id="btn-hide" onclick="toggleHide()">HIDE $</button>
@@ -272,9 +272,9 @@ HTML = """<!DOCTYPE html>
   <h2 style="color:var(--cyan)">Recent Trades</h2>
   <button class="toggle-btn active" id="btn-hide-skips" onclick="toggleSkips()">HIDE SKIPS</button>
   <table><thead><tr>
-    <th>#</th><th>Market</th><th>Side</th><th class="r">Cost</th><th class="r">R:R</th>
+    <th>#</th><th>Market</th><th>Side</th><th class="r">Cost</th><th class="r">R:R</th><th class="r">ML%</th>
     <th>Result</th><th class="r">P&L</th><th class="r">Balance</th>
-  </tr></thead><tbody id="tbody"><tr><td colspan="8" style="color:var(--dim);text-align:center">Loading...</td></tr></tbody></table>
+  </tr></thead><tbody id="tbody"><tr><td colspan="9" style="color:var(--dim);text-align:center">Loading...</td></tr></tbody></table>
 </div>
 <div class="footer" id="footer">Connecting...</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -412,15 +412,18 @@ async function poll() {
       const pnlStr = isSkip ? '-' : '<span class="'+(pnl>=0?'pos':'neg')+'">$'+(pnl>=0?'+':'')+fmt(pnl)+'</span>';
       const isOpen = wasExpanded.has(String(t.id));
       const rrStr = t.risk_reward_ratio ? t.risk_reward_ratio.toFixed(1)+':1' : '-';
+      const mlProb = t.signals && t.signals.ml_win_prob != null ? (t.signals.ml_win_prob * 100).toFixed(0)+'%' : '-';
+      const mlClass = t.signals && t.signals.ml_win_prob != null ? (t.signals.ml_win_prob >= 0.6 ? 'pos' : t.signals.ml_win_prob >= 0.4 ? '' : 'neg') : '';
       html += '<tr class="trade-row'+(isOpen?' expanded':'')+'" data-id="'+t.id+'" onclick="toggleDetail(this)">'
         +'<td>'+t.id+'</td><td>'+slug+'</td><td>'+(isSkip?'-':t.side)+'</td>'
         +'<td class="r">'+(t.position_size?'$'+fmt(t.position_size):'-')+'</td>'
         +'<td class="r">'+rrStr+'</td>'
+        +'<td class="r '+mlClass+'">'+mlProb+'</td>'
         +'<td>'+(isSkip && t.signals && t.signals.final_vote !== 'ABSTAIN' ? badge('failed') : badge(t.outcome))+'</td><td class="r">'+pnlStr+'</td>'
         +'<td class="r">'+(t.portfolio_balance_after?'$'+fmt(t.portfolio_balance_after):'-')+'</td></tr>';
-      html += '<tr class="trade-detail'+(isOpen?' open':'')+'" data-id="'+t.id+'"><td colspan="8">'+buildDetail(t)+'</td></tr>';
+      html += '<tr class="trade-detail'+(isOpen?' open':'')+'" data-id="'+t.id+'"><td colspan="9">'+buildDetail(t)+'</td></tr>';
     }
-    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="8" style="color:var(--dim);text-align:center">No trades</td></tr>';
+    document.getElementById('tbody').innerHTML = html || '<tr><td colspan="9" style="color:var(--dim);text-align:center">No trades</td></tr>';
 
     // Skip breakdown pie chart
     const sd = p.skip_detail;
