@@ -126,6 +126,8 @@ dashboard = Dashboard(engine, portfolio, conn)
 
 # Track pending trades for resolution: market_slug → trade_id
 pending_trades: dict[str, int] = {}
+# Track pending limit orders: market_slug → order_id
+pending_limit_orders: dict[str, str] = {}
 # Track the last resolved market outcome for ML features
 last_market_outcome: str | None = None
 
@@ -252,6 +254,138 @@ async def on_skip(market: MarketInfo, reason: str):
         dashboard.status_message = f"SKIPPED: {reason}"
 
 
+async def on_limit_entry_window(
+    market: MarketInfo,
+    odds: MarketOdds,
+    session: aiohttp.ClientSession,
+):
+    """Called at T-120 — analyze signals, compute fair value, place limit order."""
+    try:
+        if config.TRADING_MODE != "live":
+            return
+
+        dashboard.status_message = "LIMIT ENTRY — computing fair value..."
+
+        # Fetch signals for ML gate
+        sig_session = session_mgr.session
+        chainlink_price, spot_price, cvd_result, ob_result, liq_result, poly_book = (
+            await asyncio.gather(
+                fetch_chainlink_price(session=sig_session),
+                fetch_spot_price(session=sig_session),
+                fetch_cvd(session=sig_session),
+                fetch_orderbook(session=sig_session),
+                fetch_liquidations(session=sig_session),
+                fetch_polymarket_book(
+                    market.clob_token_id_up, market.clob_token_id_down,
+                    session=sig_session,
+                ),
+                return_exceptions=True,
+            )
+        )
+
+        # Convert exceptions to None
+        for var_name in ['chainlink_price', 'spot_price', 'cvd_result', 'ob_result', 'liq_result', 'poly_book']:
+            val = locals()[var_name]
+            if isinstance(val, Exception):
+                locals()[var_name] = None
+
+        if not spot_price or not spot_tracker.candle_open_price:
+            logger.info("Limit entry: no spot data, skipping")
+            return
+
+        # Compute fair value
+        secs_to_close = engine.seconds_until_close() or 0
+        fair = compute_fair_value(
+            spot_price=spot_price,
+            open_price=spot_tracker.candle_open_price,
+            sigma=spot_tracker.get_volatility() or 0,
+            seconds_remaining=secs_to_close,
+            market_up_price=odds.up_price,
+            market_down_price=odds.down_price,
+        )
+
+        if not fair:
+            logger.info("Limit entry: could not compute fair value")
+            return
+
+        # Determine direction from fair value
+        edge_discount = config.LIMIT_EDGE_DISCOUNT_BPS / 10000.0
+        if fair.fair_up > fair.fair_down and fair.edge_up_bps > 0:
+            side = "Up"
+            token_id = market.clob_token_id_up
+            limit_price = round(fair.fair_up - edge_discount, 2)
+        elif fair.fair_down > fair.fair_up and fair.edge_down_bps > 0:
+            side = "Down"
+            token_id = market.clob_token_id_down
+            limit_price = round(fair.fair_down - edge_discount, 2)
+        else:
+            logger.info(f"Limit entry: no edge (fair_up={fair.fair_up:.3f} fair_down={fair.fair_down:.3f})")
+            return
+
+        # Clamp price
+        limit_price = max(0.01, min(0.99, limit_price))
+
+        # Position sizing
+        wallet_balance = simulator._executor.get_balance()
+        if wallet_balance <= 0:
+            return
+        position_usd = round(wallet_balance * config.RISK_MEDIUM_CONFIDENCE, 2)
+        num_shares = round(position_usd / limit_price, 2) if limit_price > 0 else 0
+
+        if num_shares < 1:
+            logger.info("Limit entry: position too small")
+            return
+
+        logger.info(
+            f"📋 LIMIT ENTRY: {side} | fair={fair.fair_up:.3f}/{fair.fair_down:.3f} "
+            f"price=${limit_price:.2f} shares={num_shares:.0f} "
+            f"edge={fair.edge_up_bps if side == 'Up' else fair.edge_down_bps:+.0f}bps"
+        )
+
+        # Place limit order
+        order_id = simulator._executor.place_limit_order(
+            token_id=token_id,
+            price=limit_price,
+            size=num_shares,
+        )
+
+        if order_id:
+            pending_limit_orders[market.slug] = order_id
+            dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f}"
+        else:
+            dashboard.status_message = "LIMIT ORDER: placement failed"
+
+    except Exception as e:
+        logger.error(f"Limit entry failed for {market.slug}: {type(e).__name__}: {e}", exc_info=True)
+        notify_critical_sync(f"Limit entry failed: {type(e).__name__}: {e}")
+
+
+async def on_cancel_window(market: MarketInfo):
+    """Called at T-15 — cancel any unfilled limit orders."""
+    try:
+        order_id = pending_limit_orders.pop(market.slug, None)
+        if not order_id:
+            return
+
+        if config.TRADING_MODE != "live":
+            return
+
+        # Check if already filled
+        status = simulator._executor.get_order_status(order_id)
+        if status:
+            filled = status.get("filledSize") or status.get("size_matched") or 0
+            if float(filled) > 0:
+                logger.info(f"📋 Limit order filled (not cancelling): {order_id}")
+                return
+
+        # Cancel unfilled order
+        simulator._executor.cancel_order(order_id)
+        logger.info(f"🗑️ Limit order cancelled at T-15: {order_id}")
+
+    except Exception as e:
+        logger.warning(f"Cancel window error: {type(e).__name__}: {e}")
+
+
 async def on_signal_window(
     market: MarketInfo,
     odds: MarketOdds,
@@ -259,6 +393,18 @@ async def on_signal_window(
 ):
     """Called at T-30s — fetch all signals, vote, and enter trade."""
     try:
+        # Check if a limit order already filled for this market
+        if market.slug in pending_limit_orders:
+            order_id = pending_limit_orders[market.slug]
+            status = simulator._executor.get_order_status(order_id) if config.TRADING_MODE == "live" else None
+            if status:
+                filled = float(status.get("filledSize") or status.get("size_matched") or 0)
+                if filled > 0:
+                    logger.info(f"📋 Limit order already filled ({filled} shares) — skipping FAK")
+                    dashboard.status_message = f"LIMIT FILLED: {filled:.0f} shares"
+                    # Don't place another order — the limit order is the trade
+                    return
+
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
         # ── Fetch all signals in parallel ─────────────────────────────
@@ -563,6 +709,8 @@ async def run():
     engine.on_signal_window = on_signal_window
     engine.on_market_close = on_market_close
     engine.on_skip = on_skip
+    engine.on_limit_entry_window = on_limit_entry_window
+    engine.on_cancel_window = on_cancel_window
 
     # Start engine and spot poller as concurrent tasks
     engine_task = asyncio.create_task(engine.run())

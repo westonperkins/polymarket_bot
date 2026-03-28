@@ -11,7 +11,7 @@ from typing import Optional
 from eth_account import Account
 from web3 import Web3
 from py_clob_client.client import ClobClient
-from py_clob_client.clob_types import MarketOrderArgs, OrderType
+from py_clob_client.clob_types import MarketOrderArgs, OrderArgs, OrderType
 from py_clob_client.order_builder.constants import BUY
 
 import config
@@ -201,6 +201,66 @@ class Executor:
             logger.error(f"Order placement failed: {type(e).__name__}: {e}")
             # Return error details so caller can record the specific reason
             self._last_order_error = str(e)
+            return None
+
+    def place_limit_order(
+        self,
+        token_id: str,
+        price: float,
+        size: float,
+    ) -> Optional[str]:
+        """Place a GTC limit buy order.
+
+        Args:
+            token_id: the CLOB token ID for the side to buy
+            price: limit price per share (e.g. 0.55)
+            size: number of shares to buy
+
+        Returns:
+            Order ID string on success, None on failure.
+        """
+        try:
+            price = round(price, 2)
+            size = round(size, 2)
+            order_args = OrderArgs(
+                token_id=token_id,
+                price=price,
+                size=size,
+                side=BUY,
+            )
+            signed_order = self._client.create_order(order_args)
+            response = self._client.post_order(signed_order, OrderType.GTC)
+
+            order_id = None
+            if isinstance(response, dict):
+                order_id = response.get("orderID") or response.get("order_id") or response.get("id")
+
+            logger.info(
+                f"📋 Limit order placed: {size} shares @ ${price:.2f} on token {token_id[:16]}... "
+                f"→ order_id={order_id}"
+            )
+            return order_id
+        except Exception as e:
+            logger.error(f"Limit order placement failed: {type(e).__name__}: {e}")
+            self._last_order_error = str(e)
+            return None
+
+    def cancel_order(self, order_id: str) -> bool:
+        """Cancel a pending order by ID."""
+        try:
+            self._client.cancel(order_id)
+            logger.info(f"🗑️ Order cancelled: {order_id}")
+            return True
+        except Exception as e:
+            logger.warning(f"Cancel failed for {order_id}: {type(e).__name__}: {e}")
+            return False
+
+    def get_order_status(self, order_id: str) -> Optional[dict]:
+        """Get the current status of an order."""
+        try:
+            return self._client.get_order(order_id)
+        except Exception as e:
+            logger.debug(f"Get order failed for {order_id}: {e}")
             return None
 
     def redeem_positions(self, condition_id: str) -> bool:

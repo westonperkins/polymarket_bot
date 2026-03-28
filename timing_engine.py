@@ -26,6 +26,12 @@ class TimingEngine:
         self.on_signal_window: Optional[
             Callable[[MarketInfo, MarketOdds, aiohttp.ClientSession], Awaitable[None]]
         ] = None
+        self.on_limit_entry_window: Optional[
+            Callable[[MarketInfo, MarketOdds, aiohttp.ClientSession], Awaitable[None]]
+        ] = None
+        self.on_cancel_window: Optional[
+            Callable[[MarketInfo], Awaitable[None]]
+        ] = None
         self.on_market_close: Optional[
             Callable[[MarketInfo, aiohttp.ClientSession], Awaitable[None]]
         ] = None
@@ -98,6 +104,21 @@ class TimingEngine:
         if self.on_market_discovered:
             await self.on_market_discovered(market)
 
+        # ── Step 2a: Limit entry window (T-120) if enabled ─────────────
+        if config.LIMIT_ORDER_ENABLED and self.on_limit_entry_window:
+            await self._wait_until_limit_entry(market)
+            if not self.running:
+                return
+
+            odds_early = await fetch_odds(market.condition_id, market.slug, session=self._session)
+            if odds_early and odds_early.tradeable:
+                logger.info(
+                    f"LIMIT ENTRY WINDOW for {market.slug} | "
+                    f"Up={odds_early.up_price:.3f} Down={odds_early.down_price:.3f}"
+                )
+                await self.on_limit_entry_window(market, odds_early, self._session)
+
+        # ── Step 2b: Signal window (T-30) ──────────────────────────────
         await self._wait_until_signal_window(market)
         if not self.running:
             return
@@ -124,6 +145,13 @@ class TimingEngine:
         logger.info(f"SIGNAL WINDOW for {market.slug} | Up={odds.up_price:.3f} Down={odds.down_price:.3f}")
         if self.on_signal_window:
             await self.on_signal_window(market, odds, self._session)
+
+        # ── Step 2c: Cancel window (T-15) if limit orders enabled ──────
+        if config.LIMIT_ORDER_ENABLED and self.on_cancel_window:
+            await self._wait_until_cancel(market)
+            if not self.running:
+                return
+            await self.on_cancel_window(market)
 
         await self._wait_until_close(market)
         if not self.running:
@@ -156,9 +184,17 @@ class TimingEngine:
         logger.warning("Market discovery failed after 5 attempts")
         return None
 
+    async def _wait_until_limit_entry(self, market: MarketInfo) -> None:
+        target = market.end_time.timestamp() - config.LIMIT_ENTRY_SECONDS_BEFORE_CLOSE
+        await self._sleep_until(target, label="limit entry")
+
     async def _wait_until_signal_window(self, market: MarketInfo) -> None:
         target = market.end_time.timestamp() - config.ENTRY_SECONDS_BEFORE_CLOSE
         await self._sleep_until(target, label="signal window")
+
+    async def _wait_until_cancel(self, market: MarketInfo) -> None:
+        target = market.end_time.timestamp() - config.LIMIT_CANCEL_SECONDS_BEFORE_CLOSE
+        await self._sleep_until(target, label="cancel window")
 
     async def _wait_until_close(self, market: MarketInfo) -> None:
         target = market.end_time.timestamp() + 5
