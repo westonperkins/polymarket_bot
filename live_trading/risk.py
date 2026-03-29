@@ -23,7 +23,6 @@ class RiskManager:
 
         logger.info(
             f"Risk limits: max daily loss={config.LIVE_MAX_DAILY_LOSS_PCT}%, "
-            f"max position={config.LIVE_MAX_POSITION_SIZE_PCT}%, "
             f"min balance={config.LIVE_MIN_BALANCE_PCT}%"
         )
 
@@ -52,7 +51,6 @@ class RiskManager:
             return False, "Kill switch is active"
 
         # Recalculate limits from current balance
-        max_position = self._current_balance * (config.LIVE_MAX_POSITION_SIZE_PCT / 100)
         max_daily_loss = self._current_balance * (config.LIVE_MAX_DAILY_LOSS_PCT / 100)
         min_balance = self._starting_balance * (config.LIVE_MIN_BALANCE_PCT / 100)
 
@@ -63,14 +61,6 @@ class RiskManager:
             return False, (
                 f"Daily loss limit reached (${daily_pnl:,.2f} / "
                 f"-${max_daily_loss:,.2f} max)"
-            )
-
-        # Check max position size
-        if round(position_size, 2) > round(max_position, 2):
-            return False, (
-                f"Position size ${position_size:,.2f} exceeds "
-                f"max ${max_position:,.2f} "
-                f"({config.LIVE_MAX_POSITION_SIZE_PCT}%)"
             )
 
         # Check minimum balance

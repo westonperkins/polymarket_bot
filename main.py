@@ -108,7 +108,7 @@ if config.TRADING_MODE == "live":
     simulator = LiveSimulator(conn, portfolio, executor, risk)
     logger.info(f"*** LIVE TRADING MODE ACTIVE ***")
     logger.info(f"  Balance: ${portfolio.balance:,.2f}")
-    logger.info(f"  Max position: ${portfolio.balance * config.LIVE_MAX_POSITION_SIZE_PCT / 100:,.2f} ({config.LIVE_MAX_POSITION_SIZE_PCT}%)")
+    logger.info(f"  Risk per trade: high={config.RISK_HIGH_CONFIDENCE:.1%}, medium={config.RISK_MEDIUM_CONFIDENCE:.1%}")
     logger.info(f"  Max daily loss: ${portfolio.balance * config.LIVE_MAX_DAILY_LOSS_PCT / 100:,.2f} ({config.LIVE_MAX_DAILY_LOSS_PCT}%)")
 
 elif config.TRADING_MODE == "paper":
