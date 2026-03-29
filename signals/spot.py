@@ -90,20 +90,27 @@ class SpotTracker:
         return min(s.price for s in self._history)
 
     def get_volatility(self) -> Optional[float]:
-        """Return volatility as stdev of log returns (last 20 samples).
+        """Return volatility scaled to the 5-minute candle window.
 
-        This produces the sigma parameter expected by the GBM fair value model —
-        a dimensionless fraction, not dollar-denominated.
+        Computes stdev of log returns from recent samples, then scales up
+        to a 5-minute (300s) window using sqrt-time rule:
+            sigma_5min = sigma_per_sample * sqrt(candle_seconds / avg_sample_interval)
         """
         if len(self._history) < 3:
             return None
         import math
         import statistics
-        recent = [s.price for s in list(self._history)[-20:]]
-        log_returns = [math.log(recent[i] / recent[i-1]) for i in range(1, len(recent)) if recent[i-1] > 0]
+        samples = list(self._history)[-20:]
+        log_returns = [math.log(samples[i].price / samples[i-1].price)
+                       for i in range(1, len(samples)) if samples[i-1].price > 0]
         if len(log_returns) < 2:
             return None
-        return statistics.stdev(log_returns)
+        sigma_per_sample = statistics.stdev(log_returns)
+        # Scale to 5-minute window using average sample interval
+        total_time = samples[-1].timestamp - samples[0].timestamp
+        avg_interval = total_time / (len(samples) - 1) if len(samples) > 1 and total_time > 0 else 5.0
+        samples_per_candle = 300.0 / avg_interval
+        return sigma_per_sample * math.sqrt(samples_per_candle)
 
     def get_momentum(self) -> Optional[MomentumResult]:
         """Calculate momentum over 60s and 120s windows.
