@@ -13,6 +13,8 @@ from web3 import Web3
 from py_clob_client.client import ClobClient
 from py_clob_client.clob_types import MarketOrderArgs, OrderArgs, OrderType
 from py_clob_client.order_builder.constants import BUY
+from py_builder_signing_sdk.config import BuilderConfig
+from py_builder_signing_sdk.sdk_types import BuilderApiKeyCreds
 
 import config
 
@@ -84,8 +86,9 @@ class Executor:
         logger.info(f"  Private key: {config.POLYMARKET_PRIVATE_KEY[:6]}...{config.POLYMARKET_PRIVATE_KEY[-4:]}")
         self._last_order_error = ""
 
+        # Step 1: Create a temporary client to derive API credentials
         try:
-            self._client = ClobClient(
+            tmp_client = ClobClient(
                 HOST,
                 key=config.POLYMARKET_PRIVATE_KEY,
                 chain_id=CHAIN_ID,
@@ -96,12 +99,10 @@ class Executor:
             logger.error(f"ClobClient initialization failed: {type(e).__name__}: {e}")
             raise
 
-        # Derive API credentials (this hits the CLOB auth endpoint)
         try:
             logger.info("Deriving API credentials from wallet signature...")
-            creds = self._client.create_or_derive_api_creds()
-            self._client.set_api_creds(creds)
-            logger.info("API credentials set successfully")
+            creds = tmp_client.create_or_derive_api_creds()
+            logger.info("API credentials derived successfully")
         except Exception as e:
             logger.error(f"API credential derivation failed: {type(e).__name__}: {e}")
             logger.error(
@@ -112,6 +113,32 @@ class Executor:
                 "     Polymarket → Settings → Wallet), not your deposit address\n"
                 "  3. The signature type is wrong — email accounts should use 1"
             )
+            raise
+
+        # Step 2: Build BuilderConfig with the derived creds for proxy wallet settlement
+        builder_config = BuilderConfig(
+            local_builder_creds=BuilderApiKeyCreds(
+                key=creds.api_key,
+                secret=creds.api_secret,
+                passphrase=creds.api_passphrase,
+            )
+        )
+        logger.info("BuilderConfig created with local builder credentials")
+
+        # Step 3: Create the real client with builder_config for proper on-chain settlement
+        try:
+            self._client = ClobClient(
+                HOST,
+                key=config.POLYMARKET_PRIVATE_KEY,
+                chain_id=CHAIN_ID,
+                signature_type=config.POLYMARKET_SIGNATURE_TYPE,
+                funder=config.POLYMARKET_FUNDER_ADDRESS,
+                builder_config=builder_config,
+            )
+            self._client.set_api_creds(creds)
+            logger.info(f"ClobClient initialized with BuilderConfig (builder auth enabled: {self._client.can_builder_auth()})")
+        except Exception as e:
+            logger.error(f"ClobClient re-init with BuilderConfig failed: {type(e).__name__}: {e}")
             raise
 
         # Quick test — try to fetch balance to confirm auth works
