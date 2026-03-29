@@ -561,9 +561,12 @@ async def on_signal_window(
         ) if spot_price and spot_tracker.candle_open_price else None
 
         if fair:
+            vol = spot_tracker.get_volatility()
+            n_samples = len(spot_tracker._history)
             logger.info(
                 f"📊 FAIR VALUE: up={fair.fair_up:.3f} down={fair.fair_down:.3f} "
-                f"z={fair.z_score:+.2f} | edge_up={fair.edge_up_bps:+.0f}bps edge_down={fair.edge_down_bps:+.0f}bps"
+                f"z={fair.z_score:+.2f} | edge_up={fair.edge_up_bps:+.0f}bps edge_down={fair.edge_down_bps:+.0f}bps "
+                f"| sigma={fair.sigma:.8f} vol_raw={vol} samples={n_samples}"
             )
 
         # ── Sub-model votes ─────────────────────────────────────────────

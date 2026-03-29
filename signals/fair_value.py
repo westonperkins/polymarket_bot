@@ -23,7 +23,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 WINDOW_SEC = 300.0  # 5-minute candles
-MIN_SIGMA = 0.0001
+MIN_SIGMA = 0.000001
 MIN_TAU_SEC = 1.0
 
 
