@@ -398,21 +398,29 @@ async def on_signal_window(
             order_id = pending_limit_orders.pop(market.slug)
             status = simulator._executor.get_order_status(order_id) if config.TRADING_MODE == "live" else None
             if status:
-                filled_size = float(status.get("filledSize") or status.get("size_matched") or 0)
+                # Log full status for debugging
+                logger.info(f"📋 Limit order status: {status}")
+
+                filled_size = float(status.get("size_matched") or status.get("filledSize") or 0)
                 if filled_size > 0:
-                    # Extract fill details
+                    # Use original order price — GTC fills at limit price or better
                     fill_price = float(status.get("price") or status.get("original_price") or 0)
+                    # For shares: each share pays $1 on win, cost = shares * price
                     fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
-                    side = status.get("asset_id", "")
-                    # Determine side from token ID
-                    limit_side = "Up" if side == market.clob_token_id_up else "Down"
+                    fill_shares = filled_size  # each share = $1 on win
+
+                    side_token = status.get("asset_id", "")
+                    limit_side = "Up" if side_token == market.clob_token_id_up else "Down"
                     entry_odds = odds.up_price if limit_side == "Up" else odds.down_price
-                    payout_rate = (1.0 - fill_price) / fill_price if fill_price > 0 else 0
+
+                    # R:R and payout from actual fill
+                    potential_win = fill_shares - fill_cost
+                    payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
                     rr_ratio = round(payout_rate, 2)
 
                     logger.info(
-                        f"📋 LIMIT FILLED: {limit_side} | {filled_size:.2f} shares @ ${fill_price:.3f} "
-                        f"cost=${fill_cost:.2f} R:R={rr_ratio:.1f}:1"
+                        f"📋 LIMIT FILLED: {limit_side} | {fill_shares:.2f} shares @ ${fill_price:.3f} "
+                        f"cost=${fill_cost:.2f} payout=${potential_win:.2f} R:R={rr_ratio:.1f}:1"
                     )
 
                     # Record the trade in DB
