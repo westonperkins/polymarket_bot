@@ -108,6 +108,9 @@ DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
 # ── ML Gate ──────────────────────────────────────────────────────────
 # ── Limit Orders ─────────────────────────────────────────────────────
+# LIMIT ORDERS DISABLED: CLOB "MATCHED" status doesn't guarantee on-chain settlement
+# for Magic/Email wallets. Limit orders create phantom trades in the DB.
+# TODO: verify on-chain settlement before recording trades
 LIMIT_ORDER_ENABLED = os.environ.get("LIMIT_ORDER_ENABLED", "false").lower() == "true"
 LIMIT_ENTRY_SECONDS_BEFORE_CLOSE = int(os.environ.get("LIMIT_ENTRY_SECONDS_BEFORE_CLOSE", "120"))
 LIMIT_CANCEL_SECONDS_BEFORE_CLOSE = int(os.environ.get("LIMIT_CANCEL_SECONDS_BEFORE_CLOSE", "15"))
