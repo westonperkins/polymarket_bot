@@ -418,15 +418,25 @@ async def on_signal_window(
                                 if trade_status == "FAILED":
                                     logger.warning(f"⚠️ Trade {tid} FAILED on-chain — ignoring phantom fill")
                                     continue
-                                # The trade detail is the taker's view — find OUR maker order
-                                maker_orders = trade_detail.get("maker_orders", [])
-                                for mo in maker_orders:
-                                    if mo.get("order_id") == our_order_id:
-                                        mo_price = float(mo.get("price", 0))
-                                        mo_size = float(mo.get("matched_amount", 0))
-                                        fill_cost += mo_price * mo_size
-                                        logger.info(f"📋 Our fill: {mo_size} shares @ ${mo_price:.3f} = ${mo_price * mo_size:.2f}")
-                                        break
+
+                                trader_side = trade_detail.get("trader_side", "").upper()
+
+                                if trader_side == "TAKER" and trade_detail.get("taker_order_id") == our_order_id:
+                                    # We are the taker — use top-level price * size
+                                    t_price = float(trade_detail.get("price", 0))
+                                    t_size = float(trade_detail.get("size", 0))
+                                    fill_cost += t_price * t_size
+                                    logger.info(f"📋 Our fill (taker): {t_size} shares @ ${t_price:.3f} = ${t_price * t_size:.2f}")
+                                else:
+                                    # We are a maker — find our order in maker_orders
+                                    maker_orders = trade_detail.get("maker_orders", [])
+                                    for mo in maker_orders:
+                                        if mo.get("order_id") == our_order_id:
+                                            mo_price = float(mo.get("price", 0))
+                                            mo_size = float(mo.get("matched_amount", 0))
+                                            fill_cost += mo_price * mo_size
+                                            logger.info(f"📋 Our fill (maker): {mo_size} shares @ ${mo_price:.3f} = ${mo_price * mo_size:.2f}")
+                                            break
                     # If all associate trades failed on-chain, skip — no real fill
                     if fill_cost <= 0 and assoc:
                         logger.warning(f"⚠️ All associate trades failed — no real fill, continuing to signal window")
