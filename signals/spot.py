@@ -90,12 +90,20 @@ class SpotTracker:
         return min(s.price for s in self._history)
 
     def get_volatility(self) -> Optional[float]:
-        """Return standard deviation of recent prices (last 20 samples)."""
+        """Return volatility as stdev of log returns (last 20 samples).
+
+        This produces the sigma parameter expected by the GBM fair value model —
+        a dimensionless fraction, not dollar-denominated.
+        """
         if len(self._history) < 3:
             return None
+        import math
         import statistics
         recent = [s.price for s in list(self._history)[-20:]]
-        return statistics.stdev(recent)
+        log_returns = [math.log(recent[i] / recent[i-1]) for i in range(1, len(recent)) if recent[i-1] > 0]
+        if len(log_returns) < 2:
+            return None
+        return statistics.stdev(log_returns)
 
     def get_momentum(self) -> Optional[MomentumResult]:
         """Calculate momentum over 60s and 120s windows.
