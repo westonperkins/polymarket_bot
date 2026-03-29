@@ -290,6 +290,20 @@ class Executor:
             logger.debug(f"Get order failed for {order_id}: {e}")
             return None
 
+    def get_trade_details(self, trade_id: str) -> Optional[dict]:
+        """Look up a specific trade by ID to get actual fill amounts."""
+        try:
+            from py_clob_client.clob_types import TradeParams
+            result = self._client.get_trades(TradeParams(id=trade_id))
+            trades = result if isinstance(result, list) else result.get("data", []) if isinstance(result, dict) else []
+            for t in trades:
+                if t.get("id") == trade_id:
+                    return t
+            return trades[0] if trades else None
+        except Exception as e:
+            logger.debug(f"Get trade failed for {trade_id}: {e}")
+            return None
+
     def redeem_positions(self, condition_id: str) -> bool:
         """Redeem winning positions for a resolved market, converting shares back to USDC.
 

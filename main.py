@@ -403,17 +403,27 @@ async def on_signal_window(
 
                 filled_size = float(status.get("size_matched") or status.get("filledSize") or 0)
                 if filled_size > 0:
-                    # Use original order price — GTC fills at limit price or better
-                    fill_price = float(status.get("price") or status.get("original_price") or 0)
-                    # For shares: each share pays $1 on win, cost = shares * price
-                    fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
+                    # Try to get actual fill cost from associate_trades
+                    fill_cost = 0.0
                     fill_shares = filled_size  # each share = $1 on win
+                    assoc = status.get("associate_trades", [])
+                    if assoc and config.TRADING_MODE == "live":
+                        for tid in assoc:
+                            trade_detail = simulator._executor.get_trade_details(tid)
+                            if trade_detail:
+                                logger.info(f"📋 Trade detail for {tid}: {trade_detail}")
+                                fill_cost += float(trade_detail.get("price", 0)) * float(trade_detail.get("size", 0))
+                    # Fallback to limit price if trade lookup failed
+                    if fill_cost <= 0:
+                        fill_price = float(status.get("price") or 0)
+                        fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
 
                     side_token = status.get("asset_id", "")
                     limit_side = "Up" if side_token == market.clob_token_id_up else "Down"
                     entry_odds = odds.up_price if limit_side == "Up" else odds.down_price
 
                     # R:R and payout from actual fill
+                    fill_price = fill_cost / fill_shares if fill_shares > 0 else 0
                     potential_win = fill_shares - fill_cost
                     payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
                     rr_ratio = round(payout_rate, 2)
