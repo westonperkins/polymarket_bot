@@ -332,8 +332,8 @@ async def on_limit_entry_window(
         position_usd = round(wallet_balance * config.RISK_MEDIUM_CONFIDENCE, 2)
         num_shares = round(position_usd / limit_price, 2) if limit_price > 0 else 0
 
-        if num_shares < 1:
-            logger.info("Limit entry: position too small")
+        if num_shares < 5:
+            logger.info(f"Limit entry: position too small ({num_shares:.1f} shares, min 5)")
             return
 
         logger.info(

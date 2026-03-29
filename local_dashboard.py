@@ -96,7 +96,7 @@ def query_state(conn):
     cur.execute("""
         SELECT id, timestamp, market_id, side, entry_odds, position_size,
                payout_rate, confidence_level, outcome, pnl,
-               portfolio_balance_after, trading_mode, risk_reward_ratio
+               portfolio_balance_after, trading_mode, risk_reward_ratio, skip_reason
         FROM trades WHERE trading_mode = 'live'
         ORDER BY id DESC LIMIT 100
     """)
@@ -194,6 +194,7 @@ HTML = """<!DOCTYPE html>
   .b-skip { background:rgba(139,148,158,.15); color:var(--dim); }
   .b-pending { background:rgba(210,153,34,.15); color:var(--yellow); }
   .b-failed { background:rgba(248,81,73,.1); color:#f0883e; }
+  .b-mlgate { background:rgba(188,140,255,.15); color:#bc8cff; }
   .trade-row { cursor:pointer; transition:background 0.15s; }
   .trade-row:hover { background:rgba(88,166,255,0.06); }
   .trade-row td:first-child::before { content:'\\25B6'; font-size:8px; margin-right:4px;
@@ -377,7 +378,7 @@ function toggleDetail(row) {
   detail.classList.toggle('open');
 }
 function badge(outcome) {
-  const m = {win:'b-win',loss:'b-loss',skip:'b-skip',pending:'b-pending',failed:'b-failed'};
+  const m = {win:'b-win',loss:'b-loss',skip:'b-skip',pending:'b-pending',failed:'b-failed',mlgate:'b-mlgate'};
   return '<span class="badge '+(m[outcome]||'')+'">'+ outcome.toUpperCase()+'</span>';
 }
 async function poll() {
@@ -419,7 +420,7 @@ async function poll() {
         +'<td class="r">'+(t.position_size?'$'+fmt(t.position_size):'-')+'</td>'
         +'<td class="r">'+rrStr+'</td>'
         +'<td class="r '+mlClass+'">'+mlProb+'</td>'
-        +'<td>'+(isSkip && t.signals && t.signals.final_vote !== 'ABSTAIN' ? badge('failed') : badge(t.outcome))+'</td><td class="r">'+pnlStr+'</td>'
+        +'<td>'+(isSkip ? (t.skip_reason === 'ml_gate' ? badge('mlgate') : (t.signals && t.signals.final_vote !== 'ABSTAIN' ? badge('failed') : badge(t.outcome))) : badge(t.outcome))+'</td><td class="r">'+pnlStr+'</td>'
         +'<td class="r">'+(t.portfolio_balance_after?'$'+fmt(t.portfolio_balance_after):'-')+'</td></tr>';
       html += '<tr class="trade-detail'+(isOpen?' open':'')+'" data-id="'+t.id+'"><td colspan="9">'+buildDetail(t)+'</td></tr>';
     }
