@@ -406,50 +406,68 @@ async def on_signal_window(
                     # Try to get actual fill cost from associate_trades
                     fill_cost = 0.0
                     fill_shares = filled_size  # each share = $1 on win
+                    our_order_id = status.get("id", "")
                     assoc = status.get("associate_trades", [])
                     if assoc and config.TRADING_MODE == "live":
                         for tid in assoc:
                             trade_detail = simulator._executor.get_trade_details(tid)
                             if trade_detail:
                                 logger.info(f"📋 Trade detail for {tid}: {trade_detail}")
-                                fill_cost += float(trade_detail.get("price", 0)) * float(trade_detail.get("size", 0))
-                    # Fallback to limit price if trade lookup failed
-                    if fill_cost <= 0:
-                        fill_price = float(status.get("price") or 0)
-                        fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
+                                # Skip failed trades — match never settled on-chain
+                                trade_status = trade_detail.get("status", "").upper()
+                                if trade_status == "FAILED":
+                                    logger.warning(f"⚠️ Trade {tid} FAILED on-chain — ignoring phantom fill")
+                                    continue
+                                # The trade detail is the taker's view — find OUR maker order
+                                maker_orders = trade_detail.get("maker_orders", [])
+                                for mo in maker_orders:
+                                    if mo.get("order_id") == our_order_id:
+                                        mo_price = float(mo.get("price", 0))
+                                        mo_size = float(mo.get("matched_amount", 0))
+                                        fill_cost += mo_price * mo_size
+                                        logger.info(f"📋 Our fill: {mo_size} shares @ ${mo_price:.3f} = ${mo_price * mo_size:.2f}")
+                                        break
+                    # If all associate trades failed on-chain, skip — no real fill
+                    if fill_cost <= 0 and assoc:
+                        logger.warning(f"⚠️ All associate trades failed — no real fill, continuing to signal window")
+                    else:
+                        if fill_cost <= 0:
+                            # No associate trades to check — fallback to limit price
+                            fill_price = float(status.get("price") or 0)
+                            fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
 
-                    side_token = status.get("asset_id", "")
-                    limit_side = "Up" if side_token == market.clob_token_id_up else "Down"
-                    entry_odds = odds.up_price if limit_side == "Up" else odds.down_price
+                        side_token = status.get("asset_id", "")
+                        limit_side = "Up" if side_token == market.clob_token_id_up else "Down"
+                        entry_odds = odds.up_price if limit_side == "Up" else odds.down_price
 
-                    # R:R and payout from actual fill
-                    fill_price = fill_cost / fill_shares if fill_shares > 0 else 0
-                    potential_win = fill_shares - fill_cost
-                    payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
-                    rr_ratio = round(payout_rate, 2)
+                        # R:R and payout from actual fill
+                        fill_price = fill_cost / fill_shares if fill_shares > 0 else 0
+                        potential_win = fill_shares - fill_cost
+                        payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
+                        rr_ratio = round(payout_rate, 2)
 
-                    logger.info(
-                        f"📋 LIMIT FILLED: {limit_side} | {fill_shares:.2f} shares @ ${fill_price:.3f} "
-                        f"cost=${fill_cost:.2f} payout=${potential_win:.2f} R:R={rr_ratio:.1f}:1"
-                    )
+                        logger.info(
+                            f"📋 LIMIT FILLED: {limit_side} | {fill_shares:.2f} shares @ ${fill_price:.3f} "
+                            f"cost=${fill_cost:.2f} payout=${potential_win:.2f} R:R={rr_ratio:.1f}:1"
+                        )
 
-                    # Record the trade in DB
-                    trade_id = db.insert_trade(
-                        conn,
-                        market_id=market.slug,
-                        side=limit_side,
-                        entry_odds=entry_odds,
-                        position_size=fill_cost,
-                        payout_rate=payout_rate,
-                        confidence_level="medium",
-                        outcome="pending",
-                        pnl=0.0,
-                        portfolio_balance_after=getattr(simulator, '_tracked_balance', 0),
-                        risk_reward_ratio=rr_ratio,
-                    )
-                    pending_trades[market.slug] = trade_id
-                    dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
-                    return
+                        # Record the trade in DB
+                        trade_id = db.insert_trade(
+                            conn,
+                            market_id=market.slug,
+                            side=limit_side,
+                            entry_odds=entry_odds,
+                            position_size=fill_cost,
+                            payout_rate=payout_rate,
+                            confidence_level="medium",
+                            outcome="pending",
+                            pnl=0.0,
+                            portfolio_balance_after=getattr(simulator, '_tracked_balance', 0),
+                            risk_reward_ratio=rr_ratio,
+                        )
+                        pending_trades[market.slug] = trade_id
+                        dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
+                        return
 
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
