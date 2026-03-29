@@ -115,6 +115,7 @@ LIMIT_ORDER_ENABLED = os.environ.get("LIMIT_ORDER_ENABLED", "false").lower() == 
 LIMIT_ENTRY_SECONDS_BEFORE_CLOSE = int(os.environ.get("LIMIT_ENTRY_SECONDS_BEFORE_CLOSE", "120"))
 LIMIT_CANCEL_SECONDS_BEFORE_CLOSE = int(os.environ.get("LIMIT_CANCEL_SECONDS_BEFORE_CLOSE", "15"))
 LIMIT_EDGE_DISCOUNT_BPS = int(os.environ.get("LIMIT_EDGE_DISCOUNT_BPS", "200"))
+LIMIT_MIN_SHARES = float(os.environ.get("LIMIT_MIN_SHARES", "2"))
 
 ML_GATE_ENABLED = os.environ.get("ML_GATE_ENABLED", "false").lower() == "true"
 ML_CONFIDENCE_THRESHOLD = float(os.environ.get("ML_CONFIDENCE_THRESHOLD", "0.60"))
