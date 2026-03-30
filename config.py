@@ -98,6 +98,11 @@ POLYMARKET_FUNDER_ADDRESS = os.environ.get("POLYMARKET_FUNDER_ADDRESS", "")
 # Signature type: 0=EOA wallet, 1=Email/Magic wallet, 2=Browser proxy
 POLYMARKET_SIGNATURE_TYPE = int(os.environ.get("POLYMARKET_SIGNATURE_TYPE", "0"))
 
+# Builder API credentials (for auto-claim via relayer)
+POLY_BUILDER_API_KEY = os.environ.get("POLY_BUILDER_API_KEY", "")
+POLY_BUILDER_SECRET = os.environ.get("POLY_BUILDER_SECRET", "")
+POLY_BUILDER_PASSPHRASE = os.environ.get("POLY_BUILDER_PASSPHRASE", "")
+
 # Risk limits for live trading (as percentages of starting balance)
 LIVE_MAX_DAILY_LOSS_PCT = float(os.environ.get("LIVE_MAX_DAILY_LOSS_PCT", "10"))     # stop if down X% today
 LIVE_MAX_POSITION_SIZE_PCT = float(os.environ.get("LIVE_MAX_POSITION_SIZE_PCT", "5"))  # max X% per trade

@@ -115,7 +115,7 @@ class Executor:
             )
             raise
 
-        # Step 2: Build BuilderConfig with the derived creds for proxy wallet settlement
+        # Step 2: Build BuilderConfig with the derived creds for CLOB order settlement
         self._builder_creds = BuilderApiKeyCreds(
             key=creds.api_key,
             secret=creds.api_secret,
@@ -124,6 +124,20 @@ class Executor:
         builder_config = BuilderConfig(local_builder_creds=self._builder_creds)
         self._builder_config = builder_config
         logger.info("BuilderConfig created with local builder credentials")
+
+        # Step 2b: Build separate BuilderConfig for relayer (auto-claim)
+        if config.POLY_BUILDER_API_KEY and config.POLY_BUILDER_SECRET:
+            self._relayer_builder_config = BuilderConfig(
+                local_builder_creds=BuilderApiKeyCreds(
+                    key=config.POLY_BUILDER_API_KEY,
+                    secret=config.POLY_BUILDER_SECRET,
+                    passphrase=config.POLY_BUILDER_PASSPHRASE,
+                )
+            )
+            logger.info("Relayer BuilderConfig created with builder API keys")
+        else:
+            self._relayer_builder_config = None
+            logger.info("No builder API keys configured — auto-claim disabled")
 
         # Step 3: Create the real client with builder_config for proper on-chain settlement
         try:
@@ -325,6 +339,10 @@ class Executor:
 
         logger.info(f"Attempting to redeem via relayer for condition {condition_id[:16]}...")
 
+        if not self._relayer_builder_config:
+            logger.warning("No builder API keys configured — claim manually on Polymarket")
+            return False
+
         try:
             import json
             import time
@@ -360,7 +378,7 @@ class Executor:
             )
 
             # Step 3: Get relay payload (nonce + relay address)
-            builder_headers = self._builder_config.generate_builder_headers(
+            builder_headers = self._relayer_builder_config.generate_builder_headers(
                 "GET", "/relay-payload"
             )
             relay_headers = {**builder_headers.to_dict()} if builder_headers else {}
@@ -435,7 +453,7 @@ class Executor:
             request_body = json.dumps(request, separators=(",", ":"))
 
             # Step 8: Submit with builder auth
-            submit_headers_payload = self._builder_config.generate_builder_headers(
+            submit_headers_payload = self._relayer_builder_config.generate_builder_headers(
                 "POST", "/submit", request_body
             )
             submit_headers = {
