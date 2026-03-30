@@ -1496,6 +1496,24 @@ function buildDetail(t) {
   h += detailRow('R:R', t.risk_reward_ratio ? t.risk_reward_ratio.toFixed(2)+':1' : null);
   h += detailRow('Confidence', t.confidence_level ? t.confidence_level.toUpperCase() : null);
   h += detailRow('Market Outcome', t.market_outcome || null);
+  if (t.skip_reason) {
+    const reasonMap = {
+      'no_consensus': 'No model consensus (need 2/3 agreement)',
+      'ml_gate': 'ML gate blocked — P(win) below threshold',
+      'empty_book': 'No liquidity on order book (FAK found no match)',
+      'risk_blocked': 'Position size exceeded risk limits',
+      'invalid_amount': 'Order amount too small or invalid',
+      'insufficient_liquidity': 'Not enough liquidity to fill order',
+      'price_out_of_range': 'Odds moved outside tradeable window (0.30-0.70)',
+      'service_unavailable': 'API or signal fetch failed',
+      'order_rejected': 'CLOB rejected the order',
+    };
+    const reason = reasonMap[t.skip_reason] || t.skip_reason;
+    h += detailRow('Skip Reason', '<span style="color:var(--orange)">' + reason + '</span>');
+  }
+  if (t.outcome === 'loss' && t.market_outcome && t.side) {
+    h += detailRow('Why Lost', '<span class="neg">Picked ' + t.side + ' but market went ' + t.market_outcome + '</span>');
+  }
   const s = t.signals;
   if (s) {
     h += '<div class="detail-section">Price</div>';

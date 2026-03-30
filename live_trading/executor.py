@@ -401,13 +401,13 @@ class Executor:
             )
             struct_hash = Web3.keccak(data_to_hash)
 
-            # Step 5: Sign the hash (eth_sign style — prefix with \x19Ethereum Signed Message)
+            # Step 5: Sign the hash (personal_sign — \x19Ethereum Signed Message:\nNN prefix)
+            # The JS signMessage treats the hex hash as raw bytes
             from eth_account.messages import encode_defunct
-            message = encode_defunct(struct_hash)
+            message = encode_defunct(primitive=struct_hash)
             signed = account.sign_message(message)
-            signature = signed.signature.hex()
-            if not signature.startswith("0x"):
-                signature = "0x" + signature
+            signature = "0x" + signed.signature.hex()
+            logger.debug(f"Struct hash: 0x{struct_hash.hex()}, sig: {signature[:20]}...")
 
             # Step 6: Derive proxy wallet address
             # proxy = getPolyProxyWalletAddress(signer) — we already know this
@@ -443,13 +443,17 @@ class Executor:
                 **submit_headers_payload.to_dict(),
             }
 
+            # Log what we're sending for debugging
+            logger.info(f"Relayer submit body keys: {list(request.keys())}")
+            logger.info(f"Relayer submit headers: {list(submit_headers.keys())}")
+
             response = requests.post(
                 f"{RELAYER_BASE}/submit",
                 data=request_body,
                 headers=submit_headers,
                 timeout=30,
             )
-            logger.info(f"Relayer submit: {response.status_code} - {response.text[:200]}")
+            logger.info(f"Relayer submit: {response.status_code} - {response.text[:300]}")
 
             if response.status_code in (200, 201):
                 result = response.json()
