@@ -351,23 +351,52 @@ async def on_limit_entry_window(
 
         if order_id:
             from datetime import datetime, timezone
+            momentum = spot_tracker.get_momentum()
             pending_limit_orders[market.slug] = {
                 "order_id": order_id,
                 "signal_data": {
                     "spot_price": spot_price,
                     "chainlink_price": chainlink_price if not isinstance(chainlink_price, Exception) else None,
+                    "chainlink_spot_divergence": (spot_price - chainlink_price) if spot_price and chainlink_price and not isinstance(chainlink_price, Exception) else None,
                     "up_odds": odds.up_price,
                     "down_odds": odds.down_price,
+                    # CVD
+                    "cvd": cvd_result.net_delta if cvd_result and not isinstance(cvd_result, Exception) else None,
+                    "cvd_buy_volume": cvd_result.buy_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
+                    "cvd_sell_volume": cvd_result.sell_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
+                    "cvd_trade_count": cvd_result.trade_count if cvd_result and not isinstance(cvd_result, Exception) else None,
+                    # Order book
+                    "order_book_ratio": ob_result.ratio if ob_result and not isinstance(ob_result, Exception) else None,
+                    "ob_bid_volume": ob_result.bid_volume if ob_result and not isinstance(ob_result, Exception) else None,
+                    "ob_ask_volume": ob_result.ask_volume if ob_result and not isinstance(ob_result, Exception) else None,
+                    # Liquidations
+                    "liquidation_signal": liq_result.net_signal if liq_result and not isinstance(liq_result, Exception) else None,
+                    "liq_long_usd": liq_result.long_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
+                    "liq_short_usd": liq_result.short_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
+                    # Polymarket book
+                    "poly_book_up_bids": poly_book.up_bid_volume if poly_book and not isinstance(poly_book, Exception) else None,
+                    "poly_book_up_asks": poly_book.up_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
+                    "poly_book_down_bids": poly_book.down_bid_volume if poly_book and not isinstance(poly_book, Exception) else None,
+                    "poly_book_down_asks": poly_book.down_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
+                    "poly_book_bias": poly_book.bias if poly_book and not isinstance(poly_book, Exception) else None,
+                    # Momentum
+                    "momentum_60s": momentum.m60 if momentum else None,
+                    "momentum_120s": momentum.m120 if momentum else None,
+                    "momentum_direction": momentum.direction if momentum else None,
+                    # Fair value
                     "fair_up": fair.fair_up,
                     "fair_down": fair.fair_down,
                     "fair_z_score": fair.z_score,
                     "edge_up_bps": fair.edge_up_bps,
                     "edge_down_bps": fair.edge_down_bps,
+                    # Price context
                     "btc_open_price": spot_tracker.candle_open_price,
                     "btc_high": spot_tracker.candle_high,
                     "btc_low": spot_tracker.candle_low,
                     "btc_entry_price": spot_price,
                     "btc_volatility": spot_tracker.get_volatility(),
+                    "poly_spread": odds.spread if odds else None,
+                    "prev_candle_outcome": last_market_outcome,
                     "hour_of_day": datetime.now(timezone.utc).hour,
                     "day_of_week": datetime.now(timezone.utc).weekday(),
                 },
