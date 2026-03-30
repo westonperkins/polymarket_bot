@@ -905,10 +905,11 @@ function renderTicker(d) {
   } else { streakEl.innerHTML = '-'; streakEl.className = 'ticker-value dim'; }
 
   const todayPnl = parseFloat(t.pnl_today) || 0;
+  const todayPct = p.balance > 0 ? (todayPnl / (p.balance - todayPnl) * 100) : 0;
   const todayEl = document.getElementById('tk-today-pnl');
   todayEl.innerHTML = `${todayPnl>=0?'+':''}$${fmt(todayPnl)}`;
   todayEl.className = `ticker-value ${pnlClass(todayPnl)}`;
-  document.getElementById('tk-today-record').innerHTML = `${t.wins_today||0}W / ${t.losses_today||0}L (${t.trades_today||0})`;
+  document.getElementById('tk-today-record').innerHTML = `${todayPct>=0?'+':''}${fmt(todayPct,1)}% | ${t.wins_today||0}W / ${t.losses_today||0}L`;
 
   document.getElementById('tk-drawdown').innerHTML = `${fmt(d.max_drawdown,1)}%`;
   document.getElementById('tk-drawdown').className = `ticker-value ${d.max_drawdown > 10 ? 'neg' : 'dim'}`;

@@ -504,6 +504,15 @@ async def on_signal_window(
                         dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
                         return
 
+        # Skip FAK trading if odds moved outside tradeable window
+        if not odds.tradeable:
+            logger.info(f"Odds outside tradeable window after limit check — skipping FAK")
+            decision = EnsembleDecision(side=None, confidence="skip", reason="No consensus", votes={})
+            trade_id = simulator.enter_trade(market, odds, decision, signal_data={})
+            if trade_id:
+                pending_trades[market.slug] = trade_id
+            return
+
         dashboard.status_message = "SIGNAL WINDOW — fetching signals..."
 
         # ── Fetch all signals in parallel ─────────────────────────────

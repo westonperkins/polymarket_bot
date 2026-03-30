@@ -137,10 +137,6 @@ class TimingEngine:
         if not odds.tradeable:
             reason = f"Odds outside tradeable window (Up={odds.up_price:.3f})"
             logger.info(f"SKIP {market.slug}: {reason}")
-            if self.on_skip:
-                await self.on_skip(market, reason)
-            await self._wait_until_close(market)
-            return
 
         logger.info(f"SIGNAL WINDOW for {market.slug} | Up={odds.up_price:.3f} Down={odds.down_price:.3f}")
         if self.on_signal_window:
