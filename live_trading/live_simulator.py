@@ -231,6 +231,9 @@ class LiveSimulator:
             # Auto-redeem via Builder Relayer
             if condition_id:
                 try:
+                    # Wait for on-chain resolution to propagate before redeeming
+                    import time
+                    time.sleep(10)
                     redeemed = self._executor.redeem_positions(condition_id)
                     if redeemed:
                         logger.info(f"✅ Auto-redeemed trade {trade_id}")
