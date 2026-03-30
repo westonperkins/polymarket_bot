@@ -13,7 +13,7 @@ import config
 from database import db
 from dashboard.display import Dashboard
 from models import momentum_model, reversion_model, structure_model
-from models.ensemble import decide
+from models.ensemble import decide, EnsembleDecision
 from paper_trading.portfolio import Portfolio
 from paper_trading.simulator import Simulator
 from polymarket.markets import MarketInfo

@@ -348,13 +348,18 @@ class Executor:
                 "value": "0",
             }
 
+            # Get signing key address
+            signer_address = Account.from_key(config.POLYMARKET_PRIVATE_KEY).address
+
             body = json.dumps({
                 "chainId": CHAIN_ID,
+                "txType": "PROXY",
+                "signerAddress": signer_address,
                 "transactions": [tx_payload],
                 "description": f"Redeem positions for {condition_id[:16]}",
             }, separators=(",", ":"))
 
-            # Generate builder auth headers
+            # Generate builder auth headers — try multiple path formats
             method = "POST"
             path = "/submit"
             headers_payload = self._builder_config.generate_builder_headers(method, path, body)
@@ -367,11 +372,20 @@ class Executor:
                 **headers_payload.to_dict(),
             }
 
-            # Submit to relayer
-            relayer_url = "https://relayer-v2.polymarket.com/submit"
-            response = requests.post(relayer_url, data=body, headers=headers, timeout=30)
+            # Submit to relayer — try multiple paths
+            relayer_base = "https://relayer-v2.polymarket.com"
+            response = None
+            for try_path in ["/submit", "/relay", "/execute"]:
+                try_headers = {
+                    "Content-Type": "application/json",
+                    **self._builder_config.generate_builder_headers(method, try_path, body).to_dict(),
+                }
+                response = requests.post(f"{relayer_base}{try_path}", data=body, headers=try_headers, timeout=30)
+                if response.status_code != 404:
+                    logger.info(f"Relayer {try_path}: {response.status_code}")
+                    break
 
-            if response.status_code == 200 or response.status_code == 201:
+            if response and (response.status_code == 200 or response.status_code == 201):
                 result = response.json()
                 tx_id = result.get("transactionId") or result.get("id") or result.get("txHash", "")
                 logger.info(f"Relayer redemption submitted: {tx_id or result}")
