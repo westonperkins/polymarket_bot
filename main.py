@@ -361,7 +361,7 @@ async def on_limit_entry_window(
                     "up_odds": odds.up_price,
                     "down_odds": odds.down_price,
                     # CVD
-                    "cvd": cvd_result.net_delta if cvd_result and not isinstance(cvd_result, Exception) else None,
+                    "cvd": cvd_result.cvd if cvd_result and not isinstance(cvd_result, Exception) else None,
                     "cvd_buy_volume": cvd_result.buy_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
                     "cvd_sell_volume": cvd_result.sell_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
                     "cvd_trade_count": cvd_result.trade_count if cvd_result and not isinstance(cvd_result, Exception) else None,
@@ -370,7 +370,7 @@ async def on_limit_entry_window(
                     "ob_bid_volume": ob_result.bid_volume if ob_result and not isinstance(ob_result, Exception) else None,
                     "ob_ask_volume": ob_result.ask_volume if ob_result and not isinstance(ob_result, Exception) else None,
                     # Liquidations
-                    "liquidation_signal": liq_result.net_signal if liq_result and not isinstance(liq_result, Exception) else None,
+                    "liquidation_signal": liq_result.net_pressure if liq_result and not isinstance(liq_result, Exception) else None,
                     "liq_long_usd": liq_result.long_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
                     "liq_short_usd": liq_result.short_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
                     # Polymarket book
@@ -380,8 +380,8 @@ async def on_limit_entry_window(
                     "poly_book_down_asks": poly_book.down_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
                     "poly_book_bias": poly_book.bias if poly_book and not isinstance(poly_book, Exception) else None,
                     # Momentum
-                    "momentum_60s": momentum.m60 if momentum else None,
-                    "momentum_120s": momentum.m120 if momentum else None,
+                    "momentum_60s": momentum.momentum_60s if momentum else None,
+                    "momentum_120s": momentum.momentum_120s if momentum else None,
                     "momentum_direction": momentum.direction if momentum else None,
                     # Fair value
                     "fair_up": fair.fair_up,
