@@ -127,7 +127,7 @@ dashboard = Dashboard(engine, portfolio, conn)
 # Track pending trades for resolution: market_slug → trade_id
 pending_trades: dict[str, int] = {}
 # Track pending limit orders: market_slug → order_id
-pending_limit_orders: dict[str, str] = {}
+pending_limit_orders: dict[str, dict] = {}  # slug -> {order_id, signal_data}
 # Track the last resolved market outcome for ML features
 last_market_outcome: str | None = None
 
@@ -350,7 +350,28 @@ async def on_limit_entry_window(
         )
 
         if order_id:
-            pending_limit_orders[market.slug] = order_id
+            from datetime import datetime, timezone
+            pending_limit_orders[market.slug] = {
+                "order_id": order_id,
+                "signal_data": {
+                    "spot_price": spot_price,
+                    "chainlink_price": chainlink_price if not isinstance(chainlink_price, Exception) else None,
+                    "up_odds": odds.up_price,
+                    "down_odds": odds.down_price,
+                    "fair_up": fair.fair_up,
+                    "fair_down": fair.fair_down,
+                    "fair_z_score": fair.z_score,
+                    "edge_up_bps": fair.edge_up_bps,
+                    "edge_down_bps": fair.edge_down_bps,
+                    "btc_open_price": spot_tracker.candle_open_price,
+                    "btc_high": spot_tracker.candle_high,
+                    "btc_low": spot_tracker.candle_low,
+                    "btc_entry_price": spot_price,
+                    "btc_volatility": spot_tracker.get_volatility(),
+                    "hour_of_day": datetime.now(timezone.utc).hour,
+                    "day_of_week": datetime.now(timezone.utc).weekday(),
+                },
+            }
             dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f}"
         else:
             dashboard.status_message = "LIMIT ORDER: placement failed"
@@ -363,19 +384,21 @@ async def on_limit_entry_window(
 async def on_cancel_window(market: MarketInfo):
     """Called at T-15 — cancel any unfilled limit orders."""
     try:
-        order_id = pending_limit_orders.pop(market.slug, None)
-        if not order_id:
+        limit_info = pending_limit_orders.pop(market.slug, None)
+        if not limit_info:
             return
+        order_id = limit_info["order_id"]
 
         if config.TRADING_MODE != "live":
             return
 
-        # Check if already filled
+        # Check if already filled — put back so signal window can record it
         status = simulator._executor.get_order_status(order_id)
         if status:
             filled = status.get("filledSize") or status.get("size_matched") or 0
             if float(filled) > 0:
                 logger.info(f"📋 Limit order filled (not cancelling): {order_id}")
+                pending_limit_orders[market.slug] = limit_info  # restore for signal window
                 return
 
         # Cancel unfilled order
@@ -395,7 +418,9 @@ async def on_signal_window(
     try:
         # Check if a limit order already filled for this market
         if market.slug in pending_limit_orders:
-            order_id = pending_limit_orders.pop(market.slug)
+            limit_info = pending_limit_orders.pop(market.slug)
+            order_id = limit_info["order_id"]
+            limit_signal_data = limit_info.get("signal_data", {})
             status = simulator._executor.get_order_status(order_id) if config.TRADING_MODE == "live" else None
             if status:
                 # Log full status for debugging
@@ -488,19 +513,20 @@ async def on_signal_window(
                         pending_trades[market.slug] = trade_id
                         # Save signal snapshot with limit order timing
                         from datetime import datetime, timezone
-                        db.insert_signals(
-                            conn,
-                            trade_id=trade_id,
-                            up_odds=odds.up_price,
-                            down_odds=odds.down_price,
-                            seconds_before_close=engine.seconds_until_close() or 0,
-                            fill_price_per_share=fill_price,
-                            hour_of_day=datetime.now(timezone.utc).hour,
-                            day_of_week=datetime.now(timezone.utc).weekday(),
-                            limit_order_placed_at=order_created_at if order_created_at else None,
-                            limit_order_filled_at=earliest_match_time if earliest_match_time else None,
-                            limit_fill_delay_sec=fill_delay,
-                        )
+                        sig = {
+                            "up_odds": odds.up_price,
+                            "down_odds": odds.down_price,
+                            "seconds_before_close": engine.seconds_until_close() or 0,
+                            "fill_price_per_share": fill_price,
+                            "hour_of_day": datetime.now(timezone.utc).hour,
+                            "day_of_week": datetime.now(timezone.utc).weekday(),
+                            "limit_order_placed_at": order_created_at if order_created_at else None,
+                            "limit_order_filled_at": earliest_match_time if earliest_match_time else None,
+                            "limit_fill_delay_sec": fill_delay,
+                        }
+                        # Merge in T-120 signal data (fair value, price context, etc.)
+                        sig.update(limit_signal_data)
+                        db.insert_signals(conn, trade_id=trade_id, **sig)
                         dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
                         return
 

@@ -1,2860 +1,3196 @@
 trade_id,skip_reason,final_vote,market_outcome,would_have_won,model_win_prob,up_odds,hour_of_day
 "trade_id      1016
 trade_id    1016.0
-Name: 473, dtype: object",empty_book,Up,Up,True,0.897,0.505,18.0
+Name: 473, dtype: object",empty_book,Up,Up,True,0.877,0.505,18.0
 "trade_id      1017
 trade_id    1017.0
-Name: 474, dtype: object",invalid_amount,Down,Up,False,0.911,0.505,18.0
+Name: 474, dtype: object",invalid_amount,Down,Up,False,0.92,0.505,18.0
 "trade_id      1018
 trade_id    1018.0
-Name: 475, dtype: object",invalid_amount,Down,Up,False,0.878,0.505,18.0
+Name: 475, dtype: object",invalid_amount,Down,Up,False,0.808,0.505,18.0
 "trade_id      1019
 trade_id    1019.0
-Name: 476, dtype: object",empty_book,Down,Down,True,0.626,0.475,18.0
+Name: 476, dtype: object",empty_book,Down,Down,True,0.408,0.475,18.0
 "trade_id      1021
 trade_id    1021.0
-Name: 478, dtype: object",empty_book,Down,Down,True,0.833,0.505,18.0
+Name: 478, dtype: object",empty_book,Down,Down,True,0.74,0.505,18.0
 "trade_id      1022
 trade_id    1022.0
-Name: 479, dtype: object",empty_book,Down,Down,True,0.753,0.495,18.0
+Name: 479, dtype: object",empty_book,Down,Down,True,0.609,0.495,18.0
 "trade_id      1023
 trade_id    1023.0
-Name: 480, dtype: object",no_consensus,ABSTAIN,Up,,0.587,0.525,18.0
+Name: 480, dtype: object",no_consensus,ABSTAIN,Up,,0.556,0.525,18.0
 "trade_id      1026
 trade_id    1026.0
-Name: 483, dtype: object",empty_book,Up,Up,True,0.817,0.505,19.0
+Name: 483, dtype: object",empty_book,Up,Up,True,0.709,0.505,19.0
 "trade_id      1027
 trade_id    1027.0
-Name: 484, dtype: object",empty_book,Down,Down,True,0.848,0.525,19.0
+Name: 484, dtype: object",empty_book,Down,Down,True,0.791,0.525,19.0
 "trade_id      1030
 trade_id    1030.0
-Name: 487, dtype: object",empty_book,Up,Up,True,0.812,0.525,19.0
+Name: 487, dtype: object",empty_book,Up,Up,True,0.648,0.525,19.0
 "trade_id      1031
 trade_id    1031.0
-Name: 488, dtype: object",empty_book,Down,Down,True,0.712,0.515,19.0
+Name: 488, dtype: object",empty_book,Down,Down,True,0.645,0.515,19.0
 "trade_id      1033
 trade_id    1033.0
-Name: 490, dtype: object",empty_book,Up,Up,True,0.853,0.505,19.0
+Name: 490, dtype: object",empty_book,Up,Up,True,0.729,0.505,19.0
 "trade_id      1034
 trade_id    1034.0
-Name: 491, dtype: object",empty_book,Up,Up,True,0.893,0.485,19.0
+Name: 491, dtype: object",empty_book,Up,Up,True,0.854,0.485,19.0
 "trade_id      1037
 trade_id    1037.0
-Name: 494, dtype: object",no_consensus,ABSTAIN,Down,,0.614,0.505,19.0
+Name: 494, dtype: object",no_consensus,ABSTAIN,Down,,0.651,0.505,19.0
 "trade_id      1039
 trade_id    1039.0
-Name: 496, dtype: object",empty_book,Down,Down,True,0.761,0.555,20.0
+Name: 496, dtype: object",empty_book,Down,Down,True,0.71,0.555,20.0
 "trade_id      1040
 trade_id    1040.0
-Name: 497, dtype: object",empty_book,Down,Down,True,0.857,0.525,20.0
+Name: 497, dtype: object",empty_book,Down,Down,True,0.877,0.525,20.0
 "trade_id      1041
 trade_id    1041.0
-Name: 498, dtype: object",empty_book,Up,Up,True,0.669,0.525,20.0
+Name: 498, dtype: object",empty_book,Up,Up,True,0.63,0.525,20.0
 "trade_id      1042
 trade_id    1042.0
-Name: 499, dtype: object",no_consensus,ABSTAIN,Up,,0.744,0.545,20.0
+Name: 499, dtype: object",no_consensus,ABSTAIN,Up,,0.752,0.545,20.0
 "trade_id      1043
 trade_id    1043.0
-Name: 500, dtype: object",empty_book,Down,Down,True,0.833,0.535,20.0
+Name: 500, dtype: object",empty_book,Down,Down,True,0.8,0.535,20.0
 "trade_id      1045
 trade_id    1045.0
-Name: 502, dtype: object",no_consensus,ABSTAIN,Up,,0.751,0.535,20.0
+Name: 502, dtype: object",no_consensus,ABSTAIN,Up,,0.658,0.535,20.0
 "trade_id      1046
 trade_id    1046.0
-Name: 503, dtype: object",empty_book,Up,Up,True,0.427,0.525,20.0
+Name: 503, dtype: object",empty_book,Up,Up,True,0.493,0.525,20.0
 "trade_id      1049
 trade_id    1049.0
-Name: 506, dtype: object",no_consensus,ABSTAIN,Up,,0.724,0.485,21.0
+Name: 506, dtype: object",no_consensus,ABSTAIN,Up,,0.751,0.485,21.0
 "trade_id      1050
 trade_id    1050.0
-Name: 507, dtype: object",empty_book,Down,Down,True,0.773,0.525,21.0
+Name: 507, dtype: object",empty_book,Down,Down,True,0.725,0.525,21.0
 "trade_id      1051
 trade_id    1051.0
-Name: 508, dtype: object",empty_book,Down,Down,True,0.888,0.475,21.0
+Name: 508, dtype: object",empty_book,Down,Down,True,0.871,0.475,21.0
 "trade_id      1052
 trade_id    1052.0
-Name: 509, dtype: object",empty_book,Down,Down,True,0.923,0.505,21.0
+Name: 509, dtype: object",empty_book,Down,Down,True,0.894,0.505,21.0
 "trade_id      1053
 trade_id    1053.0
-Name: 510, dtype: object",empty_book,Up,Up,True,0.818,0.485,21.0
+Name: 510, dtype: object",empty_book,Up,Up,True,0.774,0.485,21.0
 "trade_id      1054
 trade_id    1054.0
-Name: 511, dtype: object",empty_book,Up,Up,True,0.726,0.505,21.0
+Name: 511, dtype: object",empty_book,Up,Up,True,0.654,0.505,21.0
 "trade_id      1056
 trade_id    1056.0
-Name: 513, dtype: object",empty_book,Down,Down,True,0.798,0.495,21.0
+Name: 513, dtype: object",empty_book,Down,Down,True,0.749,0.495,21.0
 "trade_id      1058
 trade_id    1058.0
-Name: 515, dtype: object",empty_book,Down,Up,False,0.893,0.485,21.0
+Name: 515, dtype: object",empty_book,Down,Up,False,0.87,0.485,21.0
 "trade_id      1059
 trade_id    1059.0
-Name: 516, dtype: object",no_consensus,ABSTAIN,Up,,0.661,0.495,22.0
+Name: 516, dtype: object",no_consensus,ABSTAIN,Up,,0.613,0.495,22.0
 "trade_id      1060
 trade_id    1060.0
-Name: 517, dtype: object",empty_book,Down,Down,True,0.892,0.505,22.0
+Name: 517, dtype: object",empty_book,Down,Down,True,0.866,0.505,22.0
 "trade_id      1061
 trade_id    1061.0
-Name: 518, dtype: object",no_consensus,ABSTAIN,Up,,0.909,0.485,22.0
+Name: 518, dtype: object",no_consensus,ABSTAIN,Up,,0.939,0.485,22.0
 "trade_id      1063
 trade_id    1063.0
-Name: 520, dtype: object",empty_book,Up,Up,True,0.936,0.375,22.0
+Name: 520, dtype: object",empty_book,Up,Up,True,0.924,0.375,22.0
 "trade_id      1065
 trade_id    1065.0
-Name: 522, dtype: object",empty_book,Up,Up,True,0.749,0.485,22.0
+Name: 522, dtype: object",empty_book,Up,Up,True,0.648,0.485,22.0
 "trade_id      1066
 trade_id    1066.0
-Name: 523, dtype: object",empty_book,Up,Up,True,0.887,0.465,22.0
+Name: 523, dtype: object",empty_book,Up,Up,True,0.868,0.465,22.0
 "trade_id      1067
 trade_id    1067.0
-Name: 524, dtype: object",empty_book,Up,Up,True,0.717,0.395,22.0
+Name: 524, dtype: object",empty_book,Up,Up,True,0.609,0.395,22.0
 "trade_id      1068
 trade_id    1068.0
-Name: 525, dtype: object",empty_book,Up,Up,True,0.446,0.445,22.0
+Name: 525, dtype: object",empty_book,Up,Up,True,0.373,0.445,22.0
 "trade_id      1069
 trade_id    1069.0
-Name: 526, dtype: object",empty_book,Down,Down,True,0.77,0.465,22.0
+Name: 526, dtype: object",empty_book,Down,Down,True,0.743,0.465,22.0
 "trade_id      1071
 trade_id    1071.0
-Name: 528, dtype: object",empty_book,Up,Up,True,0.623,0.495,23.0
+Name: 528, dtype: object",empty_book,Up,Up,True,0.606,0.495,23.0
 "trade_id      1072
 trade_id    1072.0
-Name: 529, dtype: object",no_consensus,ABSTAIN,Down,,0.83,0.495,23.0
+Name: 529, dtype: object",no_consensus,ABSTAIN,Down,,0.776,0.495,23.0
 "trade_id      1073
 trade_id    1073.0
-Name: 530, dtype: object",empty_book,Down,Down,True,0.931,0.455,23.0
+Name: 530, dtype: object",empty_book,Down,Down,True,0.927,0.455,23.0
 "trade_id      1074
 trade_id    1074.0
-Name: 531, dtype: object",empty_book,Down,Down,True,0.76,0.485,23.0
+Name: 531, dtype: object",empty_book,Down,Down,True,0.744,0.485,23.0
 "trade_id      1075
 trade_id    1075.0
-Name: 532, dtype: object",empty_book,Up,Up,True,0.715,0.485,23.0
+Name: 532, dtype: object",empty_book,Up,Up,True,0.633,0.485,23.0
 "trade_id      1077
 trade_id    1077.0
-Name: 534, dtype: object",empty_book,Down,Down,True,0.885,0.485,23.0
+Name: 534, dtype: object",empty_book,Down,Down,True,0.88,0.485,23.0
 "trade_id      1078
 trade_id    1078.0
-Name: 535, dtype: object",empty_book,Down,Down,True,0.481,0.485,23.0
+Name: 535, dtype: object",empty_book,Down,Down,True,0.463,0.485,23.0
 "trade_id      1079
 trade_id    1079.0
-Name: 536, dtype: object",empty_book,Down,Down,True,0.742,0.485,23.0
+Name: 536, dtype: object",empty_book,Down,Down,True,0.732,0.485,23.0
 "trade_id      1080
 trade_id    1080.0
-Name: 537, dtype: object",empty_book,Up,Up,True,0.776,0.505,23.0
+Name: 537, dtype: object",empty_book,Up,Up,True,0.684,0.505,23.0
 "trade_id      1081
 trade_id    1081.0
-Name: 538, dtype: object",empty_book,Up,Up,True,0.799,0.505,23.0
+Name: 538, dtype: object",empty_book,Up,Up,True,0.639,0.505,23.0
 "trade_id      1082
 trade_id    1082.0
-Name: 539, dtype: object",empty_book,Down,Down,True,0.937,0.675,23.0
+Name: 539, dtype: object",empty_book,Down,Down,True,0.874,0.675,23.0
 "trade_id      1083
 trade_id    1083.0
-Name: 540, dtype: object",empty_book,Down,Down,True,0.59,0.495,0.0
+Name: 540, dtype: object",empty_book,Down,Down,True,0.644,0.495,0.0
 "trade_id      1085
 trade_id    1085.0
-Name: 542, dtype: object",empty_book,Down,Up,False,0.409,0.495,0.0
+Name: 542, dtype: object",empty_book,Down,Up,False,0.571,0.495,0.0
 "trade_id      1087
 trade_id    1087.0
-Name: 544, dtype: object",empty_book,Up,Up,True,0.667,0.525,0.0
+Name: 544, dtype: object",empty_book,Up,Up,True,0.73,0.525,0.0
 "trade_id      1088
 trade_id    1088.0
-Name: 545, dtype: object",empty_book,Down,Down,True,0.839,0.385,0.0
+Name: 545, dtype: object",empty_book,Down,Down,True,0.904,0.385,0.0
 "trade_id      1091
 trade_id    1091.0
-Name: 548, dtype: object",no_consensus,ABSTAIN,Up,,0.508,0.675,0.0
+Name: 548, dtype: object",no_consensus,ABSTAIN,Up,,0.554,0.675,0.0
 "trade_id      1092
 trade_id    1092.0
-Name: 549, dtype: object",empty_book,Up,Up,True,0.45,0.535,0.0
+Name: 549, dtype: object",empty_book,Up,Up,True,0.295,0.535,0.0
 "trade_id      1093
 trade_id    1093.0
-Name: 550, dtype: object",invalid_amount,Down,Down,True,0.76,0.465,0.0
+Name: 550, dtype: object",invalid_amount,Down,Down,True,0.827,0.465,0.0
 "trade_id      1095
 trade_id    1095.0
-Name: 552, dtype: object",no_consensus,ABSTAIN,Up,,0.693,0.515,1.0
+Name: 552, dtype: object",no_consensus,ABSTAIN,Up,,0.761,0.515,1.0
 "trade_id      1096
 trade_id    1096.0
-Name: 553, dtype: object",empty_book,Down,Down,True,0.73,0.515,1.0
+Name: 553, dtype: object",empty_book,Down,Down,True,0.753,0.515,1.0
 "trade_id      1097
 trade_id    1097.0
-Name: 554, dtype: object",empty_book,Up,Up,True,0.809,0.505,1.0
+Name: 554, dtype: object",empty_book,Up,Up,True,0.837,0.505,1.0
 "trade_id      1099
 trade_id    1099.0
-Name: 556, dtype: object",empty_book,Up,Up,True,0.674,0.665,1.0
+Name: 556, dtype: object",empty_book,Up,Up,True,0.681,0.665,1.0
 "trade_id      1101
 trade_id    1101.0
-Name: 558, dtype: object",empty_book,Down,Up,False,0.49,0.515,1.0
+Name: 558, dtype: object",empty_book,Down,Up,False,0.523,0.515,1.0
 "trade_id      1103
 trade_id    1103.0
-Name: 560, dtype: object",empty_book,Down,Down,True,0.486,0.495,1.0
+Name: 560, dtype: object",empty_book,Down,Down,True,0.581,0.495,1.0
 "trade_id      1106
 trade_id    1106.0
-Name: 563, dtype: object",no_consensus,ABSTAIN,Down,,0.727,0.515,1.0
+Name: 563, dtype: object",no_consensus,ABSTAIN,Down,,0.833,0.515,1.0
 "trade_id      1107
 trade_id    1107.0
-Name: 564, dtype: object",empty_book,Down,Up,False,0.674,0.505,2.0
+Name: 564, dtype: object",empty_book,Down,Up,False,0.697,0.505,2.0
 "trade_id      1108
 trade_id    1108.0
-Name: 565, dtype: object",empty_book,Down,Down,True,0.735,0.495,2.0
+Name: 565, dtype: object",empty_book,Down,Down,True,0.772,0.495,2.0
 "trade_id      1109
 trade_id    1109.0
-Name: 566, dtype: object",empty_book,Down,Down,True,0.809,0.505,2.0
+Name: 566, dtype: object",empty_book,Down,Down,True,0.845,0.505,2.0
 "trade_id      1110
 trade_id    1110.0
-Name: 567, dtype: object",empty_book,Down,Down,True,0.613,0.545,2.0
+Name: 567, dtype: object",empty_book,Down,Down,True,0.606,0.545,2.0
 "trade_id      1111
 trade_id    1111.0
-Name: 568, dtype: object",empty_book,Down,Down,True,0.638,0.585,2.0
+Name: 568, dtype: object",empty_book,Down,Down,True,0.727,0.585,2.0
 "trade_id      1113
 trade_id    1113.0
-Name: 570, dtype: object",empty_book,Down,Down,True,0.918,0.545,2.0
+Name: 570, dtype: object",empty_book,Down,Down,True,0.917,0.545,2.0
 "trade_id      1116
 trade_id    1116.0
-Name: 573, dtype: object",no_consensus,ABSTAIN,Up,,0.409,0.555,2.0
+Name: 573, dtype: object",no_consensus,ABSTAIN,Up,,0.469,0.555,2.0
 "trade_id      1117
 trade_id    1117.0
-Name: 574, dtype: object",empty_book,Down,Down,True,0.824,0.535,2.0
+Name: 574, dtype: object",empty_book,Down,Down,True,0.797,0.535,2.0
 "trade_id      1119
 trade_id    1119.0
-Name: 576, dtype: object",empty_book,Down,Down,True,0.37,0.515,3.0
+Name: 576, dtype: object",empty_book,Down,Down,True,0.395,0.515,3.0
 "trade_id      1120
 trade_id    1120.0
-Name: 577, dtype: object",empty_book,Up,Up,True,0.68,0.505,3.0
+Name: 577, dtype: object",empty_book,Up,Up,True,0.797,0.505,3.0
 "trade_id      1121
 trade_id    1121.0
-Name: 578, dtype: object",empty_book,Up,Up,True,0.4,0.645,3.0
+Name: 578, dtype: object",empty_book,Up,Up,True,0.535,0.645,3.0
 "trade_id      1123
 trade_id    1123.0
-Name: 580, dtype: object",empty_book,Down,Down,True,0.581,0.495,3.0
+Name: 580, dtype: object",empty_book,Down,Down,True,0.593,0.495,3.0
 "trade_id      1125
 trade_id    1125.0
-Name: 582, dtype: object",empty_book,Up,Up,True,0.481,0.525,3.0
+Name: 582, dtype: object",empty_book,Up,Up,True,0.314,0.525,3.0
 "trade_id      1126
 trade_id    1126.0
-Name: 583, dtype: object",no_consensus,ABSTAIN,Up,,0.847,0.605,3.0
+Name: 583, dtype: object",no_consensus,ABSTAIN,Up,,0.763,0.605,3.0
 "trade_id      1127
 trade_id    1127.0
-Name: 584, dtype: object",no_consensus,ABSTAIN,Down,,0.725,0.535,3.0
+Name: 584, dtype: object",no_consensus,ABSTAIN,Down,,0.669,0.535,3.0
 "trade_id      1128
 trade_id    1128.0
-Name: 585, dtype: object",no_consensus,ABSTAIN,Down,,0.727,0.385,3.0
+Name: 585, dtype: object",no_consensus,ABSTAIN,Down,,0.673,0.385,3.0
 "trade_id      1129
 trade_id    1129.0
-Name: 586, dtype: object",empty_book,Up,Up,True,0.569,0.515,3.0
+Name: 586, dtype: object",empty_book,Up,Up,True,0.495,0.515,3.0
 "trade_id      1130
 trade_id    1130.0
-Name: 587, dtype: object",empty_book,Up,Up,True,0.918,0.505,3.0
+Name: 587, dtype: object",empty_book,Up,Up,True,0.885,0.505,3.0
 "trade_id      1131
 trade_id    1131.0
-Name: 588, dtype: object",empty_book,Down,Down,True,0.711,0.495,4.0
+Name: 588, dtype: object",empty_book,Down,Down,True,0.781,0.495,4.0
 "trade_id      1132
 trade_id    1132.0
-Name: 589, dtype: object",empty_book,Up,Down,False,0.496,0.505,4.0
+Name: 589, dtype: object",empty_book,Up,Down,False,0.393,0.505,4.0
 "trade_id      1134
 trade_id    1134.0
-Name: 591, dtype: object",empty_book,Down,Down,True,0.899,0.525,4.0
+Name: 591, dtype: object",empty_book,Down,Down,True,0.908,0.525,4.0
 "trade_id      1136
 trade_id    1136.0
-Name: 593, dtype: object",no_consensus,ABSTAIN,Up,,0.429,0.515,4.0
+Name: 593, dtype: object",no_consensus,ABSTAIN,Up,,0.41,0.515,4.0
 "trade_id      1137
 trade_id    1137.0
-Name: 594, dtype: object",no_consensus,ABSTAIN,Down,,0.453,0.505,4.0
+Name: 594, dtype: object",no_consensus,ABSTAIN,Down,,0.504,0.505,4.0
 "trade_id      1138
 trade_id    1138.0
-Name: 595, dtype: object",empty_book,Up,Up,True,0.841,0.485,4.0
+Name: 595, dtype: object",empty_book,Up,Up,True,0.842,0.485,4.0
 "trade_id      1140
 trade_id    1140.0
-Name: 597, dtype: object",empty_book,Up,Up,True,0.856,0.475,4.0
+Name: 597, dtype: object",empty_book,Up,Up,True,0.81,0.475,4.0
 "trade_id      1141
 trade_id    1141.0
-Name: 598, dtype: object",empty_book,Down,Down,True,0.829,0.505,4.0
+Name: 598, dtype: object",empty_book,Down,Down,True,0.841,0.505,4.0
 "trade_id      1142
 trade_id    1142.0
-Name: 599, dtype: object",empty_book,Down,Down,True,0.357,0.495,4.0
+Name: 599, dtype: object",empty_book,Down,Down,True,0.572,0.495,4.0
 "trade_id      1143
 trade_id    1143.0
-Name: 600, dtype: object",empty_book,Down,Down,True,0.851,0.525,5.0
+Name: 600, dtype: object",empty_book,Down,Down,True,0.859,0.525,5.0
 "trade_id      1144
 trade_id    1144.0
-Name: 601, dtype: object",empty_book,Down,Down,True,0.832,0.505,5.0
+Name: 601, dtype: object",empty_book,Down,Down,True,0.841,0.505,5.0
 "trade_id      1145
 trade_id    1145.0
-Name: 602, dtype: object",empty_book,Down,Up,False,0.79,0.425,5.0
+Name: 602, dtype: object",empty_book,Down,Up,False,0.808,0.425,5.0
 "trade_id      1149
 trade_id    1149.0
-Name: 606, dtype: object",empty_book,Up,Up,True,0.403,0.495,5.0
+Name: 606, dtype: object",empty_book,Up,Up,True,0.417,0.495,5.0
 "trade_id      1150
 trade_id    1150.0
-Name: 607, dtype: object",empty_book,Down,Down,True,0.885,0.675,5.0
+Name: 607, dtype: object",empty_book,Down,Down,True,0.869,0.675,5.0
 "trade_id      1151
 trade_id    1151.0
-Name: 608, dtype: object",empty_book,Down,Down,True,0.509,0.505,5.0
+Name: 608, dtype: object",empty_book,Down,Down,True,0.576,0.505,5.0
 "trade_id      1153
 trade_id    1153.0
-Name: 610, dtype: object",empty_book,Down,Down,True,0.534,0.515,5.0
+Name: 610, dtype: object",empty_book,Down,Down,True,0.608,0.515,5.0
 "trade_id      1154
 trade_id    1154.0
-Name: 611, dtype: object",empty_book,Down,Down,True,0.291,0.515,5.0
+Name: 611, dtype: object",empty_book,Down,Down,True,0.377,0.515,5.0
 "trade_id      1156
 trade_id    1156.0
-Name: 613, dtype: object",empty_book,Up,Up,True,0.522,0.515,6.0
+Name: 613, dtype: object",empty_book,Up,Up,True,0.607,0.515,6.0
 "trade_id      1158
 trade_id    1158.0
-Name: 615, dtype: object",empty_book,Up,Up,True,0.322,0.515,6.0
+Name: 615, dtype: object",empty_book,Up,Up,True,0.287,0.515,6.0
 "trade_id      1160
 trade_id    1160.0
-Name: 617, dtype: object",empty_book,Up,Up,True,0.869,0.445,6.0
+Name: 617, dtype: object",empty_book,Up,Up,True,0.874,0.445,6.0
 "trade_id      1162
 trade_id    1162.0
-Name: 619, dtype: object",empty_book,Down,Down,True,0.739,0.505,6.0
+Name: 619, dtype: object",empty_book,Down,Down,True,0.83,0.505,6.0
 "trade_id      1164
 trade_id    1164.0
-Name: 621, dtype: object",empty_book,Up,Up,True,0.609,0.51,6.0
+Name: 621, dtype: object",empty_book,Up,Up,True,0.664,0.51,6.0
 "trade_id      1167
 trade_id    1167.0
-Name: 624, dtype: object",empty_book,Up,Up,True,0.621,0.515,7.0
+Name: 624, dtype: object",empty_book,Up,Up,True,0.654,0.515,7.0
 "trade_id      1169
 trade_id    1169.0
-Name: 626, dtype: object",no_consensus,ABSTAIN,Down,,0.379,0.51,7.0
+Name: 626, dtype: object",no_consensus,ABSTAIN,Down,,0.393,0.51,7.0
 "trade_id      1170
 trade_id    1170.0
-Name: 627, dtype: object",empty_book,Down,Down,True,0.664,0.545,7.0
+Name: 627, dtype: object",empty_book,Down,Down,True,0.722,0.545,7.0
 "trade_id      1171
 trade_id    1171.0
-Name: 628, dtype: object",empty_book,Up,Up,True,0.661,0.315,7.0
+Name: 628, dtype: object",empty_book,Up,Up,True,0.688,0.315,7.0
 "trade_id      1172
 trade_id    1172.0
-Name: 629, dtype: object",empty_book,Down,Down,True,0.355,0.505,7.0
+Name: 629, dtype: object",empty_book,Down,Down,True,0.507,0.505,7.0
 "trade_id      1173
 trade_id    1173.0
-Name: 630, dtype: object",no_consensus,ABSTAIN,Down,,0.494,0.515,7.0
+Name: 630, dtype: object",no_consensus,ABSTAIN,Down,,0.543,0.515,7.0
 "trade_id      1174
 trade_id    1174.0
-Name: 631, dtype: object",empty_book,Up,Up,True,0.647,0.515,7.0
+Name: 631, dtype: object",empty_book,Up,Up,True,0.675,0.515,7.0
 "trade_id      1175
 trade_id    1175.0
-Name: 632, dtype: object",empty_book,Down,Up,False,0.902,0.505,7.0
+Name: 632, dtype: object",empty_book,Down,Up,False,0.906,0.505,7.0
 "trade_id      1176
 trade_id    1176.0
-Name: 633, dtype: object",empty_book,Up,Up,True,0.745,0.505,7.0
+Name: 633, dtype: object",empty_book,Up,Up,True,0.735,0.505,7.0
 "trade_id      1177
 trade_id    1177.0
-Name: 634, dtype: object",empty_book,Up,Up,True,0.792,0.505,7.0
+Name: 634, dtype: object",empty_book,Up,Up,True,0.815,0.505,7.0
 "trade_id      1178
 trade_id    1178.0
-Name: 635, dtype: object",empty_book,Down,Down,True,0.662,0.505,7.0
+Name: 635, dtype: object",empty_book,Down,Down,True,0.737,0.505,7.0
 "trade_id      1180
 trade_id    1180.0
-Name: 637, dtype: object",empty_book,Up,Down,False,0.915,0.475,8.0
+Name: 637, dtype: object",empty_book,Up,Down,False,0.911,0.475,8.0
 "trade_id      1181
 trade_id    1181.0
-Name: 638, dtype: object",empty_book,Down,Down,True,0.624,0.505,8.0
+Name: 638, dtype: object",empty_book,Down,Down,True,0.625,0.505,8.0
 "trade_id      1182
 trade_id    1182.0
-Name: 639, dtype: object",empty_book,Down,Down,True,0.666,0.525,8.0
+Name: 639, dtype: object",empty_book,Down,Down,True,0.593,0.525,8.0
 "trade_id      1183
 trade_id    1183.0
-Name: 640, dtype: object",empty_book,Down,Down,True,0.856,0.675,8.0
+Name: 640, dtype: object",empty_book,Down,Down,True,0.858,0.675,8.0
 "trade_id      1184
 trade_id    1184.0
-Name: 641, dtype: object",empty_book,Down,Down,True,0.611,0.535,8.0
+Name: 641, dtype: object",empty_book,Down,Down,True,0.595,0.535,8.0
 "trade_id      1185
 trade_id    1185.0
-Name: 642, dtype: object",empty_book,Up,Up,True,0.55,0.535,8.0
+Name: 642, dtype: object",empty_book,Up,Up,True,0.548,0.535,8.0
 "trade_id      1190
 trade_id    1190.0
-Name: 647, dtype: object",empty_book,Up,Up,True,0.874,0.505,8.0
+Name: 647, dtype: object",empty_book,Up,Up,True,0.87,0.505,8.0
 "trade_id      1191
 trade_id    1191.0
-Name: 648, dtype: object",empty_book,Down,Down,True,0.173,0.5,9.0
+Name: 648, dtype: object",empty_book,Down,Down,True,0.286,0.5,9.0
 "trade_id      1192
 trade_id    1192.0
-Name: 649, dtype: object",empty_book,Up,Up,True,0.439,0.445,9.0
+Name: 649, dtype: object",empty_book,Up,Up,True,0.444,0.445,9.0
 "trade_id      1194
 trade_id    1194.0
-Name: 651, dtype: object",empty_book,Down,Down,True,0.8,0.495,9.0
+Name: 651, dtype: object",empty_book,Down,Down,True,0.798,0.495,9.0
 "trade_id      1195
 trade_id    1195.0
-Name: 652, dtype: object",empty_book,Up,Up,True,0.85,0.495,9.0
+Name: 652, dtype: object",empty_book,Up,Up,True,0.868,0.495,9.0
 "trade_id      1196
 trade_id    1196.0
-Name: 653, dtype: object",empty_book,Up,Up,True,0.529,0.505,9.0
+Name: 653, dtype: object",empty_book,Up,Up,True,0.527,0.505,9.0
 "trade_id      1197
 trade_id    1197.0
-Name: 654, dtype: object",empty_book,Down,Down,True,0.515,0.515,9.0
+Name: 654, dtype: object",empty_book,Down,Down,True,0.574,0.515,9.0
 "trade_id      1199
 trade_id    1199.0
-Name: 656, dtype: object",no_consensus,ABSTAIN,Up,,0.611,0.515,9.0
+Name: 656, dtype: object",no_consensus,ABSTAIN,Up,,0.581,0.515,9.0
 "trade_id      1200
 trade_id    1200.0
-Name: 657, dtype: object",empty_book,Down,Down,True,0.938,0.525,9.0
+Name: 657, dtype: object",empty_book,Down,Down,True,0.944,0.525,9.0
 "trade_id      1201
 trade_id    1201.0
-Name: 658, dtype: object",empty_book,Up,Up,True,0.819,0.505,9.0
+Name: 658, dtype: object",empty_book,Up,Up,True,0.802,0.505,9.0
 "trade_id      1202
 trade_id    1202.0
-Name: 659, dtype: object",empty_book,Up,Down,False,0.676,0.515,9.0
+Name: 659, dtype: object",empty_book,Up,Down,False,0.656,0.515,9.0
 "trade_id      1205
 trade_id    1205.0
-Name: 662, dtype: object",empty_book,Up,Up,True,0.669,0.515,10.0
+Name: 662, dtype: object",empty_book,Up,Up,True,0.626,0.515,10.0
 "trade_id      1206
 trade_id    1206.0
-Name: 663, dtype: object",empty_book,Up,Up,True,0.614,0.565,10.0
+Name: 663, dtype: object",empty_book,Up,Up,True,0.527,0.565,10.0
 "trade_id      1208
 trade_id    1208.0
-Name: 665, dtype: object",empty_book,Up,Down,False,0.591,0.515,10.0
+Name: 665, dtype: object",empty_book,Up,Down,False,0.506,0.515,10.0
 "trade_id      1211
 trade_id    1211.0
-Name: 668, dtype: object",empty_book,Up,Up,True,0.421,0.495,10.0
+Name: 668, dtype: object",empty_book,Up,Up,True,0.496,0.495,10.0
 "trade_id      1212
 trade_id    1212.0
-Name: 669, dtype: object",no_consensus,ABSTAIN,Up,,0.207,0.515,10.0
+Name: 669, dtype: object",no_consensus,ABSTAIN,Up,,0.247,0.515,10.0
 "trade_id      1213
 trade_id    1213.0
-Name: 670, dtype: object",empty_book,Down,Down,True,0.62,0.505,10.0
+Name: 670, dtype: object",empty_book,Down,Down,True,0.717,0.505,10.0
 "trade_id      1214
 trade_id    1214.0
-Name: 671, dtype: object",no_consensus,ABSTAIN,Up,,0.586,0.495,10.0
+Name: 671, dtype: object",no_consensus,ABSTAIN,Up,,0.612,0.495,10.0
 "trade_id      1215
 trade_id    1215.0
-Name: 672, dtype: object",empty_book,Up,Up,True,0.936,0.505,11.0
+Name: 672, dtype: object",empty_book,Up,Up,True,0.918,0.505,11.0
 "trade_id      1218
 trade_id    1218.0
-Name: 675, dtype: object",empty_book,Down,Down,True,0.878,0.505,11.0
+Name: 675, dtype: object",empty_book,Down,Down,True,0.846,0.505,11.0
 "trade_id      1219
 trade_id    1219.0
-Name: 676, dtype: object",empty_book,Down,Down,True,0.907,0.505,11.0
+Name: 676, dtype: object",empty_book,Down,Down,True,0.9,0.505,11.0
 "trade_id      1220
 trade_id    1220.0
-Name: 677, dtype: object",no_consensus,ABSTAIN,Down,,0.618,0.485,11.0
+Name: 677, dtype: object",no_consensus,ABSTAIN,Down,,0.638,0.485,11.0
 "trade_id      1221
 trade_id    1221.0
-Name: 678, dtype: object",empty_book,Up,Up,True,0.879,0.515,11.0
+Name: 678, dtype: object",empty_book,Up,Up,True,0.881,0.515,11.0
 "trade_id      1222
 trade_id    1222.0
-Name: 679, dtype: object",empty_book,Up,Up,True,0.642,0.555,11.0
+Name: 679, dtype: object",empty_book,Up,Up,True,0.612,0.555,11.0
 "trade_id      1223
 trade_id    1223.0
-Name: 680, dtype: object",empty_book,Down,Down,True,0.918,0.505,11.0
+Name: 680, dtype: object",empty_book,Down,Down,True,0.912,0.505,11.0
 "trade_id      1224
 trade_id    1224.0
-Name: 681, dtype: object",empty_book,Up,Down,False,0.873,0.485,11.0
+Name: 681, dtype: object",empty_book,Up,Down,False,0.854,0.485,11.0
 "trade_id      1225
 trade_id    1225.0
-Name: 682, dtype: object",empty_book,Up,Up,True,0.626,0.505,11.0
+Name: 682, dtype: object",empty_book,Up,Up,True,0.446,0.505,11.0
 "trade_id      1227
 trade_id    1227.0
-Name: 684, dtype: object",empty_book,Up,Up,True,0.708,0.505,12.0
+Name: 684, dtype: object",empty_book,Up,Up,True,0.546,0.505,12.0
 "trade_id      1228
 trade_id    1228.0
-Name: 685, dtype: object",empty_book,Up,Up,True,0.805,0.515,12.0
+Name: 685, dtype: object",empty_book,Up,Up,True,0.79,0.515,12.0
 "trade_id      1229
 trade_id    1229.0
-Name: 686, dtype: object",empty_book,Up,Up,True,0.602,0.505,12.0
+Name: 686, dtype: object",empty_book,Up,Up,True,0.5,0.505,12.0
 "trade_id      1230
 trade_id    1230.0
-Name: 687, dtype: object",empty_book,Down,Down,True,0.561,0.485,12.0
+Name: 687, dtype: object",empty_book,Down,Down,True,0.672,0.485,12.0
 "trade_id      1231
 trade_id    1231.0
-Name: 688, dtype: object",empty_book,Up,Down,False,0.945,0.495,12.0
+Name: 688, dtype: object",empty_book,Up,Down,False,0.946,0.495,12.0
 "trade_id      1232
 trade_id    1232.0
-Name: 689, dtype: object",empty_book,Up,Up,True,0.585,0.505,12.0
+Name: 689, dtype: object",empty_book,Up,Up,True,0.545,0.505,12.0
 "trade_id      1233
 trade_id    1233.0
-Name: 690, dtype: object",empty_book,Down,Down,True,0.641,0.505,12.0
+Name: 690, dtype: object",empty_book,Down,Down,True,0.724,0.505,12.0
 "trade_id      1235
 trade_id    1235.0
-Name: 692, dtype: object",empty_book,Up,Up,True,0.63,0.505,12.0
+Name: 692, dtype: object",empty_book,Up,Up,True,0.568,0.505,12.0
 "trade_id      1240
 trade_id    1240.0
-Name: 697, dtype: object",empty_book,Up,Up,True,0.823,0.655,13.0
+Name: 697, dtype: object",empty_book,Up,Up,True,0.817,0.655,13.0
 "trade_id      1242
 trade_id    1242.0
-Name: 699, dtype: object",empty_book,Up,Down,False,0.848,0.485,13.0
+Name: 699, dtype: object",empty_book,Up,Down,False,0.838,0.485,13.0
 "trade_id      1244
 trade_id    1244.0
-Name: 701, dtype: object",no_consensus,ABSTAIN,Down,,0.404,0.485,13.0
+Name: 701, dtype: object",no_consensus,ABSTAIN,Down,,0.525,0.485,13.0
 "trade_id      1245
 trade_id    1245.0
-Name: 702, dtype: object",empty_book,Down,Down,True,0.282,0.545,13.0
+Name: 702, dtype: object",empty_book,Down,Down,True,0.395,0.545,13.0
 "trade_id      1246
 trade_id    1246.0
-Name: 703, dtype: object",no_consensus,ABSTAIN,Up,,0.809,0.61,13.0
+Name: 703, dtype: object",no_consensus,ABSTAIN,Up,,0.804,0.61,13.0
 "trade_id      1247
 trade_id    1247.0
-Name: 704, dtype: object",empty_book,Up,Up,True,0.476,0.505,13.0
+Name: 704, dtype: object",empty_book,Up,Up,True,0.386,0.505,13.0
 "trade_id      1249
 trade_id    1249.0
-Name: 706, dtype: object",empty_book,Up,Up,True,0.724,0.475,13.0
+Name: 706, dtype: object",empty_book,Up,Up,True,0.712,0.475,13.0
 "trade_id      1250
 trade_id    1250.0
-Name: 707, dtype: object",empty_book,Down,Down,True,0.425,0.485,13.0
+Name: 707, dtype: object",empty_book,Down,Down,True,0.522,0.485,13.0
 "trade_id      1251
 trade_id    1251.0
-Name: 708, dtype: object",no_consensus,ABSTAIN,Up,,0.621,0.475,14.0
+Name: 708, dtype: object",no_consensus,ABSTAIN,Up,,0.545,0.475,14.0
 "trade_id      1252
 trade_id    1252.0
-Name: 709, dtype: object",empty_book,Down,Down,True,0.747,0.495,14.0
+Name: 709, dtype: object",empty_book,Down,Down,True,0.759,0.495,14.0
 "trade_id      1253
 trade_id    1253.0
-Name: 710, dtype: object",empty_book,Down,Down,True,0.196,0.49,14.0
+Name: 710, dtype: object",empty_book,Down,Down,True,0.208,0.49,14.0
 "trade_id      1254
 trade_id    1254.0
-Name: 711, dtype: object",empty_book,Down,Down,True,0.759,0.385,14.0
+Name: 711, dtype: object",empty_book,Down,Down,True,0.793,0.385,14.0
 "trade_id      1255
 trade_id    1255.0
-Name: 712, dtype: object",empty_book,Up,Up,True,0.829,0.505,14.0
+Name: 712, dtype: object",empty_book,Up,Up,True,0.787,0.505,14.0
 "trade_id      1256
 trade_id    1256.0
-Name: 713, dtype: object",no_consensus,ABSTAIN,Up,,0.636,0.505,14.0
+Name: 713, dtype: object",no_consensus,ABSTAIN,Up,,0.64,0.505,14.0
 "trade_id      1257
 trade_id    1257.0
-Name: 714, dtype: object",empty_book,Up,Up,True,0.484,0.5,14.0
+Name: 714, dtype: object",empty_book,Up,Up,True,0.541,0.5,14.0
 "trade_id      1258
 trade_id    1258.0
-Name: 715, dtype: object",empty_book,Down,Down,True,0.634,0.495,14.0
+Name: 715, dtype: object",empty_book,Down,Down,True,0.656,0.495,14.0
 "trade_id      1259
 trade_id    1259.0
-Name: 716, dtype: object",empty_book,Down,Down,True,0.224,0.505,14.0
+Name: 716, dtype: object",empty_book,Down,Down,True,0.371,0.505,14.0
 "trade_id      1260
 trade_id    1260.0
-Name: 717, dtype: object",empty_book,Down,Down,True,0.842,0.485,14.0
+Name: 717, dtype: object",empty_book,Down,Down,True,0.832,0.485,14.0
 "trade_id      1261
 trade_id    1261.0
-Name: 718, dtype: object",empty_book,Down,Down,True,0.329,0.505,14.0
+Name: 718, dtype: object",empty_book,Down,Down,True,0.449,0.505,14.0
 "trade_id      1262
 trade_id    1262.0
-Name: 719, dtype: object",empty_book,Up,Up,True,0.873,0.515,14.0
+Name: 719, dtype: object",empty_book,Up,Up,True,0.837,0.515,14.0
 "trade_id      1263
 trade_id    1263.0
-Name: 720, dtype: object",empty_book,Down,Down,True,0.799,0.515,15.0
+Name: 720, dtype: object",empty_book,Down,Down,True,0.841,0.515,15.0
 "trade_id      1264
 trade_id    1264.0
-Name: 721, dtype: object",empty_book,Down,Down,True,0.843,0.5,15.0
+Name: 721, dtype: object",empty_book,Down,Down,True,0.905,0.5,15.0
 "trade_id      1265
 trade_id    1265.0
-Name: 722, dtype: object",empty_book,Down,Down,True,0.423,0.495,15.0
+Name: 722, dtype: object",empty_book,Down,Down,True,0.543,0.495,15.0
 "trade_id      1266
 trade_id    1266.0
-Name: 723, dtype: object",empty_book,Down,Down,True,0.412,0.515,15.0
+Name: 723, dtype: object",empty_book,Down,Down,True,0.421,0.515,15.0
 "trade_id      1267
 trade_id    1267.0
-Name: 724, dtype: object",empty_book,Up,Up,True,0.595,0.525,15.0
+Name: 724, dtype: object",empty_book,Up,Up,True,0.58,0.525,15.0
 "trade_id      1268
 trade_id    1268.0
-Name: 725, dtype: object",empty_book,Up,Up,True,0.665,0.525,15.0
+Name: 725, dtype: object",empty_book,Up,Up,True,0.689,0.525,15.0
 "trade_id      1269
 trade_id    1269.0
-Name: 726, dtype: object",empty_book,Down,Down,True,0.812,0.505,15.0
+Name: 726, dtype: object",empty_book,Down,Down,True,0.847,0.505,15.0
 "trade_id      1270
 trade_id    1270.0
-Name: 727, dtype: object",empty_book,Down,Up,False,0.333,0.505,15.0
+Name: 727, dtype: object",empty_book,Down,Up,False,0.444,0.505,15.0
 "trade_id      1271
 trade_id    1271.0
-Name: 728, dtype: object",empty_book,Down,Up,False,0.772,0.505,15.0
+Name: 728, dtype: object",empty_book,Down,Up,False,0.787,0.505,15.0
 "trade_id      1272
 trade_id    1272.0
-Name: 729, dtype: object",no_consensus,ABSTAIN,Up,,0.517,0.515,15.0
+Name: 729, dtype: object",no_consensus,ABSTAIN,Up,,0.5,0.515,15.0
 "trade_id      1273
 trade_id    1273.0
-Name: 730, dtype: object",empty_book,Up,Up,True,0.448,0.505,15.0
+Name: 730, dtype: object",empty_book,Up,Up,True,0.486,0.505,15.0
 "trade_id      1274
 trade_id    1274.0
-Name: 731, dtype: object",invalid_amount,Down,Down,True,0.339,0.505,15.0
+Name: 731, dtype: object",invalid_amount,Down,Down,True,0.515,0.505,15.0
 "trade_id      1275
 trade_id    1275.0
-Name: 732, dtype: object",empty_book,Down,Down,True,0.339,0.505,16.0
+Name: 732, dtype: object",empty_book,Down,Down,True,0.526,0.505,16.0
 "trade_id      1277
 trade_id    1277.0
-Name: 734, dtype: object",no_consensus,ABSTAIN,Up,,0.216,0.51,16.0
+Name: 734, dtype: object",no_consensus,ABSTAIN,Up,,0.3,0.51,16.0
 "trade_id      1278
 trade_id    1278.0
-Name: 735, dtype: object",empty_book,Up,Up,True,0.305,0.505,16.0
+Name: 735, dtype: object",empty_book,Up,Up,True,0.342,0.505,16.0
 "trade_id      1282
 trade_id    1282.0
-Name: 739, dtype: object",empty_book,Down,Down,True,0.663,0.515,16.0
+Name: 739, dtype: object",empty_book,Down,Down,True,0.701,0.515,16.0
 "trade_id      1283
 trade_id    1283.0
-Name: 740, dtype: object",empty_book,Up,Up,True,0.632,0.485,16.0
+Name: 740, dtype: object",empty_book,Up,Up,True,0.602,0.485,16.0
 "trade_id      1285
 trade_id    1285.0
-Name: 742, dtype: object",no_consensus,ABSTAIN,Up,,0.743,0.495,16.0
+Name: 742, dtype: object",no_consensus,ABSTAIN,Up,,0.779,0.495,16.0
 "trade_id      1286
 trade_id    1286.0
-Name: 743, dtype: object",empty_book,Down,Down,True,0.557,0.505,16.0
+Name: 743, dtype: object",empty_book,Down,Down,True,0.577,0.505,16.0
 "trade_id      1287
 trade_id    1287.0
 Name: 744, dtype: object",empty_book,Up,Up,True,0.771,0.505,17.0
 "trade_id      1289
 trade_id    1289.0
-Name: 746, dtype: object",empty_book,Down,Down,True,0.491,0.505,17.0
+Name: 746, dtype: object",empty_book,Down,Down,True,0.468,0.505,17.0
 "trade_id      1290
 trade_id    1290.0
-Name: 747, dtype: object",empty_book,Up,Up,True,0.572,0.515,17.0
+Name: 747, dtype: object",empty_book,Up,Up,True,0.562,0.515,17.0
 "trade_id      1292
 trade_id    1292.0
-Name: 749, dtype: object",empty_book,Up,Up,True,0.843,0.505,17.0
+Name: 749, dtype: object",empty_book,Up,Up,True,0.822,0.505,17.0
 "trade_id      1293
 trade_id    1293.0
-Name: 750, dtype: object",empty_book,Up,Up,True,0.766,0.505,17.0
+Name: 750, dtype: object",empty_book,Up,Up,True,0.715,0.505,17.0
 "trade_id      1294
 trade_id    1294.0
-Name: 751, dtype: object",empty_book,Down,Down,True,0.768,0.495,17.0
+Name: 751, dtype: object",empty_book,Down,Down,True,0.754,0.495,17.0
 "trade_id      1295
 trade_id    1295.0
-Name: 752, dtype: object",empty_book,Down,Down,True,0.382,0.475,17.0
+Name: 752, dtype: object",empty_book,Down,Down,True,0.399,0.475,17.0
 "trade_id      1296
 trade_id    1296.0
-Name: 753, dtype: object",empty_book,Down,Down,True,0.623,0.515,17.0
+Name: 753, dtype: object",empty_book,Down,Down,True,0.562,0.515,17.0
 "trade_id      1298
 trade_id    1298.0
-Name: 755, dtype: object",no_consensus,ABSTAIN,Down,,0.415,0.55,17.0
+Name: 755, dtype: object",no_consensus,ABSTAIN,Down,,0.59,0.55,17.0
 "trade_id      1299
 trade_id    1299.0
-Name: 756, dtype: object",empty_book,Down,Down,True,0.636,0.525,18.0
+Name: 756, dtype: object",empty_book,Down,Down,True,0.685,0.525,18.0
 "trade_id      1300
 trade_id    1300.0
-Name: 757, dtype: object",empty_book,Up,Up,True,0.396,0.525,18.0
+Name: 757, dtype: object",empty_book,Up,Up,True,0.483,0.525,18.0
 "trade_id      1302
 trade_id    1302.0
-Name: 759, dtype: object",empty_book,Down,Down,True,0.556,0.525,18.0
+Name: 759, dtype: object",empty_book,Down,Down,True,0.554,0.525,18.0
 "trade_id      1303
 trade_id    1303.0
-Name: 760, dtype: object",empty_book,Up,Down,False,0.616,0.515,18.0
+Name: 760, dtype: object",empty_book,Up,Down,False,0.667,0.515,18.0
 "trade_id      1304
 trade_id    1304.0
-Name: 761, dtype: object",empty_book,Down,Down,True,0.841,0.515,18.0
+Name: 761, dtype: object",empty_book,Down,Down,True,0.909,0.515,18.0
 "trade_id      1305
 trade_id    1305.0
-Name: 762, dtype: object",empty_book,Up,Up,True,0.809,0.52,18.0
+Name: 762, dtype: object",empty_book,Up,Up,True,0.811,0.52,18.0
 "trade_id      1306
 trade_id    1306.0
-Name: 763, dtype: object",empty_book,Up,Up,True,0.816,0.595,18.0
+Name: 763, dtype: object",empty_book,Up,Up,True,0.81,0.595,18.0
 "trade_id      1308
 trade_id    1308.0
-Name: 765, dtype: object",invalid_amount,Up,Up,True,0.809,0.505,18.0
+Name: 765, dtype: object",invalid_amount,Up,Up,True,0.775,0.505,18.0
 "trade_id      1309
 trade_id    1309.0
-Name: 766, dtype: object",empty_book,Up,Up,True,0.803,0.515,18.0
+Name: 766, dtype: object",empty_book,Up,Up,True,0.782,0.515,18.0
 "trade_id      1310
 trade_id    1310.0
-Name: 767, dtype: object",empty_book,Up,Up,True,0.693,0.505,18.0
+Name: 767, dtype: object",empty_book,Up,Up,True,0.603,0.505,18.0
 "trade_id      1311
 trade_id    1311.0
-Name: 768, dtype: object",empty_book,Down,Down,True,0.655,0.505,19.0
+Name: 768, dtype: object",empty_book,Down,Down,True,0.663,0.505,19.0
 "trade_id      1313
 trade_id    1313.0
-Name: 770, dtype: object",no_consensus,ABSTAIN,Down,,0.635,0.495,19.0
+Name: 770, dtype: object",no_consensus,ABSTAIN,Down,,0.668,0.495,19.0
 "trade_id      1314
 trade_id    1314.0
-Name: 771, dtype: object",empty_book,Up,Up,True,0.843,0.495,19.0
+Name: 771, dtype: object",empty_book,Up,Up,True,0.825,0.495,19.0
 "trade_id      1315
 trade_id    1315.0
-Name: 772, dtype: object",empty_book,Up,Up,True,0.681,0.505,19.0
+Name: 772, dtype: object",empty_book,Up,Up,True,0.596,0.505,19.0
 "trade_id      1316
 trade_id    1316.0
-Name: 773, dtype: object",empty_book,Down,Down,True,0.877,0.505,19.0
+Name: 773, dtype: object",empty_book,Down,Down,True,0.881,0.505,19.0
 "trade_id      1317
 trade_id    1317.0
-Name: 774, dtype: object",no_consensus,ABSTAIN,Down,,0.756,0.475,19.0
+Name: 774, dtype: object",no_consensus,ABSTAIN,Down,,0.665,0.475,19.0
 "trade_id      1318
 trade_id    1318.0
-Name: 775, dtype: object",no_consensus,ABSTAIN,Up,,0.68,0.505,19.0
+Name: 775, dtype: object",no_consensus,ABSTAIN,Up,,0.505,0.505,19.0
 "trade_id      1321
 trade_id    1321.0
-Name: 778, dtype: object",no_consensus,ABSTAIN,Down,,0.777,0.485,19.0
+Name: 778, dtype: object",no_consensus,ABSTAIN,Down,,0.715,0.485,19.0
 "trade_id      1323
 trade_id    1323.0
-Name: 780, dtype: object",empty_book,Down,Down,True,0.869,0.505,20.0
+Name: 780, dtype: object",empty_book,Down,Down,True,0.871,0.505,20.0
 "trade_id      1324
 trade_id    1324.0
-Name: 781, dtype: object",empty_book,Up,Up,True,0.329,0.515,20.0
+Name: 781, dtype: object",empty_book,Up,Up,True,0.3,0.515,20.0
 "trade_id      1325
 trade_id    1325.0
-Name: 782, dtype: object",empty_book,Up,Up,True,0.873,0.505,20.0
+Name: 782, dtype: object",empty_book,Up,Up,True,0.87,0.505,20.0
 "trade_id      1326
 trade_id    1326.0
-Name: 783, dtype: object",no_consensus,ABSTAIN,Down,,0.606,0.495,20.0
+Name: 783, dtype: object",no_consensus,ABSTAIN,Down,,0.67,0.495,20.0
 "trade_id      1327
 trade_id    1327.0
-Name: 784, dtype: object",empty_book,Up,Up,True,0.794,0.425,20.0
+Name: 784, dtype: object",empty_book,Up,Up,True,0.82,0.425,20.0
 "trade_id      1328
 trade_id    1328.0
-Name: 785, dtype: object",empty_book,Down,Down,True,0.905,0.475,20.0
+Name: 785, dtype: object",empty_book,Down,Down,True,0.933,0.475,20.0
 "trade_id      1330
 trade_id    1330.0
-Name: 787, dtype: object",no_consensus,ABSTAIN,Up,,0.746,0.485,20.0
+Name: 787, dtype: object",no_consensus,ABSTAIN,Up,,0.829,0.485,20.0
 "trade_id      1331
 trade_id    1331.0
-Name: 788, dtype: object",empty_book,Down,Down,True,0.539,0.495,20.0
+Name: 788, dtype: object",empty_book,Down,Down,True,0.486,0.495,20.0
 "trade_id      1332
 trade_id    1332.0
-Name: 789, dtype: object",empty_book,Down,Down,True,0.772,0.485,20.0
+Name: 789, dtype: object",empty_book,Down,Down,True,0.673,0.485,20.0
 "trade_id      1333
 trade_id    1333.0
-Name: 790, dtype: object",empty_book,Down,Down,True,0.784,0.485,20.0
+Name: 790, dtype: object",empty_book,Down,Down,True,0.86,0.485,20.0
 "trade_id      1334
 trade_id    1334.0
-Name: 791, dtype: object",empty_book,Up,Up,True,0.269,0.525,20.0
+Name: 791, dtype: object",empty_book,Up,Up,True,0.223,0.525,20.0
 "trade_id      1335
 trade_id    1335.0
-Name: 792, dtype: object",empty_book,Down,Down,True,0.561,0.505,21.0
+Name: 792, dtype: object",empty_book,Down,Down,True,0.492,0.505,21.0
 "trade_id      1336
 trade_id    1336.0
-Name: 793, dtype: object",empty_book,Down,Down,True,0.859,0.515,21.0
+Name: 793, dtype: object",empty_book,Down,Down,True,0.835,0.515,21.0
 "trade_id      1337
 trade_id    1337.0
-Name: 794, dtype: object",empty_book,Up,Up,True,0.879,0.465,21.0
+Name: 794, dtype: object",empty_book,Up,Up,True,0.867,0.465,21.0
 "trade_id      1338
 trade_id    1338.0
-Name: 795, dtype: object",empty_book,Up,Up,True,0.494,0.505,21.0
+Name: 795, dtype: object",empty_book,Up,Up,True,0.498,0.505,21.0
 "trade_id      1339
 trade_id    1339.0
-Name: 796, dtype: object",empty_book,Up,Up,True,0.678,0.515,21.0
+Name: 796, dtype: object",empty_book,Up,Up,True,0.576,0.515,21.0
 "trade_id      1340
 trade_id    1340.0
-Name: 797, dtype: object",empty_book,Down,Down,True,0.777,0.515,21.0
+Name: 797, dtype: object",empty_book,Down,Down,True,0.786,0.515,21.0
 "trade_id      1342
 trade_id    1342.0
-Name: 799, dtype: object",empty_book,Down,Down,True,0.874,0.475,21.0
+Name: 799, dtype: object",empty_book,Down,Down,True,0.853,0.475,21.0
 "trade_id      1345
 trade_id    1345.0
-Name: 802, dtype: object",no_consensus,ABSTAIN,Down,,0.755,0.49,21.0
+Name: 802, dtype: object",no_consensus,ABSTAIN,Down,,0.655,0.49,21.0
 "trade_id      1346
 trade_id    1346.0
-Name: 803, dtype: object",no_consensus,ABSTAIN,Down,,0.817,0.485,21.0
+Name: 803, dtype: object",no_consensus,ABSTAIN,Down,,0.795,0.485,21.0
 "trade_id      1347
 trade_id    1347.0
-Name: 804, dtype: object",empty_book,Up,Up,True,0.826,0.525,22.0
+Name: 804, dtype: object",empty_book,Up,Up,True,0.8,0.525,22.0
 "trade_id      1348
 trade_id    1348.0
-Name: 805, dtype: object",no_consensus,ABSTAIN,Down,,0.31,0.505,22.0
+Name: 805, dtype: object",no_consensus,ABSTAIN,Down,,0.381,0.505,22.0
 "trade_id      1349
 trade_id    1349.0
-Name: 806, dtype: object",no_consensus,ABSTAIN,Up,,0.483,0.525,22.0
+Name: 806, dtype: object",no_consensus,ABSTAIN,Up,,0.42,0.525,22.0
 "trade_id      1350
 trade_id    1350.0
-Name: 807, dtype: object",empty_book,Down,Down,True,0.575,0.515,22.0
+Name: 807, dtype: object",empty_book,Down,Down,True,0.491,0.515,22.0
 "trade_id      1351
 trade_id    1351.0
-Name: 808, dtype: object",empty_book,Down,Down,True,0.453,0.495,22.0
+Name: 808, dtype: object",empty_book,Down,Down,True,0.471,0.495,22.0
 "trade_id      1353
 trade_id    1353.0
-Name: 810, dtype: object",empty_book,Up,Up,True,0.421,0.515,22.0
+Name: 810, dtype: object",empty_book,Up,Up,True,0.426,0.515,22.0
 "trade_id      1354
 trade_id    1354.0
-Name: 811, dtype: object",empty_book,Down,Down,True,0.806,0.305,22.0
+Name: 811, dtype: object",empty_book,Down,Down,True,0.76,0.305,22.0
 "trade_id      1355
 trade_id    1355.0
-Name: 812, dtype: object",empty_book,Up,Up,True,0.416,0.595,22.0
+Name: 812, dtype: object",empty_book,Up,Up,True,0.43,0.595,22.0
 "trade_id      1356
 trade_id    1356.0
-Name: 813, dtype: object",no_consensus,ABSTAIN,Up,,0.337,0.525,22.0
+Name: 813, dtype: object",no_consensus,ABSTAIN,Up,,0.31,0.525,22.0
 "trade_id      1357
 trade_id    1357.0
-Name: 814, dtype: object",no_consensus,ABSTAIN,Up,,0.82,0.495,22.0
+Name: 814, dtype: object",no_consensus,ABSTAIN,Up,,0.738,0.495,22.0
 "trade_id      1358
 trade_id    1358.0
-Name: 815, dtype: object",no_consensus,ABSTAIN,Up,,0.582,0.485,22.0
+Name: 815, dtype: object",no_consensus,ABSTAIN,Up,,0.487,0.485,22.0
 "trade_id      1359
 trade_id    1359.0
-Name: 816, dtype: object",no_consensus,ABSTAIN,Up,,0.342,0.505,23.0
+Name: 816, dtype: object",no_consensus,ABSTAIN,Up,,0.324,0.505,23.0
 "trade_id      1360
 trade_id    1360.0
-Name: 817, dtype: object",empty_book,Down,Down,True,0.552,0.475,23.0
+Name: 817, dtype: object",empty_book,Down,Down,True,0.389,0.475,23.0
 "trade_id      1361
 trade_id    1361.0
-Name: 818, dtype: object",empty_book,Down,Down,True,0.934,0.465,23.0
+Name: 818, dtype: object",empty_book,Down,Down,True,0.894,0.465,23.0
 "trade_id      1362
 trade_id    1362.0
-Name: 819, dtype: object",empty_book,Up,Up,True,0.488,0.485,23.0
+Name: 819, dtype: object",empty_book,Up,Up,True,0.5,0.485,23.0
 "trade_id      1363
 trade_id    1363.0
-Name: 820, dtype: object",empty_book,Down,Down,True,0.65,0.515,23.0
+Name: 820, dtype: object",empty_book,Down,Down,True,0.658,0.515,23.0
 "trade_id      1364
 trade_id    1364.0
-Name: 821, dtype: object",no_consensus,ABSTAIN,Up,,0.659,0.475,23.0
+Name: 821, dtype: object",no_consensus,ABSTAIN,Up,,0.608,0.475,23.0
 "trade_id      1365
 trade_id    1365.0
-Name: 822, dtype: object",empty_book,Down,Down,True,0.86,0.525,23.0
+Name: 822, dtype: object",empty_book,Down,Down,True,0.842,0.525,23.0
 "trade_id      1367
 trade_id    1367.0
-Name: 824, dtype: object",no_consensus,ABSTAIN,Up,,0.471,0.525,23.0
+Name: 824, dtype: object",no_consensus,ABSTAIN,Up,,0.539,0.525,23.0
 "trade_id      1368
 trade_id    1368.0
-Name: 825, dtype: object",empty_book,Up,Up,True,0.769,0.515,23.0
+Name: 825, dtype: object",empty_book,Up,Up,True,0.774,0.515,23.0
 "trade_id      1369
 trade_id    1369.0
-Name: 826, dtype: object",empty_book,Up,Up,True,0.346,0.505,23.0
+Name: 826, dtype: object",empty_book,Up,Up,True,0.302,0.505,23.0
 "trade_id      1371
 trade_id    1371.0
-Name: 828, dtype: object",empty_book,Down,Down,True,0.813,0.505,0.0
+Name: 828, dtype: object",empty_book,Down,Down,True,0.818,0.505,0.0
 "trade_id      1372
 trade_id    1372.0
-Name: 829, dtype: object",empty_book,Up,Up,True,0.861,0.495,0.0
+Name: 829, dtype: object",empty_book,Up,Up,True,0.898,0.495,0.0
 "trade_id      1373
 trade_id    1373.0
-Name: 830, dtype: object",empty_book,Up,Down,False,0.753,0.505,0.0
+Name: 830, dtype: object",empty_book,Up,Down,False,0.831,0.505,0.0
 "trade_id      1375
 trade_id    1375.0
-Name: 832, dtype: object",no_consensus,ABSTAIN,Down,,0.44,0.46,0.0
+Name: 832, dtype: object",no_consensus,ABSTAIN,Down,,0.468,0.46,0.0
 "trade_id      1376
 trade_id    1376.0
-Name: 833, dtype: object",empty_book,Down,Down,True,0.856,0.325,0.0
+Name: 833, dtype: object",empty_book,Down,Down,True,0.847,0.325,0.0
 "trade_id      1377
 trade_id    1377.0
-Name: 834, dtype: object",empty_book,Up,Down,False,0.646,0.505,0.0
+Name: 834, dtype: object",empty_book,Up,Down,False,0.591,0.505,0.0
 "trade_id      1378
 trade_id    1378.0
-Name: 835, dtype: object",empty_book,Down,Down,True,0.869,0.43,0.0
+Name: 835, dtype: object",empty_book,Down,Down,True,0.795,0.43,0.0
 "trade_id      1379
 trade_id    1379.0
-Name: 836, dtype: object",empty_book,Up,Up,True,0.627,0.515,0.0
+Name: 836, dtype: object",empty_book,Up,Up,True,0.606,0.515,0.0
 "trade_id      1381
 trade_id    1381.0
-Name: 838, dtype: object",no_consensus,ABSTAIN,Up,,0.669,0.505,0.0
+Name: 838, dtype: object",no_consensus,ABSTAIN,Up,,0.616,0.505,0.0
 "trade_id      1382
 trade_id    1382.0
-Name: 839, dtype: object",risk_blocked,Up,Up,True,0.433,0.525,0.0
+Name: 839, dtype: object",risk_blocked,Up,Up,True,0.323,0.525,0.0
 "trade_id      1383
 trade_id    1383.0
-Name: 840, dtype: object",no_consensus,ABSTAIN,Down,,0.421,0.505,1.0
+Name: 840, dtype: object",no_consensus,ABSTAIN,Down,,0.35,0.505,1.0
 "trade_id      1384
 trade_id    1384.0
-Name: 841, dtype: object",risk_blocked,Up,Up,True,0.758,0.495,1.0
+Name: 841, dtype: object",risk_blocked,Up,Up,True,0.722,0.495,1.0
 "trade_id      1386
 trade_id    1386.0
-Name: 843, dtype: object",risk_blocked,Down,Up,False,0.584,0.485,1.0
+Name: 843, dtype: object",risk_blocked,Down,Up,False,0.602,0.485,1.0
 "trade_id      1387
 trade_id    1387.0
-Name: 844, dtype: object",no_consensus,ABSTAIN,Up,,0.819,0.3,1.0
+Name: 844, dtype: object",no_consensus,ABSTAIN,Up,,0.796,0.3,1.0
 "trade_id      1388
 trade_id    1388.0
-Name: 845, dtype: object",risk_blocked,Down,Down,True,0.878,0.445,1.0
+Name: 845, dtype: object",risk_blocked,Down,Down,True,0.86,0.445,1.0
 "trade_id      1389
 trade_id    1389.0
-Name: 846, dtype: object",risk_blocked,Down,Down,True,0.553,0.485,1.0
+Name: 846, dtype: object",risk_blocked,Down,Down,True,0.593,0.485,1.0
 "trade_id      1390
 trade_id    1390.0
-Name: 847, dtype: object",risk_blocked,Down,Down,True,0.716,0.495,1.0
+Name: 847, dtype: object",risk_blocked,Down,Down,True,0.808,0.495,1.0
 "trade_id      1391
 trade_id    1391.0
-Name: 848, dtype: object",risk_blocked,Up,Up,True,0.653,0.505,1.0
+Name: 848, dtype: object",risk_blocked,Up,Up,True,0.603,0.505,1.0
 "trade_id      1392
 trade_id    1392.0
-Name: 849, dtype: object",risk_blocked,Up,Up,True,0.475,0.515,1.0
+Name: 849, dtype: object",risk_blocked,Up,Up,True,0.449,0.515,1.0
 "trade_id      1395
 trade_id    1395.0
-Name: 852, dtype: object",empty_book,Up,Up,True,0.423,0.475,2.0
+Name: 852, dtype: object",empty_book,Up,Up,True,0.488,0.475,2.0
 "trade_id      1397
 trade_id    1397.0
-Name: 854, dtype: object",empty_book,Down,Down,True,0.543,0.475,2.0
+Name: 854, dtype: object",empty_book,Down,Down,True,0.515,0.475,2.0
 "trade_id      1398
 trade_id    1398.0
-Name: 855, dtype: object",empty_book,Down,Down,True,0.785,0.455,2.0
+Name: 855, dtype: object",empty_book,Down,Down,True,0.847,0.455,2.0
 "trade_id      1399
 trade_id    1399.0
-Name: 856, dtype: object",no_consensus,ABSTAIN,Down,,0.736,0.485,2.0
+Name: 856, dtype: object",no_consensus,ABSTAIN,Down,,0.76,0.485,2.0
 "trade_id      1400
 trade_id    1400.0
-Name: 857, dtype: object",empty_book,Up,Up,True,0.534,0.365,2.0
+Name: 857, dtype: object",empty_book,Up,Up,True,0.562,0.365,2.0
 "trade_id      1401
 trade_id    1401.0
-Name: 858, dtype: object",no_consensus,ABSTAIN,Down,,0.885,0.495,2.0
+Name: 858, dtype: object",no_consensus,ABSTAIN,Down,,0.9,0.495,2.0
 "trade_id      1402
 trade_id    1402.0
-Name: 859, dtype: object",empty_book,Down,Down,True,0.817,0.505,2.0
+Name: 859, dtype: object",empty_book,Down,Down,True,0.863,0.505,2.0
 "trade_id      1403
 trade_id    1403.0
-Name: 860, dtype: object",no_consensus,ABSTAIN,Down,,0.636,0.495,2.0
+Name: 860, dtype: object",no_consensus,ABSTAIN,Down,,0.656,0.495,2.0
 "trade_id      1406
 trade_id    1406.0
-Name: 863, dtype: object",empty_book,Down,Down,True,0.782,0.505,2.0
+Name: 863, dtype: object",empty_book,Down,Down,True,0.81,0.505,2.0
 "trade_id      1407
 trade_id    1407.0
-Name: 864, dtype: object",empty_book,Down,Down,True,0.913,0.505,3.0
+Name: 864, dtype: object",empty_book,Down,Down,True,0.926,0.505,3.0
 "trade_id      1410
 trade_id    1410.0
-Name: 867, dtype: object",empty_book,Up,Up,True,0.334,0.525,3.0
+Name: 867, dtype: object",empty_book,Up,Up,True,0.342,0.525,3.0
 "trade_id      1412
 trade_id    1412.0
-Name: 869, dtype: object",invalid_amount,Up,Up,True,0.753,0.515,3.0
+Name: 869, dtype: object",invalid_amount,Up,Up,True,0.706,0.515,3.0
 "trade_id      1414
 trade_id    1414.0
-Name: 871, dtype: object",empty_book,Up,Up,True,0.81,0.505,3.0
+Name: 871, dtype: object",empty_book,Up,Up,True,0.75,0.505,3.0
 "trade_id      1415
 trade_id    1415.0
-Name: 872, dtype: object",empty_book,Down,Down,True,0.918,0.515,3.0
+Name: 872, dtype: object",empty_book,Down,Down,True,0.876,0.515,3.0
 "trade_id      1417
 trade_id    1417.0
-Name: 874, dtype: object",empty_book,Down,Down,True,0.898,0.485,3.0
+Name: 874, dtype: object",empty_book,Down,Down,True,0.906,0.485,3.0
 "trade_id      1419
 trade_id    1419.0
-Name: 876, dtype: object",empty_book,Down,Down,True,0.445,0.485,4.0
+Name: 876, dtype: object",empty_book,Down,Down,True,0.475,0.485,4.0
 "trade_id      1420
 trade_id    1420.0
-Name: 877, dtype: object",empty_book,Down,Down,True,0.462,0.525,4.0
+Name: 877, dtype: object",empty_book,Down,Down,True,0.516,0.525,4.0
 "trade_id      1421
 trade_id    1421.0
-Name: 878, dtype: object",no_consensus,ABSTAIN,Up,,0.343,0.545,4.0
+Name: 878, dtype: object",no_consensus,ABSTAIN,Up,,0.482,0.545,4.0
 "trade_id      1422
 trade_id    1422.0
-Name: 879, dtype: object",empty_book,Up,Up,True,0.525,0.545,4.0
+Name: 879, dtype: object",empty_book,Up,Up,True,0.434,0.545,4.0
 "trade_id      1424
 trade_id    1424.0
-Name: 881, dtype: object",empty_book,Up,Up,True,0.677,0.565,4.0
+Name: 881, dtype: object",empty_book,Up,Up,True,0.653,0.565,4.0
 "trade_id      1425
 trade_id    1425.0
-Name: 882, dtype: object",no_consensus,ABSTAIN,Up,,0.368,0.625,4.0
+Name: 882, dtype: object",no_consensus,ABSTAIN,Up,,0.366,0.625,4.0
 "trade_id      1426
 trade_id    1426.0
-Name: 883, dtype: object",empty_book,Up,Up,True,0.381,0.525,4.0
+Name: 883, dtype: object",empty_book,Up,Up,True,0.385,0.525,4.0
 "trade_id      1428
 trade_id    1428.0
-Name: 885, dtype: object",empty_book,Up,Up,True,0.594,0.495,4.0
+Name: 885, dtype: object",empty_book,Up,Up,True,0.598,0.495,4.0
 "trade_id      1429
 trade_id    1429.0
-Name: 886, dtype: object",empty_book,Down,Down,True,0.614,0.515,4.0
+Name: 886, dtype: object",empty_book,Down,Down,True,0.681,0.515,4.0
 "trade_id      1431
 trade_id    1431.0
-Name: 888, dtype: object",empty_book,Down,Up,False,0.946,0.495,5.0
+Name: 888, dtype: object",empty_book,Down,Up,False,0.92,0.495,5.0
 "trade_id      1432
 trade_id    1432.0
-Name: 889, dtype: object",empty_book,Up,Up,True,0.789,0.515,5.0
+Name: 889, dtype: object",empty_book,Up,Up,True,0.774,0.515,5.0
 "trade_id      1433
 trade_id    1433.0
-Name: 890, dtype: object",empty_book,Up,Up,True,0.714,0.495,5.0
+Name: 890, dtype: object",empty_book,Up,Up,True,0.782,0.495,5.0
 "trade_id      1434
 trade_id    1434.0
-Name: 891, dtype: object",empty_book,Down,Down,True,0.872,0.415,5.0
+Name: 891, dtype: object",empty_book,Down,Down,True,0.849,0.415,5.0
 "trade_id      1437
 trade_id    1437.0
-Name: 894, dtype: object",empty_book,Down,Down,True,0.338,0.545,5.0
+Name: 894, dtype: object",empty_book,Down,Down,True,0.348,0.545,5.0
 "trade_id      1438
 trade_id    1438.0
-Name: 895, dtype: object",no_consensus,ABSTAIN,Down,,0.851,0.435,5.0
+Name: 895, dtype: object",no_consensus,ABSTAIN,Down,,0.811,0.435,5.0
 "trade_id      1441
 trade_id    1441.0
-Name: 898, dtype: object",empty_book,Up,Down,False,0.431,0.525,5.0
+Name: 898, dtype: object",empty_book,Up,Down,False,0.474,0.525,5.0
 "trade_id      1442
 trade_id    1442.0
-Name: 899, dtype: object",no_consensus,ABSTAIN,Up,,0.462,0.625,5.0
+Name: 899, dtype: object",no_consensus,ABSTAIN,Up,,0.523,0.625,5.0
 "trade_id      1444
 trade_id    1444.0
-Name: 901, dtype: object",no_consensus,ABSTAIN,Up,,0.486,0.675,6.0
+Name: 901, dtype: object",no_consensus,ABSTAIN,Up,,0.51,0.675,6.0
 "trade_id      1445
 trade_id    1445.0
-Name: 902, dtype: object",empty_book,Up,Up,True,0.394,0.585,6.0
+Name: 902, dtype: object",empty_book,Up,Up,True,0.33,0.585,6.0
 "trade_id      1446
 trade_id    1446.0
-Name: 903, dtype: object",empty_book,Up,Up,True,0.649,0.505,6.0
+Name: 903, dtype: object",empty_book,Up,Up,True,0.524,0.505,6.0
 "trade_id      1447
 trade_id    1447.0
-Name: 904, dtype: object",empty_book,Up,Up,True,0.819,0.365,6.0
+Name: 904, dtype: object",empty_book,Up,Up,True,0.76,0.365,6.0
 "trade_id      1448
 trade_id    1448.0
-Name: 905, dtype: object",empty_book,Up,Down,False,0.666,0.375,6.0
+Name: 905, dtype: object",empty_book,Up,Down,False,0.63,0.375,6.0
 "trade_id      1449
 trade_id    1449.0
-Name: 906, dtype: object",empty_book,Down,Up,False,0.869,0.455,6.0
+Name: 906, dtype: object",empty_book,Down,Up,False,0.852,0.455,6.0
 "trade_id      1450
 trade_id    1450.0
-Name: 907, dtype: object",no_consensus,ABSTAIN,Down,,0.746,0.495,6.0
+Name: 907, dtype: object",no_consensus,ABSTAIN,Down,,0.703,0.495,6.0
 "trade_id      1452
 trade_id    1452.0
-Name: 909, dtype: object",empty_book,Down,Down,True,0.4,0.495,6.0
+Name: 909, dtype: object",empty_book,Down,Down,True,0.486,0.495,6.0
 "trade_id      1453
 trade_id    1453.0
-Name: 910, dtype: object",empty_book,Up,Up,True,0.458,0.505,6.0
+Name: 910, dtype: object",empty_book,Up,Up,True,0.468,0.505,6.0
 "trade_id      1456
 trade_id    1456.0
-Name: 913, dtype: object",empty_book,Down,Down,True,0.593,0.505,7.0
+Name: 913, dtype: object",empty_book,Down,Down,True,0.688,0.505,7.0
 "trade_id      1457
 trade_id    1457.0
-Name: 914, dtype: object",no_consensus,ABSTAIN,Up,,0.59,0.455,7.0
+Name: 914, dtype: object",no_consensus,ABSTAIN,Up,,0.626,0.455,7.0
 "trade_id      1458
 trade_id    1458.0
-Name: 915, dtype: object",empty_book,Up,Up,True,0.733,0.525,7.0
+Name: 915, dtype: object",empty_book,Up,Up,True,0.63,0.525,7.0
 "trade_id      1459
 trade_id    1459.0
-Name: 916, dtype: object",empty_book,Down,Down,True,0.918,0.635,7.0
+Name: 916, dtype: object",empty_book,Down,Down,True,0.898,0.635,7.0
 "trade_id      1460
 trade_id    1460.0
-Name: 917, dtype: object",empty_book,Up,Up,True,0.57,0.475,7.0
+Name: 917, dtype: object",empty_book,Up,Up,True,0.539,0.475,7.0
 "trade_id      1462
 trade_id    1462.0
-Name: 919, dtype: object",invalid_amount,Down,Down,True,0.939,0.475,7.0
+Name: 919, dtype: object",invalid_amount,Down,Down,True,0.924,0.475,7.0
 "trade_id      1463
 trade_id    1463.0
-Name: 920, dtype: object",empty_book,Down,Down,True,0.931,0.505,7.0
+Name: 920, dtype: object",empty_book,Down,Down,True,0.913,0.505,7.0
 "trade_id      1464
 trade_id    1464.0
-Name: 921, dtype: object",empty_book,Down,Down,True,0.948,0.525,7.0
+Name: 921, dtype: object",empty_book,Down,Down,True,0.935,0.525,7.0
 "trade_id      1465
 trade_id    1465.0
-Name: 922, dtype: object",no_consensus,ABSTAIN,Up,,0.368,0.525,7.0
+Name: 922, dtype: object",no_consensus,ABSTAIN,Up,,0.43,0.525,7.0
 "trade_id      1467
 trade_id    1467.0
-Name: 924, dtype: object",empty_book,Up,Up,True,0.651,0.535,8.0
+Name: 924, dtype: object",empty_book,Up,Up,True,0.621,0.535,8.0
 "trade_id      1468
 trade_id    1468.0
-Name: 925, dtype: object",empty_book,Down,Down,True,0.744,0.535,8.0
+Name: 925, dtype: object",empty_book,Down,Down,True,0.802,0.535,8.0
 "trade_id      1469
 trade_id    1469.0
-Name: 926, dtype: object",no_consensus,ABSTAIN,Down,,0.746,0.555,8.0
+Name: 926, dtype: object",no_consensus,ABSTAIN,Down,,0.77,0.555,8.0
 "trade_id      1470
 trade_id    1470.0
-Name: 927, dtype: object",empty_book,Down,Down,True,0.939,0.555,8.0
+Name: 927, dtype: object",empty_book,Down,Down,True,0.932,0.555,8.0
 "trade_id      1471
 trade_id    1471.0
-Name: 928, dtype: object",no_consensus,ABSTAIN,Up,,0.508,0.535,8.0
+Name: 928, dtype: object",no_consensus,ABSTAIN,Up,,0.488,0.535,8.0
 "trade_id      1472
 trade_id    1472.0
-Name: 929, dtype: object",empty_book,Down,Down,True,0.904,0.575,8.0
+Name: 929, dtype: object",empty_book,Down,Down,True,0.89,0.575,8.0
 "trade_id      1474
 trade_id    1474.0
-Name: 931, dtype: object",no_consensus,ABSTAIN,Down,,0.396,0.545,8.0
+Name: 931, dtype: object",no_consensus,ABSTAIN,Down,,0.407,0.545,8.0
 "trade_id      1475
 trade_id    1475.0
-Name: 932, dtype: object",empty_book,Up,Up,True,0.506,0.545,8.0
+Name: 932, dtype: object",empty_book,Up,Up,True,0.579,0.545,8.0
 "trade_id      1476
 trade_id    1476.0
-Name: 933, dtype: object",empty_book,Up,Up,True,0.427,0.565,8.0
+Name: 933, dtype: object",empty_book,Up,Up,True,0.585,0.565,8.0
 "trade_id      1477
 trade_id    1477.0
 Name: 934, dtype: object",no_consensus,ABSTAIN,Up,,0.711,0.515,8.0
 "trade_id      1478
 trade_id    1478.0
-Name: 935, dtype: object",empty_book,Down,Down,True,0.853,0.475,8.0
+Name: 935, dtype: object",empty_book,Down,Down,True,0.785,0.475,8.0
 "trade_id      1479
 trade_id    1479.0
-Name: 936, dtype: object",empty_book,Down,Down,True,0.467,0.505,9.0
+Name: 936, dtype: object",empty_book,Down,Down,True,0.56,0.505,9.0
 "trade_id      1480
 trade_id    1480.0
-Name: 937, dtype: object",empty_book,Down,Down,True,0.473,0.515,9.0
+Name: 937, dtype: object",empty_book,Down,Down,True,0.559,0.515,9.0
 "trade_id      1481
 trade_id    1481.0
-Name: 938, dtype: object",empty_book,Up,Up,True,0.167,0.53,9.0
+Name: 938, dtype: object",empty_book,Up,Up,True,0.207,0.53,9.0
 "trade_id      1482
 trade_id    1482.0
-Name: 939, dtype: object",empty_book,Up,Up,True,0.507,0.53,9.0
+Name: 939, dtype: object",empty_book,Up,Up,True,0.365,0.53,9.0
 "trade_id      1483
 trade_id    1483.0
-Name: 940, dtype: object",empty_book,Up,Up,True,0.854,0.515,9.0
+Name: 940, dtype: object",empty_book,Up,Up,True,0.781,0.515,9.0
 "trade_id      1485
 trade_id    1485.0
-Name: 942, dtype: object",empty_book,Down,Down,True,0.471,0.455,9.0
+Name: 942, dtype: object",empty_book,Down,Down,True,0.525,0.455,9.0
 "trade_id      1486
 trade_id    1486.0
-Name: 943, dtype: object",no_consensus,ABSTAIN,Up,,0.866,0.335,9.0
+Name: 943, dtype: object",no_consensus,ABSTAIN,Up,,0.872,0.335,9.0
 "trade_id      1487
 trade_id    1487.0
-Name: 944, dtype: object",no_consensus,ABSTAIN,Down,,0.564,0.365,9.0
+Name: 944, dtype: object",no_consensus,ABSTAIN,Down,,0.475,0.365,9.0
 "trade_id      1488
 trade_id    1488.0
-Name: 945, dtype: object",no_consensus,ABSTAIN,Up,,0.754,0.485,9.0
+Name: 945, dtype: object",no_consensus,ABSTAIN,Up,,0.737,0.485,9.0
 "trade_id      1489
 trade_id    1489.0
-Name: 946, dtype: object",empty_book,Up,Up,True,0.48,0.525,9.0
+Name: 946, dtype: object",empty_book,Up,Up,True,0.583,0.525,9.0
 "trade_id      1490
 trade_id    1490.0
-Name: 947, dtype: object",empty_book,Down,Down,True,0.619,0.485,9.0
+Name: 947, dtype: object",empty_book,Down,Down,True,0.602,0.485,9.0
 "trade_id      1492
 trade_id    1492.0
-Name: 949, dtype: object",empty_book,Up,Up,True,0.199,0.535,10.0
+Name: 949, dtype: object",empty_book,Up,Up,True,0.239,0.535,10.0
 "trade_id      1493
 trade_id    1493.0
-Name: 950, dtype: object",empty_book,Down,Down,True,0.897,0.515,10.0
+Name: 950, dtype: object",empty_book,Down,Down,True,0.844,0.515,10.0
 "trade_id      1495
 trade_id    1495.0
-Name: 952, dtype: object",empty_book,Up,Up,True,0.574,0.675,10.0
+Name: 952, dtype: object",empty_book,Up,Up,True,0.614,0.675,10.0
 "trade_id      1496
 trade_id    1496.0
-Name: 953, dtype: object",no_consensus,ABSTAIN,Up,,0.884,0.425,10.0
+Name: 953, dtype: object",no_consensus,ABSTAIN,Up,,0.857,0.425,10.0
 "trade_id      1497
 trade_id    1497.0
-Name: 954, dtype: object",empty_book,Down,Down,True,0.886,0.505,10.0
+Name: 954, dtype: object",empty_book,Down,Down,True,0.915,0.505,10.0
 "trade_id      1498
 trade_id    1498.0
-Name: 955, dtype: object",no_consensus,ABSTAIN,Down,,0.904,0.495,10.0
+Name: 955, dtype: object",no_consensus,ABSTAIN,Down,,0.909,0.495,10.0
 "trade_id      1499
 trade_id    1499.0
-Name: 956, dtype: object",empty_book,Up,Down,False,0.411,0.505,10.0
+Name: 956, dtype: object",empty_book,Up,Down,False,0.538,0.505,10.0
 "trade_id      1500
 trade_id    1500.0
-Name: 957, dtype: object",empty_book,Down,Down,True,0.372,0.555,10.0
+Name: 957, dtype: object",empty_book,Down,Down,True,0.39,0.555,10.0
 "trade_id      1501
 trade_id    1501.0
-Name: 958, dtype: object",empty_book,Down,Down,True,0.77,0.525,10.0
+Name: 958, dtype: object",empty_book,Down,Down,True,0.763,0.525,10.0
 "trade_id      1503
 trade_id    1503.0
-Name: 960, dtype: object",no_consensus,ABSTAIN,Down,,0.796,0.55,11.0
+Name: 960, dtype: object",no_consensus,ABSTAIN,Down,,0.748,0.55,11.0
 "trade_id      1506
 trade_id    1506.0
-Name: 963, dtype: object",empty_book,Up,Up,True,0.757,0.595,11.0
+Name: 963, dtype: object",empty_book,Up,Up,True,0.723,0.595,11.0
 "trade_id      1507
 trade_id    1507.0
 Name: 964, dtype: object",empty_book,Down,Down,True,0.775,0.505,11.0
 "trade_id      1509
 trade_id    1509.0
-Name: 966, dtype: object",no_consensus,ABSTAIN,Down,,0.513,0.485,11.0
+Name: 966, dtype: object",no_consensus,ABSTAIN,Down,,0.59,0.485,11.0
 "trade_id      1510
 trade_id    1510.0
-Name: 967, dtype: object",empty_book,Down,Up,False,0.715,0.525,11.0
+Name: 967, dtype: object",empty_book,Down,Up,False,0.768,0.525,11.0
 "trade_id      1511
 trade_id    1511.0
-Name: 968, dtype: object",empty_book,Up,Up,True,0.815,0.525,11.0
+Name: 968, dtype: object",empty_book,Up,Up,True,0.763,0.525,11.0
 "trade_id      1512
 trade_id    1512.0
-Name: 969, dtype: object",invalid_amount,Up,Up,True,0.368,0.555,11.0
+Name: 969, dtype: object",invalid_amount,Up,Up,True,0.392,0.555,11.0
 "trade_id      1513
 trade_id    1513.0
-Name: 970, dtype: object",empty_book,Down,Down,True,0.711,0.495,11.0
+Name: 970, dtype: object",empty_book,Down,Down,True,0.682,0.495,11.0
 "trade_id      1515
 trade_id    1515.0
-Name: 972, dtype: object",empty_book,Down,Down,True,0.365,0.505,12.0
+Name: 972, dtype: object",empty_book,Down,Down,True,0.4,0.505,12.0
 "trade_id      1516
 trade_id    1516.0
-Name: 973, dtype: object",no_consensus,ABSTAIN,Up,,0.572,0.525,12.0
+Name: 973, dtype: object",no_consensus,ABSTAIN,Up,,0.41,0.525,12.0
 "trade_id      1517
 trade_id    1517.0
-Name: 974, dtype: object",empty_book,Down,Down,True,0.857,0.515,12.0
+Name: 974, dtype: object",empty_book,Down,Down,True,0.801,0.515,12.0
 "trade_id      1518
 trade_id    1518.0
-Name: 975, dtype: object",empty_book,Up,Up,True,0.193,0.525,12.0
+Name: 975, dtype: object",empty_book,Up,Up,True,0.158,0.525,12.0
 "trade_id      1520
 trade_id    1520.0
-Name: 977, dtype: object",empty_book,Down,Down,True,0.416,0.5,12.0
+Name: 977, dtype: object",empty_book,Down,Down,True,0.451,0.5,12.0
 "trade_id      1521
 trade_id    1521.0
-Name: 978, dtype: object",empty_book,Down,Down,True,0.397,0.515,12.0
+Name: 978, dtype: object",empty_book,Down,Down,True,0.511,0.515,12.0
 "trade_id      1523
 trade_id    1523.0
-Name: 980, dtype: object",empty_book,Down,Up,False,0.477,0.525,12.0
+Name: 980, dtype: object",empty_book,Down,Up,False,0.619,0.525,12.0
 "trade_id      1524
 trade_id    1524.0
-Name: 981, dtype: object",empty_book,Down,Down,True,0.289,0.525,12.0
+Name: 981, dtype: object",empty_book,Down,Down,True,0.333,0.525,12.0
 "trade_id      1525
 trade_id    1525.0
-Name: 982, dtype: object",empty_book,Up,Up,True,0.391,0.525,12.0
+Name: 982, dtype: object",empty_book,Up,Up,True,0.333,0.525,12.0
 "trade_id      1526
 trade_id    1526.0
-Name: 983, dtype: object",empty_book,Up,Up,True,0.635,0.445,12.0
+Name: 983, dtype: object",empty_book,Up,Up,True,0.63,0.445,12.0
 "trade_id      1527
 trade_id    1527.0
-Name: 984, dtype: object",empty_book,Up,Up,True,0.796,0.515,13.0
+Name: 984, dtype: object",empty_book,Up,Up,True,0.788,0.515,13.0
 "trade_id      1528
 trade_id    1528.0
-Name: 985, dtype: object",no_consensus,ABSTAIN,Down,,0.262,0.515,13.0
+Name: 985, dtype: object",no_consensus,ABSTAIN,Down,,0.221,0.515,13.0
 "trade_id      1529
 trade_id    1529.0
-Name: 986, dtype: object",empty_book,Down,Down,True,0.308,0.505,13.0
+Name: 986, dtype: object",empty_book,Down,Down,True,0.437,0.505,13.0
 "trade_id      1530
 trade_id    1530.0
-Name: 987, dtype: object",no_consensus,ABSTAIN,Up,,0.62,0.515,13.0
+Name: 987, dtype: object",no_consensus,ABSTAIN,Up,,0.666,0.515,13.0
 "trade_id      1531
 trade_id    1531.0
-Name: 988, dtype: object",empty_book,Up,Up,True,0.489,0.515,13.0
+Name: 988, dtype: object",empty_book,Up,Up,True,0.292,0.515,13.0
 "trade_id      1532
 trade_id    1532.0
-Name: 989, dtype: object",empty_book,Up,Up,True,0.925,0.485,13.0
+Name: 989, dtype: object",empty_book,Up,Up,True,0.898,0.485,13.0
 "trade_id      1533
 trade_id    1533.0
-Name: 990, dtype: object",empty_book,Down,Down,True,0.628,0.505,13.0
+Name: 990, dtype: object",empty_book,Down,Down,True,0.693,0.505,13.0
 "trade_id      1534
 trade_id    1534.0
-Name: 991, dtype: object",no_consensus,ABSTAIN,Up,,0.511,0.525,13.0
+Name: 991, dtype: object",no_consensus,ABSTAIN,Up,,0.492,0.525,13.0
 "trade_id      1536
 trade_id    1536.0
-Name: 993, dtype: object",no_consensus,ABSTAIN,Down,,0.458,0.515,13.0
+Name: 993, dtype: object",no_consensus,ABSTAIN,Down,,0.555,0.515,13.0
 "trade_id      1539
 trade_id    1539.0
-Name: 996, dtype: object",empty_book,Up,Up,True,0.383,0.545,14.0
+Name: 996, dtype: object",empty_book,Up,Up,True,0.419,0.545,14.0
 "trade_id      1540
 trade_id    1540.0
-Name: 997, dtype: object",empty_book,Up,Up,True,0.65,0.505,14.0
+Name: 997, dtype: object",empty_book,Up,Up,True,0.542,0.505,14.0
 "trade_id      1541
 trade_id    1541.0
-Name: 998, dtype: object",no_consensus,ABSTAIN,Up,,0.464,0.535,14.0
+Name: 998, dtype: object",no_consensus,ABSTAIN,Up,,0.36,0.535,14.0
 "trade_id      1542
 trade_id    1542.0
-Name: 999, dtype: object",empty_book,Down,Down,True,0.59,0.515,14.0
+Name: 999, dtype: object",empty_book,Down,Down,True,0.547,0.515,14.0
 "trade_id      1543
 trade_id    1543.0
-Name: 1000, dtype: object",no_consensus,ABSTAIN,Down,,0.427,0.505,14.0
+Name: 1000, dtype: object",no_consensus,ABSTAIN,Down,,0.604,0.505,14.0
 "trade_id      1545
 trade_id    1545.0
-Name: 1002, dtype: object",empty_book,Up,Up,True,0.7,0.505,14.0
+Name: 1002, dtype: object",empty_book,Up,Up,True,0.719,0.505,14.0
 "trade_id      1546
 trade_id    1546.0
-Name: 1003, dtype: object",empty_book,Down,Down,True,0.531,0.525,14.0
+Name: 1003, dtype: object",empty_book,Down,Down,True,0.489,0.525,14.0
 "trade_id      1547
 trade_id    1547.0
-Name: 1004, dtype: object",empty_book,Up,Up,True,0.807,0.695,14.0
+Name: 1004, dtype: object",empty_book,Up,Up,True,0.802,0.695,14.0
 "trade_id      1549
 trade_id    1549.0
-Name: 1006, dtype: object",empty_book,Up,Up,True,0.58,0.515,14.0
+Name: 1006, dtype: object",empty_book,Up,Up,True,0.555,0.515,14.0
 "trade_id      1550
 trade_id    1550.0
-Name: 1007, dtype: object",no_consensus,ABSTAIN,Up,,0.708,0.505,14.0
+Name: 1007, dtype: object",no_consensus,ABSTAIN,Up,,0.706,0.505,14.0
 "trade_id      1551
 trade_id    1551.0
-Name: 1008, dtype: object",empty_book,Up,Up,True,0.757,0.485,15.0
+Name: 1008, dtype: object",empty_book,Up,Up,True,0.832,0.485,15.0
 "trade_id      1553
 trade_id    1553.0
-Name: 1010, dtype: object",empty_book,Up,Up,True,0.733,0.475,15.0
+Name: 1010, dtype: object",empty_book,Up,Up,True,0.805,0.475,15.0
 "trade_id      1554
 trade_id    1554.0
-Name: 1011, dtype: object",empty_book,Down,Down,True,0.5,0.485,15.0
+Name: 1011, dtype: object",empty_book,Down,Down,True,0.57,0.485,15.0
 "trade_id      1555
 trade_id    1555.0
-Name: 1012, dtype: object",empty_book,Up,Up,True,0.7,0.495,15.0
+Name: 1012, dtype: object",empty_book,Up,Up,True,0.741,0.495,15.0
 "trade_id      1556
 trade_id    1556.0
-Name: 1013, dtype: object",empty_book,Up,Up,True,0.727,0.465,15.0
+Name: 1013, dtype: object",empty_book,Up,Up,True,0.625,0.465,15.0
 "trade_id      1557
 trade_id    1557.0
-Name: 1014, dtype: object",empty_book,Up,Up,True,0.755,0.495,15.0
+Name: 1014, dtype: object",empty_book,Up,Up,True,0.731,0.495,15.0
 "trade_id      1559
 trade_id    1559.0
-Name: 1016, dtype: object",empty_book,Down,Down,True,0.545,0.455,15.0
+Name: 1016, dtype: object",empty_book,Down,Down,True,0.559,0.455,15.0
 "trade_id      1561
 trade_id    1561.0
-Name: 1018, dtype: object",invalid_amount,Down,Down,True,0.916,0.575,15.0
+Name: 1018, dtype: object",invalid_amount,Down,Down,True,0.888,0.575,15.0
 "trade_id      1562
 trade_id    1562.0
-Name: 1019, dtype: object",no_consensus,ABSTAIN,Down,,0.676,0.505,15.0
+Name: 1019, dtype: object",no_consensus,ABSTAIN,Down,,0.771,0.505,15.0
 "trade_id      1563
 trade_id    1563.0
-Name: 1020, dtype: object",no_consensus,ABSTAIN,Down,,0.281,0.545,16.0
+Name: 1020, dtype: object",no_consensus,ABSTAIN,Down,,0.406,0.545,16.0
 "trade_id      1565
 trade_id    1565.0
-Name: 1022, dtype: object",empty_book,Up,Up,True,0.597,0.535,16.0
+Name: 1022, dtype: object",empty_book,Up,Up,True,0.526,0.535,16.0
 "trade_id      1566
 trade_id    1566.0
-Name: 1023, dtype: object",no_consensus,ABSTAIN,Down,,0.514,0.555,16.0
+Name: 1023, dtype: object",no_consensus,ABSTAIN,Down,,0.503,0.555,16.0
 "trade_id      1567
 trade_id    1567.0
-Name: 1024, dtype: object",empty_book,Down,Down,True,0.393,0.525,16.0
+Name: 1024, dtype: object",empty_book,Down,Down,True,0.418,0.525,16.0
 "trade_id      1569
 trade_id    1569.0
-Name: 1026, dtype: object",no_consensus,ABSTAIN,Down,,0.188,0.525,16.0
+Name: 1026, dtype: object",no_consensus,ABSTAIN,Down,,0.205,0.525,16.0
 "trade_id      1571
 trade_id    1571.0
-Name: 1028, dtype: object",empty_book,Up,Up,True,0.913,0.495,16.0
+Name: 1028, dtype: object",empty_book,Up,Up,True,0.925,0.495,16.0
 "trade_id      1572
 trade_id    1572.0
-Name: 1029, dtype: object",no_consensus,ABSTAIN,Up,,0.595,0.525,16.0
+Name: 1029, dtype: object",no_consensus,ABSTAIN,Up,,0.508,0.525,16.0
 "trade_id      1573
 trade_id    1573.0
-Name: 1030, dtype: object",no_consensus,ABSTAIN,Down,,0.568,0.505,16.0
+Name: 1030, dtype: object",no_consensus,ABSTAIN,Down,,0.545,0.505,16.0
 "trade_id      1575
 trade_id    1575.0
-Name: 1032, dtype: object",empty_book,Up,Up,True,0.64,0.535,17.0
+Name: 1032, dtype: object",empty_book,Up,Up,True,0.625,0.535,17.0
 "trade_id      1576
 trade_id    1576.0
-Name: 1033, dtype: object",no_consensus,ABSTAIN,Up,,0.782,0.5,17.0
+Name: 1033, dtype: object",no_consensus,ABSTAIN,Up,,0.718,0.5,17.0
 "trade_id      1577
 trade_id    1577.0
-Name: 1034, dtype: object",empty_book,Down,Up,False,0.577,0.655,17.0
+Name: 1034, dtype: object",empty_book,Down,Up,False,0.547,0.655,17.0
 "trade_id      1578
 trade_id    1578.0
-Name: 1035, dtype: object",empty_book,Down,Down,True,0.856,0.475,17.0
+Name: 1035, dtype: object",empty_book,Down,Down,True,0.83,0.475,17.0
 "trade_id      1579
 trade_id    1579.0
-Name: 1036, dtype: object",empty_book,Down,Down,True,0.814,0.495,17.0
+Name: 1036, dtype: object",empty_book,Down,Down,True,0.749,0.495,17.0
 "trade_id      1581
 trade_id    1581.0
-Name: 1038, dtype: object",no_consensus,ABSTAIN,Up,,0.849,0.5,17.0
+Name: 1038, dtype: object",no_consensus,ABSTAIN,Up,,0.875,0.5,17.0
 "trade_id      1582
 trade_id    1582.0
-Name: 1039, dtype: object",empty_book,Down,Down,True,0.663,0.515,17.0
+Name: 1039, dtype: object",empty_book,Down,Down,True,0.633,0.515,17.0
 "trade_id      1583
 trade_id    1583.0
-Name: 1040, dtype: object",empty_book,Down,Down,True,0.654,0.515,17.0
+Name: 1040, dtype: object",empty_book,Down,Down,True,0.623,0.515,17.0
 "trade_id      1584
 trade_id    1584.0
-Name: 1041, dtype: object",no_consensus,ABSTAIN,Up,,0.815,0.445,17.0
+Name: 1041, dtype: object",no_consensus,ABSTAIN,Up,,0.749,0.445,17.0
 "trade_id      1586
 trade_id    1586.0
-Name: 1043, dtype: object",empty_book,Down,Down,True,0.484,0.395,17.0
+Name: 1043, dtype: object",empty_book,Down,Down,True,0.664,0.395,17.0
 "trade_id      1587
 trade_id    1587.0
-Name: 1044, dtype: object",empty_book,Up,Up,True,0.337,0.525,18.0
+Name: 1044, dtype: object",empty_book,Up,Up,True,0.315,0.525,18.0
 "trade_id      1589
 trade_id    1589.0
-Name: 1046, dtype: object",empty_book,Down,Down,True,0.819,0.515,18.0
+Name: 1046, dtype: object",empty_book,Down,Down,True,0.805,0.515,18.0
 "trade_id      1590
 trade_id    1590.0
-Name: 1047, dtype: object",empty_book,Up,Up,True,0.847,0.5,18.0
+Name: 1047, dtype: object",empty_book,Up,Up,True,0.767,0.5,18.0
 "trade_id      1591
 trade_id    1591.0
-Name: 1048, dtype: object",empty_book,Down,Down,True,0.647,0.51,18.0
+Name: 1048, dtype: object",empty_book,Down,Down,True,0.58,0.51,18.0
 "trade_id      1592
 trade_id    1592.0
-Name: 1049, dtype: object",empty_book,Up,Up,True,0.797,0.505,18.0
+Name: 1049, dtype: object",empty_book,Up,Up,True,0.796,0.505,18.0
 "trade_id      1593
 trade_id    1593.0
-Name: 1050, dtype: object",empty_book,Up,Up,True,0.819,0.515,18.0
+Name: 1050, dtype: object",empty_book,Up,Up,True,0.805,0.515,18.0
 "trade_id      1594
 trade_id    1594.0
-Name: 1051, dtype: object",no_consensus,ABSTAIN,Down,,0.283,0.515,18.0
+Name: 1051, dtype: object",no_consensus,ABSTAIN,Down,,0.243,0.515,18.0
 "trade_id      1596
 trade_id    1596.0
-Name: 1053, dtype: object",empty_book,Up,Up,True,0.799,0.51,18.0
+Name: 1053, dtype: object",empty_book,Up,Up,True,0.769,0.51,18.0
 "trade_id      1598
 trade_id    1598.0
-Name: 1055, dtype: object",no_consensus,ABSTAIN,Down,,0.551,0.435,18.0
+Name: 1055, dtype: object",no_consensus,ABSTAIN,Down,,0.386,0.435,18.0
 "trade_id      1599
 trade_id    1599.0
-Name: 1056, dtype: object",empty_book,Down,Down,True,0.731,0.525,19.0
+Name: 1056, dtype: object",empty_book,Down,Down,True,0.757,0.525,19.0
 "trade_id      1600
 trade_id    1600.0
-Name: 1057, dtype: object",empty_book,Down,Up,False,0.767,0.535,19.0
+Name: 1057, dtype: object",empty_book,Down,Up,False,0.748,0.535,19.0
 "trade_id      1602
 trade_id    1602.0
-Name: 1059, dtype: object",empty_book,Up,Up,True,0.879,0.505,19.0
+Name: 1059, dtype: object",empty_book,Up,Up,True,0.809,0.505,19.0
 "trade_id      1604
 trade_id    1604.0
-Name: 1061, dtype: object",no_consensus,ABSTAIN,Up,,0.859,0.345,19.0
+Name: 1061, dtype: object",no_consensus,ABSTAIN,Up,,0.77,0.345,19.0
 "trade_id      1605
 trade_id    1605.0
-Name: 1062, dtype: object",no_consensus,ABSTAIN,Up,,0.768,0.525,19.0
+Name: 1062, dtype: object",no_consensus,ABSTAIN,Up,,0.761,0.525,19.0
 "trade_id      1606
 trade_id    1606.0
-Name: 1063, dtype: object",empty_book,Up,Down,False,0.805,0.485,19.0
+Name: 1063, dtype: object",empty_book,Up,Down,False,0.722,0.485,19.0
 "trade_id      1607
 trade_id    1607.0
-Name: 1064, dtype: object",empty_book,Down,Down,True,0.46,0.475,19.0
+Name: 1064, dtype: object",empty_book,Down,Down,True,0.346,0.475,19.0
 "trade_id      1608
 trade_id    1608.0
-Name: 1065, dtype: object",empty_book,Up,Up,True,0.491,0.53,19.0
+Name: 1065, dtype: object",empty_book,Up,Up,True,0.437,0.53,19.0
 "trade_id      1609
 trade_id    1609.0
-Name: 1066, dtype: object",empty_book,Down,Down,True,0.862,0.505,19.0
+Name: 1066, dtype: object",empty_book,Down,Down,True,0.864,0.505,19.0
 "trade_id      1610
 trade_id    1610.0
-Name: 1067, dtype: object",empty_book,Up,Up,True,0.887,0.485,19.0
+Name: 1067, dtype: object",empty_book,Up,Up,True,0.885,0.485,19.0
 "trade_id      1612
 trade_id    1612.0
-Name: 1069, dtype: object",no_consensus,ABSTAIN,Up,,0.799,0.485,20.0
+Name: 1069, dtype: object",no_consensus,ABSTAIN,Up,,0.825,0.485,20.0
 "trade_id      1613
 trade_id    1613.0
-Name: 1070, dtype: object",no_consensus,ABSTAIN,Down,,0.727,0.325,20.0
+Name: 1070, dtype: object",no_consensus,ABSTAIN,Down,,0.701,0.325,20.0
 "trade_id      1615
 trade_id    1615.0
-Name: 1072, dtype: object",empty_book,Down,Down,True,0.763,0.495,20.0
+Name: 1072, dtype: object",empty_book,Down,Down,True,0.805,0.495,20.0
 "trade_id      1616
 trade_id    1616.0
-Name: 1073, dtype: object",empty_book,Up,Up,True,0.45,0.515,20.0
+Name: 1073, dtype: object",empty_book,Up,Up,True,0.355,0.515,20.0
 "trade_id      1617
 trade_id    1617.0
-Name: 1074, dtype: object",no_consensus,ABSTAIN,Down,,0.566,0.425,20.0
+Name: 1074, dtype: object",no_consensus,ABSTAIN,Down,,0.528,0.425,20.0
 "trade_id      1618
 trade_id    1618.0
-Name: 1075, dtype: object",invalid_amount,Up,Up,True,0.796,0.515,20.0
+Name: 1075, dtype: object",invalid_amount,Up,Up,True,0.75,0.515,20.0
 "trade_id      1619
 trade_id    1619.0
-Name: 1076, dtype: object",no_consensus,ABSTAIN,Up,,0.343,0.415,20.0
+Name: 1076, dtype: object",no_consensus,ABSTAIN,Up,,0.275,0.415,20.0
 "trade_id      1620
 trade_id    1620.0
-Name: 1077, dtype: object",no_consensus,ABSTAIN,Down,,0.549,0.485,20.0
+Name: 1077, dtype: object",no_consensus,ABSTAIN,Down,,0.364,0.485,20.0
 "trade_id      1621
 trade_id    1621.0
-Name: 1078, dtype: object",empty_book,Up,Up,True,0.836,0.495,21.0
+Name: 1078, dtype: object",empty_book,Up,Up,True,0.794,0.495,21.0
 "trade_id      1623
 trade_id    1623.0
-Name: 1080, dtype: object",no_consensus,ABSTAIN,Up,,0.329,0.485,21.0
+Name: 1080, dtype: object",no_consensus,ABSTAIN,Up,,0.284,0.485,21.0
 "trade_id      1624
 trade_id    1624.0
-Name: 1081, dtype: object",empty_book,Down,Up,False,0.782,0.51,21.0
+Name: 1081, dtype: object",empty_book,Down,Up,False,0.721,0.51,21.0
 "trade_id      1625
 trade_id    1625.0
-Name: 1082, dtype: object",empty_book,Down,Down,True,0.824,0.475,21.0
+Name: 1082, dtype: object",empty_book,Down,Down,True,0.709,0.475,21.0
 "trade_id      1627
 trade_id    1627.0
-Name: 1084, dtype: object",no_consensus,ABSTAIN,Down,,0.816,0.345,21.0
+Name: 1084, dtype: object",no_consensus,ABSTAIN,Down,,0.743,0.345,21.0
 "trade_id      1629
 trade_id    1629.0
-Name: 1086, dtype: object",empty_book,Down,Down,True,0.588,0.485,21.0
+Name: 1086, dtype: object",empty_book,Down,Down,True,0.603,0.485,21.0
 "trade_id      1630
 trade_id    1630.0
-Name: 1087, dtype: object",empty_book,Down,Down,True,0.803,0.505,21.0
+Name: 1087, dtype: object",empty_book,Down,Down,True,0.754,0.505,21.0
 "trade_id      1632
 trade_id    1632.0
-Name: 1089, dtype: object",empty_book,Down,Down,True,0.282,0.505,22.0
+Name: 1089, dtype: object",empty_book,Down,Down,True,0.381,0.505,22.0
 "trade_id      1633
 trade_id    1633.0
-Name: 1090, dtype: object",invalid_amount,Up,Down,False,0.729,0.395,22.0
+Name: 1090, dtype: object",invalid_amount,Up,Down,False,0.586,0.395,22.0
 "trade_id      1634
 trade_id    1634.0
-Name: 1091, dtype: object",empty_book,Down,Down,True,0.471,0.395,22.0
+Name: 1091, dtype: object",empty_book,Down,Down,True,0.48,0.395,22.0
 "trade_id      1636
 trade_id    1636.0
-Name: 1093, dtype: object",empty_book,Up,Up,True,0.416,0.535,22.0
+Name: 1093, dtype: object",empty_book,Up,Up,True,0.356,0.535,22.0
 "trade_id      1637
 trade_id    1637.0
-Name: 1094, dtype: object",empty_book,Down,Up,False,0.922,0.515,22.0
+Name: 1094, dtype: object",empty_book,Down,Up,False,0.921,0.515,22.0
 "trade_id      1639
 trade_id    1639.0
-Name: 1096, dtype: object",empty_book,Down,Down,True,0.632,0.515,22.0
+Name: 1096, dtype: object",empty_book,Down,Down,True,0.494,0.515,22.0
 "trade_id      1640
 trade_id    1640.0
-Name: 1097, dtype: object",empty_book,Up,Up,True,0.748,0.475,22.0
+Name: 1097, dtype: object",empty_book,Up,Up,True,0.691,0.475,22.0
 "trade_id      1641
 trade_id    1641.0
-Name: 1098, dtype: object",empty_book,Up,Up,True,0.227,0.52,22.0
+Name: 1098, dtype: object",empty_book,Up,Up,True,0.229,0.52,22.0
 "trade_id      1642
 trade_id    1642.0
-Name: 1099, dtype: object",empty_book,Down,Down,True,0.878,0.485,22.0
+Name: 1099, dtype: object",empty_book,Down,Down,True,0.872,0.485,22.0
 "trade_id      1643
 trade_id    1643.0
-Name: 1100, dtype: object",no_consensus,ABSTAIN,Down,,0.543,0.695,22.0
+Name: 1100, dtype: object",no_consensus,ABSTAIN,Down,,0.632,0.695,22.0
 "trade_id      1646
 trade_id    1646.0
-Name: 1103, dtype: object",empty_book,Up,Up,True,0.454,0.485,23.0
+Name: 1103, dtype: object",empty_book,Up,Up,True,0.399,0.485,23.0
 "trade_id      1647
 trade_id    1647.0
-Name: 1104, dtype: object",empty_book,Up,Up,True,0.563,0.52,23.0
+Name: 1104, dtype: object",empty_book,Up,Up,True,0.44,0.52,23.0
 "trade_id      1648
 trade_id    1648.0
-Name: 1105, dtype: object",empty_book,Up,Up,True,0.565,0.485,23.0
+Name: 1105, dtype: object",empty_book,Up,Up,True,0.554,0.485,23.0
 "trade_id      1652
 trade_id    1652.0
-Name: 1109, dtype: object",empty_book,Up,Up,True,0.541,0.495,23.0
+Name: 1109, dtype: object",empty_book,Up,Up,True,0.551,0.495,23.0
 "trade_id      1653
 trade_id    1653.0
-Name: 1110, dtype: object",empty_book,Up,Up,True,0.338,0.485,23.0
+Name: 1110, dtype: object",empty_book,Up,Up,True,0.332,0.485,23.0
 "trade_id      1654
 trade_id    1654.0
-Name: 1111, dtype: object",empty_book,Up,Up,True,0.744,0.465,23.0
+Name: 1111, dtype: object",empty_book,Up,Up,True,0.777,0.465,23.0
 "trade_id      1655
 trade_id    1655.0
-Name: 1112, dtype: object",empty_book,Up,Up,True,0.843,0.465,23.0
+Name: 1112, dtype: object",empty_book,Up,Up,True,0.817,0.465,23.0
 "trade_id      1656
 trade_id    1656.0
-Name: 1113, dtype: object",empty_book,Up,Up,True,0.555,0.465,0.0
+Name: 1113, dtype: object",empty_book,Up,Up,True,0.569,0.465,0.0
 "trade_id      1657
 trade_id    1657.0
-Name: 1114, dtype: object",empty_book,Down,Down,True,0.894,0.495,0.0
+Name: 1114, dtype: object",empty_book,Down,Down,True,0.884,0.495,0.0
 "trade_id      1658
 trade_id    1658.0
-Name: 1115, dtype: object",empty_book,Down,Down,True,0.839,0.46,0.0
+Name: 1115, dtype: object",empty_book,Down,Down,True,0.844,0.46,0.0
 "trade_id      1659
 trade_id    1659.0
-Name: 1116, dtype: object",empty_book,Up,Up,True,0.75,0.47,0.0
+Name: 1116, dtype: object",empty_book,Up,Up,True,0.757,0.47,0.0
 "trade_id      1660
 trade_id    1660.0
-Name: 1117, dtype: object",empty_book,Up,Up,True,0.576,0.495,0.0
+Name: 1117, dtype: object",empty_book,Up,Up,True,0.701,0.495,0.0
 "trade_id      1661
 trade_id    1661.0
 Name: 1118, dtype: object",empty_book,Down,Up,False,0.814,0.485,0.0
 "trade_id      1662
 trade_id    1662.0
-Name: 1119, dtype: object",empty_book,Up,Up,True,0.776,0.475,0.0
+Name: 1119, dtype: object",empty_book,Up,Up,True,0.724,0.475,0.0
 "trade_id      1665
 trade_id    1665.0
-Name: 1122, dtype: object",empty_book,Down,Down,True,0.764,0.415,0.0
+Name: 1122, dtype: object",empty_book,Down,Down,True,0.843,0.415,0.0
 "trade_id      1667
 trade_id    1667.0
-Name: 1124, dtype: object",no_consensus,ABSTAIN,Down,,0.437,0.655,0.0
+Name: 1124, dtype: object",no_consensus,ABSTAIN,Down,,0.521,0.655,0.0
 "trade_id      1669
 trade_id    1669.0
-Name: 1126, dtype: object",empty_book,Down,Down,True,0.753,0.655,1.0
+Name: 1126, dtype: object",empty_book,Down,Down,True,0.801,0.655,1.0
 "trade_id      1670
 trade_id    1670.0
-Name: 1127, dtype: object",empty_book,Down,Down,True,0.914,0.515,1.0
+Name: 1127, dtype: object",empty_book,Down,Down,True,0.922,0.515,1.0
 "trade_id      1671
 trade_id    1671.0
-Name: 1128, dtype: object",empty_book,Up,Up,True,0.35,0.545,1.0
+Name: 1128, dtype: object",empty_book,Up,Up,True,0.421,0.545,1.0
 "trade_id      1672
 trade_id    1672.0
-Name: 1129, dtype: object",no_consensus,ABSTAIN,Up,,0.326,0.525,1.0
+Name: 1129, dtype: object",no_consensus,ABSTAIN,Up,,0.355,0.525,1.0
 "trade_id      1673
 trade_id    1673.0
-Name: 1130, dtype: object",no_consensus,ABSTAIN,Down,,0.508,0.515,1.0
+Name: 1130, dtype: object",no_consensus,ABSTAIN,Down,,0.47,0.515,1.0
 "trade_id      1674
 trade_id    1674.0
-Name: 1131, dtype: object",no_consensus,ABSTAIN,Up,,0.273,0.515,1.0
+Name: 1131, dtype: object",no_consensus,ABSTAIN,Up,,0.271,0.515,1.0
 "trade_id      1675
 trade_id    1675.0
-Name: 1132, dtype: object",invalid_amount,Down,Down,True,0.9,0.525,1.0
+Name: 1132, dtype: object",invalid_amount,Down,Down,True,0.879,0.525,1.0
 "trade_id      1678
 trade_id    1678.0
-Name: 1135, dtype: object",empty_book,Up,Up,True,0.824,0.495,1.0
+Name: 1135, dtype: object",empty_book,Up,Up,True,0.765,0.495,1.0
 "trade_id      1679
 trade_id    1679.0
-Name: 1136, dtype: object",empty_book,Down,Up,False,0.759,0.525,1.0
+Name: 1136, dtype: object",empty_book,Down,Up,False,0.787,0.525,1.0
 "trade_id      1680
 trade_id    1680.0
-Name: 1137, dtype: object",empty_book,Up,Up,True,0.486,0.485,2.0
+Name: 1137, dtype: object",empty_book,Up,Up,True,0.499,0.485,2.0
 "trade_id      1683
 trade_id    1683.0
-Name: 1140, dtype: object",no_consensus,ABSTAIN,Down,,0.517,0.495,2.0
+Name: 1140, dtype: object",no_consensus,ABSTAIN,Down,,0.593,0.495,2.0
 "trade_id      1684
 trade_id    1684.0
-Name: 1141, dtype: object",empty_book,Up,Up,True,0.27,0.515,2.0
+Name: 1141, dtype: object",empty_book,Up,Up,True,0.215,0.515,2.0
 "trade_id      1687
 trade_id    1687.0
-Name: 1144, dtype: object",no_consensus,ABSTAIN,Down,,0.326,0.535,2.0
+Name: 1144, dtype: object",no_consensus,ABSTAIN,Down,,0.344,0.535,2.0
 "trade_id      1688
 trade_id    1688.0
-Name: 1145, dtype: object",empty_book,Up,Up,True,0.318,0.545,2.0
+Name: 1145, dtype: object",empty_book,Up,Up,True,0.371,0.545,2.0
 "trade_id      1691
 trade_id    1691.0
-Name: 1148, dtype: object",empty_book,Up,Up,True,0.359,0.525,2.0
+Name: 1148, dtype: object",empty_book,Up,Up,True,0.499,0.525,2.0
 "trade_id      1694
 trade_id    1694.0
-Name: 1151, dtype: object",ml_gate,Up,Up,True,0.545,0.625,3.0
+Name: 1151, dtype: object",ml_gate,Up,Up,True,0.615,0.625,3.0
 "trade_id      1695
 trade_id    1695.0
-Name: 1152, dtype: object",ml_gate,Up,Up,True,0.304,0.62,3.0
+Name: 1152, dtype: object",ml_gate,Up,Up,True,0.361,0.62,3.0
 "trade_id      1697
 trade_id    1697.0
-Name: 1154, dtype: object",ml_gate,Up,Down,False,0.687,0.625,3.0
+Name: 1154, dtype: object",ml_gate,Up,Down,False,0.723,0.625,3.0
 "trade_id      1698
 trade_id    1698.0
-Name: 1155, dtype: object",no_consensus,ABSTAIN,Down,,0.529,0.485,3.0
+Name: 1155, dtype: object",no_consensus,ABSTAIN,Down,,0.584,0.485,3.0
 "trade_id      1699
 trade_id    1699.0
-Name: 1156, dtype: object",ml_gate,Up,Up,True,0.346,0.325,3.0
+Name: 1156, dtype: object",ml_gate,Up,Up,True,0.419,0.325,3.0
 "trade_id      1700
 trade_id    1700.0
-Name: 1157, dtype: object",ml_gate,Up,Up,True,0.751,0.485,3.0
+Name: 1157, dtype: object",ml_gate,Up,Up,True,0.794,0.485,3.0
 "trade_id      1701
 trade_id    1701.0
-Name: 1158, dtype: object",ml_gate,Down,Up,False,0.661,0.655,3.0
+Name: 1158, dtype: object",ml_gate,Down,Up,False,0.648,0.655,3.0
 "trade_id      1702
 trade_id    1702.0
-Name: 1159, dtype: object",empty_book,Down,Down,True,0.861,0.52,3.0
+Name: 1159, dtype: object",empty_book,Down,Down,True,0.873,0.52,3.0
 "trade_id      1703
 trade_id    1703.0
-Name: 1160, dtype: object",no_consensus,ABSTAIN,Up,,0.678,0.605,3.0
+Name: 1160, dtype: object",no_consensus,ABSTAIN,Up,,0.659,0.605,3.0
 "trade_id      1704
 trade_id    1704.0
-Name: 1161, dtype: object",ml_gate,Up,Down,False,0.811,0.49,4.0
+Name: 1161, dtype: object",ml_gate,Up,Down,False,0.844,0.49,4.0
 "trade_id      1705
 trade_id    1705.0
-Name: 1162, dtype: object",no_consensus,ABSTAIN,Down,,0.754,0.435,4.0
+Name: 1162, dtype: object",no_consensus,ABSTAIN,Down,,0.695,0.435,4.0
 "trade_id      1706
 trade_id    1706.0
-Name: 1163, dtype: object",empty_book,Down,Down,True,0.809,0.455,4.0
+Name: 1163, dtype: object",empty_book,Down,Down,True,0.818,0.455,4.0
 "trade_id      1707
 trade_id    1707.0
-Name: 1164, dtype: object",ml_gate,Up,Up,True,0.822,0.535,4.0
+Name: 1164, dtype: object",ml_gate,Up,Up,True,0.821,0.535,4.0
 "trade_id      1708
 trade_id    1708.0
-Name: 1165, dtype: object",ml_gate,Up,Up,True,0.488,0.505,4.0
+Name: 1165, dtype: object",ml_gate,Up,Up,True,0.53,0.505,4.0
 "trade_id      1709
 trade_id    1709.0
-Name: 1166, dtype: object",ml_gate,Up,Down,False,0.61,0.405,4.0
+Name: 1166, dtype: object",ml_gate,Up,Down,False,0.613,0.405,4.0
 "trade_id      1710
 trade_id    1710.0
-Name: 1167, dtype: object",empty_book,Up,Up,True,0.796,0.465,4.0
+Name: 1167, dtype: object",empty_book,Up,Up,True,0.763,0.465,4.0
 "trade_id      1711
 trade_id    1711.0
-Name: 1168, dtype: object",ml_gate,Up,Down,False,0.775,0.495,4.0
+Name: 1168, dtype: object",ml_gate,Up,Down,False,0.843,0.495,4.0
 "trade_id      1713
 trade_id    1713.0
-Name: 1170, dtype: object",no_consensus,ABSTAIN,Down,,0.926,0.48,4.0
+Name: 1170, dtype: object",no_consensus,ABSTAIN,Down,,0.914,0.48,4.0
 "trade_id      1714
 trade_id    1714.0
-Name: 1171, dtype: object",ml_gate,Up,Up,True,0.82,0.465,4.0
+Name: 1171, dtype: object",ml_gate,Up,Up,True,0.85,0.465,4.0
 "trade_id      1716
 trade_id    1716.0
-Name: 1173, dtype: object",empty_book,Down,Down,True,0.434,0.465,5.0
+Name: 1173, dtype: object",empty_book,Down,Down,True,0.65,0.465,5.0
 "trade_id      1717
 trade_id    1717.0
-Name: 1174, dtype: object",ml_gate,Up,Up,True,0.817,0.465,5.0
+Name: 1174, dtype: object",ml_gate,Up,Up,True,0.866,0.465,5.0
 "trade_id      1718
 trade_id    1718.0
-Name: 1175, dtype: object",no_consensus,ABSTAIN,Up,,0.892,0.485,5.0
+Name: 1175, dtype: object",no_consensus,ABSTAIN,Up,,0.882,0.485,5.0
 "trade_id      1719
 trade_id    1719.0
-Name: 1176, dtype: object",ml_gate,Up,Down,False,0.672,0.5,5.0
+Name: 1176, dtype: object",ml_gate,Up,Down,False,0.683,0.5,5.0
 "trade_id      1720
 trade_id    1720.0
-Name: 1177, dtype: object",ml_gate,Up,Up,True,0.854,0.515,5.0
+Name: 1177, dtype: object",ml_gate,Up,Up,True,0.873,0.515,5.0
 "trade_id      1721
 trade_id    1721.0
-Name: 1178, dtype: object",empty_book,Down,Down,True,0.556,0.455,5.0
+Name: 1178, dtype: object",empty_book,Down,Down,True,0.665,0.455,5.0
 "trade_id      1722
 trade_id    1722.0
-Name: 1179, dtype: object",ml_gate,Up,Up,True,0.594,0.465,5.0
+Name: 1179, dtype: object",ml_gate,Up,Up,True,0.648,0.465,5.0
 "trade_id      1723
 trade_id    1723.0
-Name: 1180, dtype: object",ml_gate,Up,Down,False,0.719,0.455,5.0
+Name: 1180, dtype: object",ml_gate,Up,Down,False,0.715,0.455,5.0
 "trade_id      1724
 trade_id    1724.0
-Name: 1181, dtype: object",empty_book,Down,Up,False,0.416,0.465,5.0
+Name: 1181, dtype: object",empty_book,Down,Up,False,0.571,0.465,5.0
 "trade_id      1725
 trade_id    1725.0
-Name: 1182, dtype: object",ml_gate,Down,Down,True,0.733,0.465,5.0
+Name: 1182, dtype: object",ml_gate,Down,Down,True,0.724,0.465,5.0
 "trade_id      1726
 trade_id    1726.0
-Name: 1183, dtype: object",no_consensus,ABSTAIN,Up,,0.769,0.425,5.0
+Name: 1183, dtype: object",no_consensus,ABSTAIN,Up,,0.811,0.425,5.0
 "trade_id      1727
 trade_id    1727.0
-Name: 1184, dtype: object",no_consensus,ABSTAIN,Up,,0.792,0.485,5.0
+Name: 1184, dtype: object",no_consensus,ABSTAIN,Up,,0.837,0.485,5.0
 "trade_id      1728
 trade_id    1728.0
-Name: 1185, dtype: object",empty_book,Down,Down,True,0.887,0.495,6.0
+Name: 1185, dtype: object",empty_book,Down,Down,True,0.898,0.495,6.0
 "trade_id      1729
 trade_id    1729.0
-Name: 1186, dtype: object",ml_gate,Down,Up,False,0.779,0.685,6.0
+Name: 1186, dtype: object",ml_gate,Down,Up,False,0.803,0.685,6.0
 "trade_id      1730
 trade_id    1730.0
-Name: 1187, dtype: object",ml_gate,Up,Up,True,0.735,0.465,6.0
+Name: 1187, dtype: object",ml_gate,Up,Up,True,0.793,0.465,6.0
 "trade_id      1731
 trade_id    1731.0
-Name: 1188, dtype: object",ml_gate,Up,Up,True,0.717,0.485,6.0
+Name: 1188, dtype: object",ml_gate,Up,Up,True,0.732,0.485,6.0
 "trade_id      1732
 trade_id    1732.0
-Name: 1189, dtype: object",empty_book,Down,Down,True,0.527,0.44,6.0
+Name: 1189, dtype: object",empty_book,Down,Down,True,0.693,0.44,6.0
 "trade_id      1733
 trade_id    1733.0
-Name: 1190, dtype: object",no_consensus,ABSTAIN,Down,,0.845,0.465,6.0
+Name: 1190, dtype: object",no_consensus,ABSTAIN,Down,,0.863,0.465,6.0
 "trade_id      1734
 trade_id    1734.0
-Name: 1191, dtype: object",no_consensus,ABSTAIN,Down,,0.77,0.455,6.0
+Name: 1191, dtype: object",no_consensus,ABSTAIN,Down,,0.744,0.455,6.0
 "trade_id      1735
 trade_id    1735.0
-Name: 1192, dtype: object",ml_gate,Up,Down,False,0.556,0.395,6.0
+Name: 1192, dtype: object",ml_gate,Up,Down,False,0.625,0.395,6.0
 "trade_id      1736
 trade_id    1736.0
-Name: 1193, dtype: object",no_consensus,ABSTAIN,Down,,0.879,0.465,6.0
+Name: 1193, dtype: object",no_consensus,ABSTAIN,Down,,0.86,0.465,6.0
 "trade_id      1737
 trade_id    1737.0
-Name: 1194, dtype: object",empty_book,Down,Down,True,0.851,0.475,6.0
+Name: 1194, dtype: object",empty_book,Down,Down,True,0.86,0.475,6.0
 "trade_id      1738
 trade_id    1738.0
-Name: 1195, dtype: object",ml_gate,Up,Up,True,0.355,0.48,6.0
+Name: 1195, dtype: object",ml_gate,Up,Up,True,0.32,0.48,6.0
 "trade_id      1739
 trade_id    1739.0
-Name: 1196, dtype: object",ml_gate,Up,Down,False,0.419,0.555,6.0
+Name: 1196, dtype: object",ml_gate,Up,Down,False,0.462,0.555,6.0
 "trade_id      1740
 trade_id    1740.0
-Name: 1197, dtype: object",no_consensus,ABSTAIN,Up,,0.788,0.515,7.0
+Name: 1197, dtype: object",no_consensus,ABSTAIN,Up,,0.802,0.515,7.0
 "trade_id      1741
 trade_id    1741.0
-Name: 1198, dtype: object",ml_gate,Up,Up,True,0.586,0.505,7.0
+Name: 1198, dtype: object",ml_gate,Up,Up,True,0.607,0.505,7.0
 "trade_id      1742
 trade_id    1742.0
-Name: 1199, dtype: object",ml_gate,Up,Up,True,0.805,0.495,7.0
+Name: 1199, dtype: object",ml_gate,Up,Up,True,0.863,0.495,7.0
 "trade_id      1743
 trade_id    1743.0
-Name: 1200, dtype: object",ml_gate,Up,Up,True,0.849,0.495,7.0
+Name: 1200, dtype: object",ml_gate,Up,Up,True,0.827,0.495,7.0
 "trade_id      1744
 trade_id    1744.0
-Name: 1201, dtype: object",empty_book,Up,Down,False,0.964,0.485,7.0
+Name: 1201, dtype: object",empty_book,Up,Down,False,0.96,0.485,7.0
 "trade_id      1745
 trade_id    1745.0
-Name: 1202, dtype: object",no_consensus,ABSTAIN,Down,,0.613,0.455,7.0
+Name: 1202, dtype: object",no_consensus,ABSTAIN,Down,,0.679,0.455,7.0
 "trade_id      1746
 trade_id    1746.0
-Name: 1203, dtype: object",ml_gate,Up,Down,False,0.667,0.455,7.0
+Name: 1203, dtype: object",ml_gate,Up,Down,False,0.697,0.455,7.0
 "trade_id      1747
 trade_id    1747.0
-Name: 1204, dtype: object",ml_gate,Up,Down,False,0.725,0.335,7.0
+Name: 1204, dtype: object",ml_gate,Up,Down,False,0.703,0.335,7.0
 "trade_id      1748
 trade_id    1748.0
-Name: 1205, dtype: object",ml_gate,Up,Up,True,0.734,0.435,7.0
+Name: 1205, dtype: object",ml_gate,Up,Up,True,0.751,0.435,7.0
 "trade_id      1749
 trade_id    1749.0
-Name: 1206, dtype: object",ml_gate,Up,Up,True,0.874,0.475,7.0
+Name: 1206, dtype: object",ml_gate,Up,Up,True,0.842,0.475,7.0
 "trade_id      1750
 trade_id    1750.0
-Name: 1207, dtype: object",ml_gate,Up,Up,True,0.565,0.505,7.0
+Name: 1207, dtype: object",ml_gate,Up,Up,True,0.589,0.505,7.0
 "trade_id      1751
 trade_id    1751.0
-Name: 1208, dtype: object",ml_gate,Up,Up,True,0.369,0.605,7.0
+Name: 1208, dtype: object",ml_gate,Up,Up,True,0.432,0.605,7.0
 "trade_id      1752
 trade_id    1752.0
-Name: 1209, dtype: object",empty_book,Up,Up,True,0.968,0.455,8.0
+Name: 1209, dtype: object",empty_book,Up,Up,True,0.949,0.455,8.0
 "trade_id      1753
 trade_id    1753.0
-Name: 1210, dtype: object",no_consensus,ABSTAIN,Down,,0.648,0.305,8.0
+Name: 1210, dtype: object",no_consensus,ABSTAIN,Down,,0.761,0.305,8.0
 "trade_id      1754
 trade_id    1754.0
-Name: 1211, dtype: object",no_consensus,ABSTAIN,Up,,0.714,0.325,8.0
+Name: 1211, dtype: object",no_consensus,ABSTAIN,Up,,0.787,0.325,8.0
 "trade_id      1755
 trade_id    1755.0
-Name: 1212, dtype: object",ml_gate,Up,Up,True,0.641,0.395,8.0
+Name: 1212, dtype: object",ml_gate,Up,Up,True,0.729,0.395,8.0
 "trade_id      1756
 trade_id    1756.0
-Name: 1213, dtype: object",ml_gate,Up,Up,True,0.819,0.495,8.0
+Name: 1213, dtype: object",ml_gate,Up,Up,True,0.849,0.495,8.0
 "trade_id      1757
 trade_id    1757.0
-Name: 1214, dtype: object",no_consensus,ABSTAIN,Up,,0.726,0.655,8.0
+Name: 1214, dtype: object",no_consensus,ABSTAIN,Up,,0.829,0.655,8.0
 "trade_id      1758
 trade_id    1758.0
-Name: 1215, dtype: object",ml_gate,Down,Down,True,0.413,0.455,8.0
+Name: 1215, dtype: object",ml_gate,Down,Down,True,0.571,0.455,8.0
 "trade_id      1759
 trade_id    1759.0
-Name: 1216, dtype: object",empty_book,Down,Down,True,0.901,0.455,8.0
+Name: 1216, dtype: object",empty_book,Down,Down,True,0.891,0.455,8.0
 "trade_id      1760
 trade_id    1760.0
-Name: 1217, dtype: object",ml_gate,Down,Down,True,0.438,0.515,8.0
+Name: 1217, dtype: object",ml_gate,Down,Down,True,0.492,0.515,8.0
 "trade_id      1761
 trade_id    1761.0
-Name: 1218, dtype: object",ml_gate,Up,Up,True,0.682,0.55,8.0
+Name: 1218, dtype: object",ml_gate,Up,Up,True,0.706,0.55,8.0
 "trade_id      1762
 trade_id    1762.0
-Name: 1219, dtype: object",ml_gate,Down,Down,True,0.354,0.52,8.0
+Name: 1219, dtype: object",ml_gate,Down,Down,True,0.464,0.52,8.0
 "trade_id      1763
 trade_id    1763.0
-Name: 1220, dtype: object",ml_gate,Up,Up,True,0.403,0.515,8.0
+Name: 1220, dtype: object",ml_gate,Up,Up,True,0.449,0.515,8.0
 "trade_id      1764
 trade_id    1764.0
-Name: 1221, dtype: object",no_consensus,ABSTAIN,Down,,0.439,0.515,9.0
+Name: 1221, dtype: object",no_consensus,ABSTAIN,Down,,0.462,0.515,9.0
 "trade_id      1765
 trade_id    1765.0
-Name: 1222, dtype: object",ml_gate,Up,Up,True,0.379,0.545,9.0
+Name: 1222, dtype: object",ml_gate,Up,Up,True,0.455,0.545,9.0
 "trade_id      1766
 trade_id    1766.0
-Name: 1223, dtype: object",no_consensus,ABSTAIN,Down,,0.401,0.545,9.0
+Name: 1223, dtype: object",no_consensus,ABSTAIN,Down,,0.432,0.545,9.0
 "trade_id      1767
 trade_id    1767.0
-Name: 1224, dtype: object",ml_gate,Up,Up,True,0.335,0.555,9.0
+Name: 1224, dtype: object",ml_gate,Up,Up,True,0.442,0.555,9.0
 "trade_id      1768
 trade_id    1768.0
-Name: 1225, dtype: object",ml_gate,Up,Up,True,0.731,0.535,9.0
+Name: 1225, dtype: object",ml_gate,Up,Up,True,0.802,0.535,9.0
 "trade_id      1769
 trade_id    1769.0
-Name: 1226, dtype: object",no_consensus,ABSTAIN,Down,,0.719,0.635,9.0
+Name: 1226, dtype: object",no_consensus,ABSTAIN,Down,,0.725,0.635,9.0
 "trade_id      1770
 trade_id    1770.0
-Name: 1227, dtype: object",empty_book,Down,Down,True,0.913,0.505,9.0
+Name: 1227, dtype: object",empty_book,Down,Down,True,0.923,0.505,9.0
 "trade_id      1772
 trade_id    1772.0
-Name: 1229, dtype: object",no_consensus,ABSTAIN,Down,,0.477,0.545,9.0
+Name: 1229, dtype: object",no_consensus,ABSTAIN,Down,,0.549,0.545,9.0
 "trade_id      1773
 trade_id    1773.0
-Name: 1230, dtype: object",empty_book,Down,Down,True,0.848,0.585,9.0
+Name: 1230, dtype: object",empty_book,Down,Down,True,0.818,0.585,9.0
 "trade_id      1774
 trade_id    1774.0
-Name: 1231, dtype: object",ml_gate,Up,Up,True,0.23,0.575,9.0
+Name: 1231, dtype: object",ml_gate,Up,Up,True,0.341,0.575,9.0
 "trade_id      1776
 trade_id    1776.0
-Name: 1233, dtype: object",ml_gate,Up,Up,True,0.538,0.545,10.0
+Name: 1233, dtype: object",ml_gate,Up,Up,True,0.483,0.545,10.0
 "trade_id      1777
 trade_id    1777.0
-Name: 1234, dtype: object",ml_gate,Up,Down,False,0.728,0.485,10.0
+Name: 1234, dtype: object",ml_gate,Up,Down,False,0.633,0.485,10.0
 "trade_id      1778
 trade_id    1778.0
-Name: 1235, dtype: object",no_consensus,ABSTAIN,Down,,0.819,0.465,10.0
+Name: 1235, dtype: object",no_consensus,ABSTAIN,Down,,0.679,0.465,10.0
 "trade_id      1780
 trade_id    1780.0
-Name: 1237, dtype: object",empty_book,Down,Down,True,0.508,0.495,10.0
+Name: 1237, dtype: object",empty_book,Down,Down,True,0.698,0.495,10.0
 "trade_id      1781
 trade_id    1781.0
-Name: 1238, dtype: object",ml_gate,Down,Down,True,0.354,0.505,10.0
+Name: 1238, dtype: object",ml_gate,Down,Down,True,0.417,0.505,10.0
 "trade_id      1782
 trade_id    1782.0
-Name: 1239, dtype: object",ml_gate,Down,Up,False,0.723,0.545,10.0
+Name: 1239, dtype: object",ml_gate,Down,Up,False,0.797,0.545,10.0
 "trade_id      1783
 trade_id    1783.0
-Name: 1240, dtype: object",ml_gate,Down,Down,True,0.642,0.545,10.0
+Name: 1240, dtype: object",ml_gate,Down,Down,True,0.741,0.545,10.0
 "trade_id      1784
 trade_id    1784.0
-Name: 1241, dtype: object",no_consensus,ABSTAIN,Up,,0.322,0.545,10.0
+Name: 1241, dtype: object",no_consensus,ABSTAIN,Up,,0.431,0.545,10.0
 "trade_id      1785
 trade_id    1785.0
-Name: 1242, dtype: object",empty_book,Down,Down,True,0.577,0.525,10.0
+Name: 1242, dtype: object",empty_book,Down,Down,True,0.535,0.525,10.0
 "trade_id      1786
 trade_id    1786.0
-Name: 1243, dtype: object",no_consensus,ABSTAIN,Up,,0.458,0.525,10.0
+Name: 1243, dtype: object",no_consensus,ABSTAIN,Up,,0.518,0.525,10.0
 "trade_id      1787
 trade_id    1787.0
-Name: 1244, dtype: object",no_consensus,ABSTAIN,Up,,0.412,0.555,10.0
+Name: 1244, dtype: object",no_consensus,ABSTAIN,Up,,0.557,0.555,10.0
 "trade_id      1788
 trade_id    1788.0
-Name: 1245, dtype: object",ml_gate,Up,Up,True,0.371,0.54,11.0
+Name: 1245, dtype: object",ml_gate,Up,Up,True,0.476,0.54,11.0
 "trade_id      1789
 trade_id    1789.0
-Name: 1246, dtype: object",ml_gate,Down,Up,False,0.829,0.505,11.0
+Name: 1246, dtype: object",ml_gate,Down,Up,False,0.816,0.505,11.0
 "trade_id      1790
 trade_id    1790.0
-Name: 1247, dtype: object",ml_gate,Up,Up,True,0.617,0.505,11.0
+Name: 1247, dtype: object",ml_gate,Up,Up,True,0.658,0.505,11.0
 "trade_id      1791
 trade_id    1791.0
-Name: 1248, dtype: object",ml_gate,Up,Down,False,0.686,0.48,11.0
+Name: 1248, dtype: object",ml_gate,Up,Down,False,0.653,0.48,11.0
 "trade_id      1792
 trade_id    1792.0
-Name: 1249, dtype: object",ml_gate,Up,Up,True,0.454,0.485,11.0
+Name: 1249, dtype: object",ml_gate,Up,Up,True,0.38,0.485,11.0
 "trade_id      1793
 trade_id    1793.0
-Name: 1250, dtype: object",ml_gate,Up,Up,True,0.551,0.505,11.0
+Name: 1250, dtype: object",ml_gate,Up,Up,True,0.525,0.505,11.0
 "trade_id      1794
 trade_id    1794.0
-Name: 1251, dtype: object",ml_gate,Up,Up,True,0.494,0.495,11.0
+Name: 1251, dtype: object",ml_gate,Up,Up,True,0.391,0.495,11.0
 "trade_id      1796
 trade_id    1796.0
-Name: 1253, dtype: object",no_consensus,ABSTAIN,Down,,0.843,0.465,11.0
+Name: 1253, dtype: object",no_consensus,ABSTAIN,Down,,0.793,0.465,11.0
 "trade_id      1797
 trade_id    1797.0
-Name: 1254, dtype: object",ml_gate,Up,Down,False,0.72,0.355,11.0
+Name: 1254, dtype: object",ml_gate,Up,Down,False,0.652,0.355,11.0
 "trade_id      1798
 trade_id    1798.0
-Name: 1255, dtype: object",ml_gate,Up,Up,True,0.711,0.455,11.0
+Name: 1255, dtype: object",ml_gate,Up,Up,True,0.731,0.455,11.0
 "trade_id      1799
 trade_id    1799.0
-Name: 1256, dtype: object",no_consensus,ABSTAIN,Down,,0.727,0.395,11.0
+Name: 1256, dtype: object",no_consensus,ABSTAIN,Down,,0.776,0.395,11.0
 "trade_id      1800
 trade_id    1800.0
-Name: 1257, dtype: object",empty_book,Down,Down,True,0.815,0.475,12.0
+Name: 1257, dtype: object",empty_book,Down,Down,True,0.851,0.475,12.0
 "trade_id      1801
 trade_id    1801.0
-Name: 1258, dtype: object",ml_gate,Up,Up,True,0.288,0.455,12.0
+Name: 1258, dtype: object",ml_gate,Up,Up,True,0.263,0.455,12.0
 "trade_id      1803
 trade_id    1803.0
-Name: 1260, dtype: object",no_consensus,ABSTAIN,Up,,0.793,0.435,12.0
+Name: 1260, dtype: object",no_consensus,ABSTAIN,Up,,0.756,0.435,12.0
 "trade_id      1804
 trade_id    1804.0
-Name: 1261, dtype: object",empty_book,Down,Down,True,0.812,0.44,12.0
+Name: 1261, dtype: object",empty_book,Down,Down,True,0.843,0.44,12.0
 "trade_id      1805
 trade_id    1805.0
-Name: 1262, dtype: object",ml_gate,Up,Down,False,0.669,0.445,12.0
+Name: 1262, dtype: object",ml_gate,Up,Down,False,0.573,0.445,12.0
 "trade_id      1806
 trade_id    1806.0
-Name: 1263, dtype: object",ml_gate,Up,Down,False,0.699,0.455,12.0
+Name: 1263, dtype: object",ml_gate,Up,Down,False,0.688,0.455,12.0
 "trade_id      1808
 trade_id    1808.0
-Name: 1265, dtype: object",ml_gate,Up,Up,True,0.535,0.555,12.0
+Name: 1265, dtype: object",ml_gate,Up,Up,True,0.493,0.555,12.0
 "trade_id      1809
 trade_id    1809.0
-Name: 1266, dtype: object",ml_gate,Up,Up,True,0.665,0.485,12.0
+Name: 1266, dtype: object",ml_gate,Up,Up,True,0.582,0.485,12.0
 "trade_id      1810
 trade_id    1810.0
-Name: 1267, dtype: object",empty_book,Up,Up,True,0.875,0.485,12.0
+Name: 1267, dtype: object",empty_book,Up,Up,True,0.812,0.485,12.0
 "trade_id      1811
 trade_id    1811.0
-Name: 1268, dtype: object",empty_book,Up,Up,True,0.82,0.435,12.0
+Name: 1268, dtype: object",empty_book,Up,Up,True,0.778,0.435,12.0
 "trade_id      1812
 trade_id    1812.0
-Name: 1269, dtype: object",ml_gate,Up,Up,True,0.476,0.465,13.0
+Name: 1269, dtype: object",ml_gate,Up,Up,True,0.425,0.465,13.0
 "trade_id      1813
 trade_id    1813.0
-Name: 1270, dtype: object",ml_gate,Up,Up,True,0.787,0.455,13.0
+Name: 1270, dtype: object",ml_gate,Up,Up,True,0.793,0.455,13.0
 "trade_id      1814
 trade_id    1814.0
-Name: 1271, dtype: object",ml_gate,Up,Down,False,0.792,0.455,13.0
+Name: 1271, dtype: object",ml_gate,Up,Down,False,0.761,0.455,13.0
 "trade_id      1815
 trade_id    1815.0
-Name: 1272, dtype: object",no_consensus,ABSTAIN,Down,,0.724,0.455,13.0
+Name: 1272, dtype: object",no_consensus,ABSTAIN,Down,,0.788,0.455,13.0
 "trade_id      1816
 trade_id    1816.0
-Name: 1273, dtype: object",empty_book,Down,Down,True,0.842,0.485,13.0
+Name: 1273, dtype: object",empty_book,Down,Down,True,0.904,0.485,13.0
 "trade_id      1818
 trade_id    1818.0
-Name: 1275, dtype: object",ml_gate,Up,Up,True,0.699,0.495,13.0
+Name: 1275, dtype: object",ml_gate,Up,Up,True,0.712,0.495,13.0
 "trade_id      1819
 trade_id    1819.0
-Name: 1276, dtype: object",ml_gate,Up,Up,True,0.758,0.455,13.0
+Name: 1276, dtype: object",ml_gate,Up,Up,True,0.799,0.455,13.0
 "trade_id      1820
 trade_id    1820.0
-Name: 1277, dtype: object",no_consensus,ABSTAIN,Up,,0.891,0.445,13.0
+Name: 1277, dtype: object",no_consensus,ABSTAIN,Up,,0.885,0.445,13.0
 "trade_id      1821
 trade_id    1821.0
-Name: 1278, dtype: object",empty_book,Down,Down,True,0.875,0.415,13.0
+Name: 1278, dtype: object",empty_book,Down,Down,True,0.891,0.415,13.0
 "trade_id      1822
 trade_id    1822.0
-Name: 1279, dtype: object",no_consensus,ABSTAIN,Up,,0.621,0.445,13.0
+Name: 1279, dtype: object",no_consensus,ABSTAIN,Up,,0.614,0.445,13.0
 "trade_id      1823
 trade_id    1823.0
-Name: 1280, dtype: object",empty_book,Down,Down,True,0.523,0.465,13.0
+Name: 1280, dtype: object",empty_book,Down,Down,True,0.542,0.465,13.0
 "trade_id      1824
 trade_id    1824.0
-Name: 1281, dtype: object",ml_gate,Up,Down,False,0.716,0.465,14.0
+Name: 1281, dtype: object",ml_gate,Up,Down,False,0.634,0.465,14.0
 "trade_id      1826
 trade_id    1826.0
-Name: 1283, dtype: object",no_consensus,ABSTAIN,Down,,0.861,0.495,14.0
+Name: 1283, dtype: object",no_consensus,ABSTAIN,Down,,0.868,0.495,14.0
 "trade_id      1827
 trade_id    1827.0
-Name: 1284, dtype: object",ml_gate,Up,Up,True,0.862,0.455,14.0
+Name: 1284, dtype: object",ml_gate,Up,Up,True,0.855,0.455,14.0
 "trade_id      1828
 trade_id    1828.0
-Name: 1285, dtype: object",no_consensus,ABSTAIN,Up,,0.827,0.475,14.0
+Name: 1285, dtype: object",no_consensus,ABSTAIN,Up,,0.734,0.475,14.0
 "trade_id      1829
 trade_id    1829.0
-Name: 1286, dtype: object",no_consensus,ABSTAIN,Down,,0.87,0.335,14.0
+Name: 1286, dtype: object",no_consensus,ABSTAIN,Down,,0.842,0.335,14.0
 "trade_id      1830
 trade_id    1830.0
-Name: 1287, dtype: object",no_consensus,ABSTAIN,Down,,0.63,0.485,14.0
+Name: 1287, dtype: object",no_consensus,ABSTAIN,Down,,0.695,0.485,14.0
 "trade_id      1831
 trade_id    1831.0
-Name: 1288, dtype: object",no_consensus,ABSTAIN,Down,,0.951,0.465,14.0
+Name: 1288, dtype: object",no_consensus,ABSTAIN,Down,,0.925,0.465,14.0
 "trade_id      1832
 trade_id    1832.0
-Name: 1289, dtype: object",no_consensus,ABSTAIN,Up,,0.686,0.555,14.0
+Name: 1289, dtype: object",no_consensus,ABSTAIN,Up,,0.669,0.555,14.0
 "trade_id      1833
 trade_id    1833.0
-Name: 1290, dtype: object",no_consensus,ABSTAIN,Up,,0.491,0.455,14.0
+Name: 1290, dtype: object",no_consensus,ABSTAIN,Up,,0.555,0.455,14.0
 "trade_id      1834
 trade_id    1834.0
-Name: 1291, dtype: object",no_consensus,ABSTAIN,Down,,0.893,0.435,14.0
+Name: 1291, dtype: object",no_consensus,ABSTAIN,Down,,0.804,0.435,14.0
 "trade_id      1835
 trade_id    1835.0
-Name: 1292, dtype: object",no_consensus,ABSTAIN,Up,,0.801,0.595,14.0
+Name: 1292, dtype: object",no_consensus,ABSTAIN,Up,,0.778,0.595,14.0
 "trade_id      1836
 trade_id    1836.0
-Name: 1293, dtype: object",ml_gate,Up,Down,False,0.715,0.545,15.0
+Name: 1293, dtype: object",ml_gate,Up,Down,False,0.724,0.545,15.0
 "trade_id      1837
 trade_id    1837.0
-Name: 1294, dtype: object",no_consensus,ABSTAIN,Up,,0.544,0.495,15.0
+Name: 1294, dtype: object",no_consensus,ABSTAIN,Up,,0.625,0.495,15.0
 "trade_id      1838
 trade_id    1838.0
-Name: 1295, dtype: object",ml_gate,Up,Up,True,0.738,0.465,15.0
+Name: 1295, dtype: object",ml_gate,Up,Up,True,0.69,0.465,15.0
 "trade_id      1839
 trade_id    1839.0
-Name: 1296, dtype: object",ml_gate,Up,Up,True,0.929,0.445,15.0
+Name: 1296, dtype: object",ml_gate,Up,Up,True,0.939,0.445,15.0
 "trade_id      1840
 trade_id    1840.0
-Name: 1297, dtype: object",ml_gate,Up,Up,True,0.94,0.465,15.0
+Name: 1297, dtype: object",ml_gate,Up,Up,True,0.928,0.465,15.0
 "trade_id      1842
 trade_id    1842.0
 Name: 1299, dtype: object",ml_gate,Up,Up,True,0.843,0.46,15.0
 "trade_id      1843
 trade_id    1843.0
-Name: 1300, dtype: object",no_consensus,ABSTAIN,Down,,0.823,0.465,15.0
+Name: 1300, dtype: object",no_consensus,ABSTAIN,Down,,0.687,0.465,15.0
 "trade_id      1845
 trade_id    1845.0
-Name: 1302, dtype: object",no_consensus,ABSTAIN,Down,,0.845,0.485,15.0
+Name: 1302, dtype: object",no_consensus,ABSTAIN,Down,,0.887,0.485,15.0
 "trade_id      1846
 trade_id    1846.0
-Name: 1303, dtype: object",ml_gate,Up,Down,False,0.408,0.515,15.0
+Name: 1303, dtype: object",ml_gate,Up,Down,False,0.419,0.515,15.0
 "trade_id      1847
 trade_id    1847.0
-Name: 1304, dtype: object",ml_gate,Up,Up,True,0.239,0.51,15.0
+Name: 1304, dtype: object",ml_gate,Up,Up,True,0.275,0.51,15.0
 "trade_id      1848
 trade_id    1848.0
-Name: 1305, dtype: object",ml_gate,Up,Up,True,0.59,0.515,16.0
+Name: 1305, dtype: object",ml_gate,Up,Up,True,0.638,0.515,16.0
 "trade_id      1849
 trade_id    1849.0
-Name: 1306, dtype: object",ml_gate,Up,Up,True,0.241,0.485,16.0
+Name: 1306, dtype: object",ml_gate,Up,Up,True,0.376,0.485,16.0
 "trade_id      1850
 trade_id    1850.0
-Name: 1307, dtype: object",no_consensus,ABSTAIN,Down,,0.642,0.56,16.0
+Name: 1307, dtype: object",no_consensus,ABSTAIN,Down,,0.711,0.56,16.0
 "trade_id      1851
 trade_id    1851.0
-Name: 1308, dtype: object",ml_gate,Up,Up,True,0.316,0.555,16.0
+Name: 1308, dtype: object",ml_gate,Up,Up,True,0.318,0.555,16.0
 "trade_id      1852
 trade_id    1852.0
-Name: 1309, dtype: object",no_consensus,ABSTAIN,Down,,0.6,0.515,16.0
+Name: 1309, dtype: object",no_consensus,ABSTAIN,Down,,0.567,0.515,16.0
 "trade_id      1853
 trade_id    1853.0
-Name: 1310, dtype: object",no_consensus,ABSTAIN,Down,,0.743,0.515,16.0
+Name: 1310, dtype: object",no_consensus,ABSTAIN,Down,,0.554,0.515,16.0
 "trade_id      1854
 trade_id    1854.0
-Name: 1311, dtype: object",no_consensus,ABSTAIN,Down,,0.803,0.475,16.0
+Name: 1311, dtype: object",no_consensus,ABSTAIN,Down,,0.772,0.475,16.0
 "trade_id      1855
 trade_id    1855.0
-Name: 1312, dtype: object",ml_gate,Down,Down,True,0.531,0.465,16.0
+Name: 1312, dtype: object",ml_gate,Down,Down,True,0.455,0.465,16.0
 "trade_id      1856
 trade_id    1856.0
-Name: 1313, dtype: object",no_consensus,ABSTAIN,Down,,0.838,0.365,16.0
+Name: 1313, dtype: object",no_consensus,ABSTAIN,Down,,0.748,0.365,16.0
 "trade_id      1857
 trade_id    1857.0
-Name: 1314, dtype: object",empty_book,Down,Down,True,0.88,0.53,16.0
+Name: 1314, dtype: object",empty_book,Down,Down,True,0.861,0.53,16.0
 "trade_id      1858
 trade_id    1858.0
-Name: 1315, dtype: object",ml_gate,Down,Down,True,0.541,0.53,16.0
+Name: 1315, dtype: object",ml_gate,Down,Down,True,0.544,0.53,16.0
 "trade_id      1859
 trade_id    1859.0
-Name: 1316, dtype: object",ml_gate,Up,Up,True,0.486,0.545,16.0
+Name: 1316, dtype: object",ml_gate,Up,Up,True,0.406,0.545,16.0
 "trade_id      1860
 trade_id    1860.0
-Name: 1317, dtype: object",ml_gate,Up,Up,True,0.348,0.57,17.0
+Name: 1317, dtype: object",ml_gate,Up,Up,True,0.344,0.57,17.0
 "trade_id      1861
 trade_id    1861.0
-Name: 1318, dtype: object",no_consensus,ABSTAIN,Down,,0.743,0.56,17.0
+Name: 1318, dtype: object",no_consensus,ABSTAIN,Down,,0.713,0.56,17.0
 "trade_id      1862
 trade_id    1862.0
-Name: 1319, dtype: object",ml_gate,Up,Up,True,0.712,0.465,17.0
+Name: 1319, dtype: object",ml_gate,Up,Up,True,0.6,0.465,17.0
 "trade_id      1863
 trade_id    1863.0
-Name: 1320, dtype: object",ml_gate,Down,Down,True,0.395,0.495,17.0
+Name: 1320, dtype: object",ml_gate,Down,Down,True,0.425,0.495,17.0
 "trade_id      1864
 trade_id    1864.0
-Name: 1321, dtype: object",no_consensus,ABSTAIN,Down,,0.681,0.505,17.0
+Name: 1321, dtype: object",no_consensus,ABSTAIN,Down,,0.607,0.505,17.0
 "trade_id      1865
 trade_id    1865.0
-Name: 1322, dtype: object",no_consensus,ABSTAIN,Down,,0.85,0.425,17.0
+Name: 1322, dtype: object",no_consensus,ABSTAIN,Down,,0.853,0.425,17.0
 "trade_id      1866
 trade_id    1866.0
-Name: 1323, dtype: object",ml_gate,Up,Up,True,0.388,0.555,17.0
+Name: 1323, dtype: object",ml_gate,Up,Up,True,0.478,0.555,17.0
 "trade_id      1867
 trade_id    1867.0
-Name: 1324, dtype: object",no_consensus,ABSTAIN,Up,,0.75,0.565,17.0
+Name: 1324, dtype: object",no_consensus,ABSTAIN,Up,,0.606,0.565,17.0
 "trade_id      1868
 trade_id    1868.0
-Name: 1325, dtype: object",no_consensus,ABSTAIN,Down,,0.679,0.555,17.0
+Name: 1325, dtype: object",no_consensus,ABSTAIN,Down,,0.702,0.555,17.0
 "trade_id      1870
 trade_id    1870.0
-Name: 1327, dtype: object",ml_gate,Up,Up,True,0.246,0.515,17.0
+Name: 1327, dtype: object",ml_gate,Up,Up,True,0.24,0.515,17.0
 "trade_id      1871
 trade_id    1871.0
-Name: 1328, dtype: object",no_consensus,ABSTAIN,Up,,0.614,0.515,17.0
+Name: 1328, dtype: object",no_consensus,ABSTAIN,Up,,0.603,0.515,17.0
 "trade_id      1872
 trade_id    1872.0
-Name: 1329, dtype: object",ml_gate,Up,Up,True,0.694,0.515,18.0
+Name: 1329, dtype: object",ml_gate,Up,Up,True,0.589,0.515,18.0
 "trade_id      1873
 trade_id    1873.0
-Name: 1330, dtype: object",no_consensus,ABSTAIN,Up,,0.959,0.355,18.0
+Name: 1330, dtype: object",no_consensus,ABSTAIN,Up,,0.885,0.355,18.0
 "trade_id      1874
 trade_id    1874.0
-Name: 1331, dtype: object",no_consensus,ABSTAIN,Up,,0.721,0.505,18.0
+Name: 1331, dtype: object",no_consensus,ABSTAIN,Up,,0.644,0.505,18.0
 "trade_id      1876
 trade_id    1876.0
-Name: 1333, dtype: object",empty_book,Down,Down,True,0.844,0.465,18.0
+Name: 1333, dtype: object",empty_book,Down,Down,True,0.867,0.465,18.0
 "trade_id      1877
 trade_id    1877.0
-Name: 1334, dtype: object",ml_gate,Up,Down,False,0.376,0.565,18.0
+Name: 1334, dtype: object",ml_gate,Up,Down,False,0.426,0.565,18.0
 "trade_id      1878
 trade_id    1878.0
-Name: 1335, dtype: object",ml_gate,Up,Down,False,0.616,0.465,18.0
+Name: 1335, dtype: object",ml_gate,Up,Down,False,0.59,0.465,18.0
 "trade_id      1879
 trade_id    1879.0
-Name: 1336, dtype: object",empty_book,Down,Down,True,0.478,0.515,18.0
+Name: 1336, dtype: object",empty_book,Down,Down,True,0.586,0.515,18.0
 "trade_id      1880
 trade_id    1880.0
-Name: 1337, dtype: object",no_consensus,ABSTAIN,Up,,0.468,0.51,18.0
+Name: 1337, dtype: object",no_consensus,ABSTAIN,Up,,0.436,0.51,18.0
 "trade_id      1881
 trade_id    1881.0
-Name: 1338, dtype: object",ml_gate,Up,Down,False,0.637,0.535,18.0
+Name: 1338, dtype: object",ml_gate,Up,Down,False,0.537,0.535,18.0
 "trade_id      1883
 trade_id    1883.0
-Name: 1340, dtype: object",no_consensus,ABSTAIN,Up,,0.627,0.495,18.0
+Name: 1340, dtype: object",no_consensus,ABSTAIN,Up,,0.652,0.495,18.0
 "trade_id      1884
 trade_id    1884.0
-Name: 1341, dtype: object",ml_gate,Up,Down,False,0.831,0.485,19.0
+Name: 1341, dtype: object",ml_gate,Up,Down,False,0.895,0.485,19.0
 "trade_id      1885
 trade_id    1885.0
-Name: 1342, dtype: object",ml_gate,Up,Up,True,0.437,0.635,19.0
+Name: 1342, dtype: object",ml_gate,Up,Up,True,0.425,0.635,19.0
 "trade_id      1886
 trade_id    1886.0
-Name: 1343, dtype: object",ml_gate,Down,Down,True,0.285,0.495,19.0
+Name: 1343, dtype: object",ml_gate,Down,Down,True,0.331,0.495,19.0
 "trade_id      1887
 trade_id    1887.0
-Name: 1344, dtype: object",ml_gate,Up,Up,True,0.497,0.495,19.0
+Name: 1344, dtype: object",ml_gate,Up,Up,True,0.44,0.495,19.0
 "trade_id      1888
 trade_id    1888.0
-Name: 1345, dtype: object",ml_gate,Up,Up,True,0.371,0.525,19.0
+Name: 1345, dtype: object",ml_gate,Up,Up,True,0.3,0.525,19.0
 "trade_id      1889
 trade_id    1889.0
-Name: 1346, dtype: object",no_consensus,ABSTAIN,Down,,0.878,0.345,19.0
+Name: 1346, dtype: object",no_consensus,ABSTAIN,Down,,0.851,0.345,19.0
 "trade_id      1890
 trade_id    1890.0
-Name: 1347, dtype: object",ml_gate,Up,Up,True,0.399,0.49,19.0
+Name: 1347, dtype: object",ml_gate,Up,Up,True,0.369,0.49,19.0
 "trade_id      1891
 trade_id    1891.0
-Name: 1348, dtype: object",ml_gate,Up,Up,True,0.623,0.465,19.0
+Name: 1348, dtype: object",ml_gate,Up,Up,True,0.571,0.465,19.0
 "trade_id      1892
 trade_id    1892.0
-Name: 1349, dtype: object",empty_book,Down,Down,True,0.629,0.505,19.0
+Name: 1349, dtype: object",empty_book,Down,Down,True,0.673,0.505,19.0
 "trade_id      1893
 trade_id    1893.0
-Name: 1350, dtype: object",ml_gate,Up,Down,False,0.522,0.475,19.0
+Name: 1350, dtype: object",ml_gate,Up,Down,False,0.476,0.475,19.0
 "trade_id      1894
 trade_id    1894.0
-Name: 1351, dtype: object",no_consensus,ABSTAIN,Up,,0.508,0.515,19.0
+Name: 1351, dtype: object",no_consensus,ABSTAIN,Up,,0.401,0.515,19.0
 "trade_id      1895
 trade_id    1895.0
-Name: 1352, dtype: object",ml_gate,Up,Up,True,0.412,0.525,19.0
+Name: 1352, dtype: object",ml_gate,Up,Up,True,0.381,0.525,19.0
 "trade_id      1896
 trade_id    1896.0
-Name: 1353, dtype: object",ml_gate,Up,Up,True,0.772,0.515,20.0
+Name: 1353, dtype: object",ml_gate,Up,Up,True,0.676,0.515,20.0
 "trade_id      1899
 trade_id    1899.0
-Name: 1356, dtype: object",empty_book,Down,Down,True,0.755,0.475,20.0
+Name: 1356, dtype: object",empty_book,Down,Down,True,0.799,0.475,20.0
 "trade_id      1900
 trade_id    1900.0
-Name: 1357, dtype: object",ml_gate,Down,Down,True,0.685,0.465,20.0
+Name: 1357, dtype: object",ml_gate,Down,Down,True,0.628,0.465,20.0
 "trade_id      1901
 trade_id    1901.0
-Name: 1358, dtype: object",ml_gate,Down,Down,True,0.433,0.505,20.0
+Name: 1358, dtype: object",ml_gate,Down,Down,True,0.372,0.505,20.0
 "trade_id      1902
 trade_id    1902.0
-Name: 1359, dtype: object",ml_gate,Down,Up,False,0.621,0.495,20.0
+Name: 1359, dtype: object",ml_gate,Down,Up,False,0.609,0.495,20.0
 "trade_id      1903
 trade_id    1903.0
-Name: 1360, dtype: object",ml_gate,Up,Down,False,0.232,0.515,20.0
+Name: 1360, dtype: object",ml_gate,Up,Down,False,0.211,0.515,20.0
 "trade_id      1904
 trade_id    1904.0
-Name: 1361, dtype: object",empty_book,Down,Down,True,0.682,0.505,20.0
+Name: 1361, dtype: object",empty_book,Down,Down,True,0.592,0.505,20.0
 "trade_id      1905
 trade_id    1905.0
-Name: 1362, dtype: object",ml_gate,Down,Up,False,0.459,0.51,20.0
+Name: 1362, dtype: object",ml_gate,Down,Up,False,0.431,0.51,20.0
 "trade_id      1906
 trade_id    1906.0
-Name: 1363, dtype: object",ml_gate,Up,Up,True,0.573,0.505,20.0
+Name: 1363, dtype: object",ml_gate,Up,Up,True,0.431,0.505,20.0
 "trade_id      1907
 trade_id    1907.0
-Name: 1364, dtype: object",ml_gate,Down,Down,True,0.52,0.5,20.0
+Name: 1364, dtype: object",ml_gate,Down,Down,True,0.43,0.5,20.0
 "trade_id      1908
 trade_id    1908.0
-Name: 1365, dtype: object",ml_gate,Up,Up,True,0.318,0.505,21.0
+Name: 1365, dtype: object",ml_gate,Up,Up,True,0.296,0.505,21.0
 "trade_id      1910
 trade_id    1910.0
-Name: 1367, dtype: object",ml_gate,Up,Up,True,0.521,0.515,21.0
+Name: 1367, dtype: object",ml_gate,Up,Up,True,0.514,0.515,21.0
 "trade_id      1912
 trade_id    1912.0
-Name: 1369, dtype: object",empty_book,Down,Down,True,0.673,0.525,21.0
+Name: 1369, dtype: object",empty_book,Down,Down,True,0.662,0.525,21.0
 "trade_id      1913
 trade_id    1913.0
-Name: 1370, dtype: object",no_consensus,ABSTAIN,Up,,0.544,0.535,21.0
+Name: 1370, dtype: object",no_consensus,ABSTAIN,Up,,0.626,0.535,21.0
 "trade_id      1915
 trade_id    1915.0
-Name: 1372, dtype: object",ml_gate,Down,Down,True,0.512,0.495,21.0
+Name: 1372, dtype: object",ml_gate,Down,Down,True,0.546,0.495,21.0
 "trade_id      1917
 trade_id    1917.0
-Name: 1374, dtype: object",ml_gate,Down,Up,False,0.631,0.685,21.0
+Name: 1374, dtype: object",ml_gate,Down,Up,False,0.785,0.685,21.0
 "trade_id      1918
 trade_id    1918.0
-Name: 1375, dtype: object",ml_gate,Down,Up,False,0.809,0.545,22.0
+Name: 1375, dtype: object",ml_gate,Down,Up,False,0.812,0.545,22.0
 "trade_id      1921
 trade_id    1921.0
-Name: 1378, dtype: object",ml_gate,Down,Up,False,0.656,0.55,22.0
+Name: 1378, dtype: object",ml_gate,Down,Up,False,0.693,0.55,22.0
 "trade_id      1922
 trade_id    1922.0
-Name: 1379, dtype: object",ml_gate,Up,Up,True,0.404,0.555,22.0
+Name: 1379, dtype: object",ml_gate,Up,Up,True,0.338,0.555,22.0
 "trade_id      1924
 trade_id    1924.0
-Name: 1381, dtype: object",ml_gate,Down,Down,True,0.783,0.495,22.0
+Name: 1381, dtype: object",ml_gate,Down,Down,True,0.822,0.495,22.0
 "trade_id      1925
 trade_id    1925.0
-Name: 1382, dtype: object",risk_blocked,Up,Up,True,0.85,0.445,22.0
+Name: 1382, dtype: object",risk_blocked,Up,Up,True,0.809,0.445,22.0
 "trade_id      1926
 trade_id    1926.0
-Name: 1383, dtype: object",risk_blocked,Down,Down,True,0.809,0.485,22.0
+Name: 1383, dtype: object",risk_blocked,Down,Down,True,0.814,0.485,22.0
 "trade_id      1927
 trade_id    1927.0
-Name: 1384, dtype: object",ml_gate,Up,Up,True,0.385,0.48,22.0
+Name: 1384, dtype: object",ml_gate,Up,Up,True,0.351,0.48,22.0
 "trade_id      1928
 trade_id    1928.0
-Name: 1385, dtype: object",risk_blocked,Down,Up,False,0.905,0.525,22.0
+Name: 1385, dtype: object",risk_blocked,Down,Up,False,0.906,0.525,22.0
 "trade_id      1929
 trade_id    1929.0
-Name: 1386, dtype: object",risk_blocked,Up,Down,False,0.804,0.49,22.0
+Name: 1386, dtype: object",risk_blocked,Up,Down,False,0.735,0.49,22.0
 "trade_id      1930
 trade_id    1930.0
-Name: 1387, dtype: object",ml_gate,Down,Down,True,0.246,0.495,23.0
+Name: 1387, dtype: object",ml_gate,Down,Down,True,0.374,0.495,23.0
 "trade_id      1931
 trade_id    1931.0
-Name: 1388, dtype: object",risk_blocked,Down,Down,True,0.474,0.545,23.0
+Name: 1388, dtype: object",risk_blocked,Down,Down,True,0.544,0.545,23.0
 "trade_id      1933
 trade_id    1933.0
-Name: 1390, dtype: object",no_consensus,ABSTAIN,Down,,0.572,0.455,23.0
+Name: 1390, dtype: object",no_consensus,ABSTAIN,Down,,0.449,0.455,23.0
 "trade_id      1934
 trade_id    1934.0
-Name: 1391, dtype: object",no_consensus,ABSTAIN,Up,,0.515,0.5,23.0
+Name: 1391, dtype: object",no_consensus,ABSTAIN,Up,,0.459,0.5,23.0
 "trade_id      1935
 trade_id    1935.0
-Name: 1392, dtype: object",risk_blocked,Down,Down,True,0.928,0.545,23.0
+Name: 1392, dtype: object",risk_blocked,Down,Down,True,0.925,0.545,23.0
 "trade_id      1936
 trade_id    1936.0
-Name: 1393, dtype: object",ml_gate,Up,Up,True,0.791,0.545,23.0
+Name: 1393, dtype: object",ml_gate,Up,Up,True,0.814,0.545,23.0
 "trade_id      1937
 trade_id    1937.0
-Name: 1394, dtype: object",ml_gate,Up,Down,False,0.465,0.545,23.0
+Name: 1394, dtype: object",ml_gate,Up,Down,False,0.481,0.545,23.0
 "trade_id      1938
 trade_id    1938.0
-Name: 1395, dtype: object",risk_blocked,Down,Down,True,0.83,0.545,23.0
+Name: 1395, dtype: object",risk_blocked,Down,Down,True,0.809,0.545,23.0
 "trade_id      1939
 trade_id    1939.0
-Name: 1396, dtype: object",ml_gate,Up,Down,False,0.482,0.545,23.0
+Name: 1396, dtype: object",ml_gate,Up,Down,False,0.387,0.545,23.0
 "trade_id      1942
 trade_id    1942.0
-Name: 1399, dtype: object",ml_gate,Up,Up,True,0.302,0.565,0.0
+Name: 1399, dtype: object",ml_gate,Up,Up,True,0.242,0.565,0.0
 "trade_id      1943
 trade_id    1943.0
-Name: 1400, dtype: object",no_consensus,ABSTAIN,Down,,0.354,0.54,0.0
+Name: 1400, dtype: object",no_consensus,ABSTAIN,Down,,0.255,0.54,0.0
 "trade_id      1944
 trade_id    1944.0
-Name: 1401, dtype: object",ml_gate,Up,Up,True,0.546,0.475,0.0
+Name: 1401, dtype: object",ml_gate,Up,Up,True,0.592,0.475,0.0
 "trade_id      1945
 trade_id    1945.0
-Name: 1402, dtype: object",ml_gate,Up,Up,True,0.597,0.535,0.0
+Name: 1402, dtype: object",ml_gate,Up,Up,True,0.591,0.535,0.0
 "trade_id      1946
 trade_id    1946.0
-Name: 1403, dtype: object",no_consensus,ABSTAIN,Down,,0.769,0.545,0.0
+Name: 1403, dtype: object",no_consensus,ABSTAIN,Down,,0.752,0.545,0.0
 "trade_id      1948
 trade_id    1948.0
-Name: 1405, dtype: object",ml_gate,Up,Up,True,0.482,0.545,0.0
+Name: 1405, dtype: object",ml_gate,Up,Up,True,0.635,0.545,0.0
 "trade_id      1949
 trade_id    1949.0
-Name: 1406, dtype: object",ml_gate,Up,Down,False,0.253,0.685,0.0
+Name: 1406, dtype: object",ml_gate,Up,Down,False,0.357,0.685,0.0
 "trade_id      1950
 trade_id    1950.0
-Name: 1407, dtype: object",ml_gate,Down,Down,True,0.397,0.525,0.0
+Name: 1407, dtype: object",ml_gate,Down,Down,True,0.528,0.525,0.0
 "trade_id      1951
 trade_id    1951.0
-Name: 1408, dtype: object",no_consensus,ABSTAIN,Down,,0.914,0.495,0.0
+Name: 1408, dtype: object",no_consensus,ABSTAIN,Down,,0.937,0.495,0.0
 "trade_id      1955
 trade_id    1955.0
-Name: 1412, dtype: object",ml_gate,Up,Up,True,0.759,0.49,1.0
+Name: 1412, dtype: object",ml_gate,Up,Up,True,0.788,0.49,1.0
 "trade_id      1957
 trade_id    1957.0
-Name: 1414, dtype: object",ml_gate,Up,Up,True,0.621,0.485,1.0
+Name: 1414, dtype: object",ml_gate,Up,Up,True,0.6,0.485,1.0
 "trade_id      1958
 trade_id    1958.0
-Name: 1415, dtype: object",ml_gate,Up,Up,True,0.656,0.495,1.0
+Name: 1415, dtype: object",ml_gate,Up,Up,True,0.725,0.495,1.0
 "trade_id      1964
 trade_id    1964.0
-Name: 1421, dtype: object",ml_gate,Up,Up,True,0.333,0.515,1.0
+Name: 1421, dtype: object",ml_gate,Up,Up,True,0.347,0.515,1.0
 "trade_id      1967
 trade_id    1967.0
-Name: 1424, dtype: object",no_consensus,ABSTAIN,Up,,0.349,0.66,2.0
+Name: 1424, dtype: object",no_consensus,ABSTAIN,Up,,0.385,0.66,2.0
 "trade_id      1968
 trade_id    1968.0
-Name: 1425, dtype: object",ml_gate,Up,Down,False,0.249,0.555,2.0
+Name: 1425, dtype: object",ml_gate,Up,Down,False,0.268,0.555,2.0
 "trade_id      1970
 trade_id    1970.0
-Name: 1427, dtype: object",no_consensus,ABSTAIN,Down,,0.445,0.335,2.0
+Name: 1427, dtype: object",no_consensus,ABSTAIN,Down,,0.66,0.335,2.0
 "trade_id      1971
 trade_id    1971.0
-Name: 1428, dtype: object",ml_gate,Up,Down,False,0.524,0.455,2.0
+Name: 1428, dtype: object",ml_gate,Up,Down,False,0.496,0.455,2.0
 "trade_id      1972
 trade_id    1972.0
-Name: 1429, dtype: object",ml_gate,Up,Up,True,0.487,0.455,2.0
+Name: 1429, dtype: object",ml_gate,Up,Up,True,0.505,0.455,2.0
 "trade_id      1973
 trade_id    1973.0
-Name: 1430, dtype: object",ml_gate,Down,Up,False,0.733,0.515,2.0
+Name: 1430, dtype: object",ml_gate,Down,Up,False,0.689,0.515,2.0
 "trade_id      1975
 trade_id    1975.0
-Name: 1431, dtype: object",no_consensus,ABSTAIN,Up,,0.523,0.455,2.0
+Name: 1431, dtype: object",no_consensus,ABSTAIN,Up,,0.537,0.455,2.0
 "trade_id      1977
 trade_id    1977.0
 Name: 1433, dtype: object",ml_gate,Up,Down,False,0.821,0.455,3.0
 "trade_id      1979
 trade_id    1979.0
-Name: 1435, dtype: object",empty_book,Down,Down,True,0.903,0.455,3.0
+Name: 1435, dtype: object",empty_book,Down,Down,True,0.859,0.455,3.0
 "trade_id      1980
 trade_id    1980.0
-Name: 1436, dtype: object",ml_gate,Up,Down,False,0.675,0.5,3.0
+Name: 1436, dtype: object",ml_gate,Up,Down,False,0.647,0.5,3.0
 "trade_id      1981
 trade_id    1981.0
-Name: 1437, dtype: object",ml_gate,Down,Down,True,0.894,0.455,3.0
+Name: 1437, dtype: object",ml_gate,Down,Down,True,0.843,0.455,3.0
 "trade_id      1982
 trade_id    1982.0
-Name: 1438, dtype: object",no_consensus,ABSTAIN,Down,,0.683,0.475,3.0
+Name: 1438, dtype: object",no_consensus,ABSTAIN,Down,,0.521,0.475,3.0
 "trade_id      1983
 trade_id    1983.0
-Name: 1439, dtype: object",no_consensus,ABSTAIN,Up,,0.402,0.685,3.0
+Name: 1439, dtype: object",no_consensus,ABSTAIN,Up,,0.403,0.685,3.0
 "trade_id      1985
 trade_id    1985.0
-Name: 1441, dtype: object",ml_gate,Down,Down,True,0.764,0.465,3.0
+Name: 1441, dtype: object",ml_gate,Down,Down,True,0.694,0.465,3.0
 "trade_id      1986
 trade_id    1986.0
-Name: 1442, dtype: object",ml_gate,Down,Up,False,0.704,0.465,3.0
+Name: 1442, dtype: object",ml_gate,Down,Up,False,0.707,0.465,3.0
 "trade_id      1988
 trade_id    1988.0
-Name: 1444, dtype: object",ml_gate,Up,Down,False,0.731,0.465,4.0
+Name: 1444, dtype: object",ml_gate,Up,Down,False,0.697,0.465,4.0
 "trade_id      1989
 trade_id    1989.0
-Name: 1445, dtype: object",ml_gate,Up,Up,True,0.246,0.465,4.0
+Name: 1445, dtype: object",ml_gate,Up,Up,True,0.238,0.465,4.0
 "trade_id      1991
 trade_id    1991.0
-Name: 1447, dtype: object",empty_book,Down,Down,True,0.582,0.485,4.0
+Name: 1447, dtype: object",empty_book,Down,Down,True,0.718,0.485,4.0
 "trade_id      1993
 trade_id    1993.0
-Name: 1449, dtype: object",empty_book,Down,Down,True,0.894,0.51,4.0
+Name: 1449, dtype: object",empty_book,Down,Down,True,0.907,0.51,4.0
 "trade_id      1996
 trade_id    1996.0
-Name: 1452, dtype: object",ml_gate,Down,Up,False,0.529,0.505,4.0
+Name: 1452, dtype: object",ml_gate,Down,Up,False,0.699,0.505,4.0
 "trade_id      1999
 trade_id    1999.0
-Name: 1455, dtype: object",ml_gate,Down,Down,True,0.241,0.52,4.0
+Name: 1455, dtype: object",ml_gate,Down,Down,True,0.322,0.52,4.0
 "trade_id      2000
 trade_id    2000.0
-Name: 1456, dtype: object",ml_gate,Down,Up,False,0.794,0.515,5.0
+Name: 1456, dtype: object",ml_gate,Down,Up,False,0.789,0.515,5.0
 "trade_id      2001
 trade_id    2001.0
-Name: 1457, dtype: object",no_consensus,ABSTAIN,Down,,0.413,0.545,5.0
+Name: 1457, dtype: object",no_consensus,ABSTAIN,Down,,0.479,0.545,5.0
 "trade_id      2007
 trade_id    2007.0
-Name: 1463, dtype: object",ml_gate,Up,Up,True,0.226,0.595,5.0
+Name: 1463, dtype: object",ml_gate,Up,Up,True,0.415,0.595,5.0
 "trade_id      2008
 trade_id    2008.0
-Name: 1464, dtype: object",ml_gate,Down,Up,False,0.773,0.575,5.0
+Name: 1464, dtype: object",ml_gate,Down,Up,False,0.706,0.575,5.0
 "trade_id      2012
 trade_id    2012.0
-Name: 1468, dtype: object",ml_gate,Up,Up,True,0.696,0.475,6.0
+Name: 1468, dtype: object",ml_gate,Up,Up,True,0.671,0.475,6.0
 "trade_id      2013
 trade_id    2013.0
-Name: 1469, dtype: object",no_consensus,ABSTAIN,Down,,0.906,0.495,6.0
+Name: 1469, dtype: object",no_consensus,ABSTAIN,Down,,0.899,0.495,6.0
 "trade_id      2022
 trade_id    2022.0
-Name: 1478, dtype: object",ml_gate,Up,Up,True,0.274,0.515,6.0
+Name: 1478, dtype: object",ml_gate,Up,Up,True,0.242,0.515,6.0
 "trade_id      2023
 trade_id    2023.0
-Name: 1479, dtype: object",no_consensus,ABSTAIN,Down,,0.794,0.305,6.0
+Name: 1479, dtype: object",no_consensus,ABSTAIN,Down,,0.779,0.305,6.0
 "trade_id      2024
 trade_id    2024.0
-Name: 1480, dtype: object",ml_gate,Down,Down,True,0.518,0.475,7.0
+Name: 1480, dtype: object",ml_gate,Down,Down,True,0.574,0.475,7.0
 "trade_id      2025
 trade_id    2025.0
-Name: 1481, dtype: object",ml_gate,Down,Down,True,0.862,0.475,7.0
+Name: 1481, dtype: object",ml_gate,Down,Down,True,0.879,0.475,7.0
 "trade_id      2030
 trade_id    2030.0
-Name: 1486, dtype: object",empty_book,Down,Down,True,0.656,0.495,7.0
+Name: 1486, dtype: object",empty_book,Down,Down,True,0.69,0.495,7.0
 "trade_id      2039
 trade_id    2039.0
-Name: 1495, dtype: object",empty_book,Down,Down,True,0.856,0.495,8.0
+Name: 1495, dtype: object",empty_book,Down,Down,True,0.893,0.495,8.0
 "trade_id      2040
 trade_id    2040.0
-Name: 1496, dtype: object",ml_gate,Up,Up,True,0.592,0.505,8.0
+Name: 1496, dtype: object",ml_gate,Up,Up,True,0.48,0.505,8.0
 "trade_id      2041
 trade_id    2041.0
-Name: 1497, dtype: object",no_consensus,ABSTAIN,Up,,0.284,0.695,8.0
+Name: 1497, dtype: object",no_consensus,ABSTAIN,Up,,0.342,0.695,8.0
 "trade_id      2042
 trade_id    2042.0
-Name: 1498, dtype: object",ml_gate,Up,Up,True,0.392,0.565,8.0
+Name: 1498, dtype: object",ml_gate,Up,Up,True,0.363,0.565,8.0
 "trade_id      2043
 trade_id    2043.0
-Name: 1499, dtype: object",no_consensus,ABSTAIN,Up,,0.275,0.495,8.0
+Name: 1499, dtype: object",no_consensus,ABSTAIN,Up,,0.266,0.495,8.0
 "trade_id      2044
 trade_id    2044.0
-Name: 1500, dtype: object",ml_gate,Up,Down,False,0.924,0.315,8.0
+Name: 1500, dtype: object",ml_gate,Up,Down,False,0.897,0.315,8.0
 "trade_id      2045
 trade_id    2045.0
-Name: 1501, dtype: object",no_consensus,ABSTAIN,Down,,0.748,0.475,8.0
+Name: 1501, dtype: object",no_consensus,ABSTAIN,Down,,0.774,0.475,8.0
 "trade_id      2046
 trade_id    2046.0
-Name: 1502, dtype: object",ml_gate,Down,Down,True,0.661,0.495,8.0
+Name: 1502, dtype: object",ml_gate,Down,Down,True,0.699,0.495,8.0
 "trade_id      2047
 trade_id    2047.0
-Name: 1503, dtype: object",no_consensus,ABSTAIN,Down,,0.641,0.535,8.0
+Name: 1503, dtype: object",no_consensus,ABSTAIN,Down,,0.669,0.535,8.0
 "trade_id      2048
 trade_id    2048.0
-Name: 1504, dtype: object",ml_gate,Up,Up,True,0.763,0.505,9.0
+Name: 1504, dtype: object",ml_gate,Up,Up,True,0.793,0.505,9.0
 "trade_id      2050
 trade_id    2050.0
-Name: 1506, dtype: object",ml_gate,Down,Up,False,0.731,0.625,9.0
+Name: 1506, dtype: object",ml_gate,Down,Up,False,0.793,0.625,9.0
 "trade_id      2051
 trade_id    2051.0
-Name: 1507, dtype: object",ml_gate,Down,Down,True,0.656,0.495,9.0
+Name: 1507, dtype: object",ml_gate,Down,Down,True,0.697,0.495,9.0
 "trade_id      2052
 trade_id    2052.0
-Name: 1508, dtype: object",ml_gate,Down,Down,True,0.846,0.505,9.0
+Name: 1508, dtype: object",ml_gate,Down,Down,True,0.882,0.505,9.0
 "trade_id      2053
 trade_id    2053.0
-Name: 1509, dtype: object",ml_gate,Up,Up,True,0.425,0.565,9.0
+Name: 1509, dtype: object",ml_gate,Up,Up,True,0.441,0.565,9.0
 "trade_id      2054
 trade_id    2054.0
-Name: 1510, dtype: object",ml_gate,Down,Down,True,0.48,0.505,9.0
+Name: 1510, dtype: object",ml_gate,Down,Down,True,0.595,0.505,9.0
 "trade_id      2055
 trade_id    2055.0
-Name: 1511, dtype: object",no_consensus,ABSTAIN,Up,,0.706,0.665,9.0
+Name: 1511, dtype: object",no_consensus,ABSTAIN,Up,,0.602,0.665,9.0
 "trade_id      2056
 trade_id    2056.0
-Name: 1512, dtype: object",ml_gate,Down,Down,True,0.871,0.585,9.0
+Name: 1512, dtype: object",ml_gate,Down,Down,True,0.868,0.585,9.0
 "trade_id      2057
 trade_id    2057.0
-Name: 1513, dtype: object",ml_gate,Up,Up,True,0.344,0.515,9.0
+Name: 1513, dtype: object",ml_gate,Up,Up,True,0.234,0.515,9.0
 "trade_id      2058
 trade_id    2058.0
-Name: 1514, dtype: object",ml_gate,Up,Up,True,0.27,0.545,9.0
+Name: 1514, dtype: object",ml_gate,Up,Up,True,0.292,0.545,9.0
 "trade_id      2059
 trade_id    2059.0
-Name: 1515, dtype: object",no_consensus,ABSTAIN,Up,,0.886,0.525,9.0
+Name: 1515, dtype: object",no_consensus,ABSTAIN,Up,,0.858,0.525,9.0
 "trade_id      2060
 trade_id    2060.0
-Name: 1516, dtype: object",empty_book,Down,Down,True,0.849,0.505,10.0
+Name: 1516, dtype: object",empty_book,Down,Down,True,0.867,0.505,10.0
 "trade_id      2062
 trade_id    2062.0
-Name: 1518, dtype: object",ml_gate,Up,Up,True,0.45,0.545,10.0
+Name: 1518, dtype: object",ml_gate,Up,Up,True,0.456,0.545,10.0
 "trade_id      2063
 trade_id    2063.0
-Name: 1519, dtype: object",empty_book,Down,Down,True,0.796,0.54,10.0
+Name: 1519, dtype: object",empty_book,Down,Down,True,0.798,0.54,10.0
 "trade_id      2064
 trade_id    2064.0
-Name: 1520, dtype: object",no_consensus,ABSTAIN,Down,,0.815,0.535,10.0
+Name: 1520, dtype: object",no_consensus,ABSTAIN,Down,,0.752,0.535,10.0
 "trade_id      2065
 trade_id    2065.0
-Name: 1521, dtype: object",ml_gate,Up,Up,True,0.508,0.545,10.0
+Name: 1521, dtype: object",ml_gate,Up,Up,True,0.551,0.545,10.0
 "trade_id      2066
 trade_id    2066.0
-Name: 1522, dtype: object",empty_book,Down,Down,True,0.951,0.545,10.0
+Name: 1522, dtype: object",empty_book,Down,Down,True,0.929,0.545,10.0
 "trade_id      2068
 trade_id    2068.0
-Name: 1524, dtype: object",ml_gate,Up,Up,True,0.287,0.56,10.0
+Name: 1524, dtype: object",ml_gate,Up,Up,True,0.378,0.56,10.0
 "trade_id      2069
 trade_id    2069.0
-Name: 1525, dtype: object",ml_gate,Up,Up,True,0.344,0.515,10.0
+Name: 1525, dtype: object",ml_gate,Up,Up,True,0.368,0.515,10.0
 "trade_id      2070
 trade_id    2070.0
-Name: 1526, dtype: object",no_consensus,ABSTAIN,Down,,0.733,0.53,10.0
+Name: 1526, dtype: object",no_consensus,ABSTAIN,Down,,0.776,0.53,10.0
 "trade_id      2071
 trade_id    2071.0
-Name: 1527, dtype: object",ml_gate,Down,Down,True,0.668,0.505,10.0
+Name: 1527, dtype: object",ml_gate,Down,Down,True,0.651,0.505,10.0
 "trade_id      2072
 trade_id    2072.0
-Name: 1528, dtype: object",ml_gate,Up,Up,True,0.767,0.505,11.0
+Name: 1528, dtype: object",ml_gate,Up,Up,True,0.609,0.505,11.0
 "trade_id      2073
 trade_id    2073.0
-Name: 1529, dtype: object",ml_gate,Up,Up,True,0.58,0.545,11.0
+Name: 1529, dtype: object",ml_gate,Up,Up,True,0.464,0.545,11.0
 "trade_id      2075
 trade_id    2075.0
-Name: 1531, dtype: object",no_consensus,ABSTAIN,Up,,0.885,0.47,11.0
+Name: 1531, dtype: object",no_consensus,ABSTAIN,Up,,0.86,0.47,11.0
 "trade_id      2076
 trade_id    2076.0
-Name: 1532, dtype: object",empty_book,Up,Up,True,0.808,0.475,11.0
+Name: 1532, dtype: object",empty_book,Up,Up,True,0.776,0.475,11.0
 "trade_id      2077
 trade_id    2077.0
-Name: 1533, dtype: object",no_consensus,ABSTAIN,Up,,0.885,0.455,11.0
+Name: 1533, dtype: object",no_consensus,ABSTAIN,Up,,0.854,0.455,11.0
 "trade_id      2078
 trade_id    2078.0
-Name: 1534, dtype: object",ml_gate,Up,Down,False,0.652,0.465,11.0
+Name: 1534, dtype: object",ml_gate,Up,Down,False,0.553,0.465,11.0
 "trade_id      2079
 trade_id    2079.0
-Name: 1535, dtype: object",no_consensus,ABSTAIN,Up,,0.72,0.445,11.0
+Name: 1535, dtype: object",no_consensus,ABSTAIN,Up,,0.661,0.445,11.0
 "trade_id      2080
 trade_id    2080.0
-Name: 1536, dtype: object",ml_gate,Up,Up,True,0.481,0.495,11.0
+Name: 1536, dtype: object",ml_gate,Up,Up,True,0.493,0.495,11.0
 "trade_id      2081
 trade_id    2081.0
-Name: 1537, dtype: object",empty_book,Down,Down,True,0.892,0.46,11.0
+Name: 1537, dtype: object",empty_book,Down,Down,True,0.902,0.46,11.0
 "trade_id      2082
 trade_id    2082.0
-Name: 1538, dtype: object",ml_gate,Up,Up,True,0.664,0.45,11.0
+Name: 1538, dtype: object",ml_gate,Up,Up,True,0.692,0.45,11.0
 "trade_id      2083
 trade_id    2083.0
-Name: 1539, dtype: object",empty_book,Down,Down,True,0.854,0.48,11.0
+Name: 1539, dtype: object",empty_book,Down,Down,True,0.884,0.48,11.0
 "trade_id      2084
 trade_id    2084.0
-Name: 1540, dtype: object",ml_gate,Down,Down,True,0.723,0.485,12.0
+Name: 1540, dtype: object",ml_gate,Down,Down,True,0.791,0.485,12.0
 "trade_id      2085
 trade_id    2085.0
-Name: 1541, dtype: object",ml_gate,Up,Down,False,0.693,0.495,12.0
+Name: 1541, dtype: object",ml_gate,Up,Down,False,0.781,0.495,12.0
 "trade_id      2086
 trade_id    2086.0
-Name: 1542, dtype: object",no_consensus,ABSTAIN,Down,,0.813,0.495,12.0
+Name: 1542, dtype: object",no_consensus,ABSTAIN,Down,,0.837,0.495,12.0
 "trade_id      2087
 trade_id    2087.0
-Name: 1543, dtype: object",ml_gate,Down,Up,False,0.857,0.535,12.0
+Name: 1543, dtype: object",ml_gate,Down,Up,False,0.861,0.535,12.0
 "trade_id      2088
 trade_id    2088.0
-Name: 1544, dtype: object",ml_gate,Down,Up,False,0.367,0.515,12.0
+Name: 1544, dtype: object",ml_gate,Down,Up,False,0.433,0.515,12.0
 "trade_id      2089
 trade_id    2089.0
-Name: 1545, dtype: object",ml_gate,Up,Down,False,0.722,0.505,12.0
+Name: 1545, dtype: object",ml_gate,Up,Down,False,0.761,0.505,12.0
 "trade_id      2090
 trade_id    2090.0
-Name: 1546, dtype: object",empty_book,Down,Down,True,0.896,0.515,12.0
+Name: 1546, dtype: object",empty_book,Down,Down,True,0.886,0.515,12.0
 "trade_id      2091
 trade_id    2091.0
-Name: 1547, dtype: object",ml_gate,Up,Up,True,0.726,0.505,12.0
+Name: 1547, dtype: object",ml_gate,Up,Up,True,0.819,0.505,12.0
 "trade_id      2092
 trade_id    2092.0
-Name: 1548, dtype: object",ml_gate,Down,Down,True,0.436,0.535,12.0
+Name: 1548, dtype: object",ml_gate,Down,Down,True,0.55,0.535,12.0
 "trade_id      2093
 trade_id    2093.0
-Name: 1549, dtype: object",ml_gate,Up,Up,True,0.586,0.555,12.0
+Name: 1549, dtype: object",ml_gate,Up,Up,True,0.466,0.555,12.0
 "trade_id      2094
 trade_id    2094.0
-Name: 1550, dtype: object",ml_gate,Up,Up,True,0.877,0.52,12.0
+Name: 1550, dtype: object",ml_gate,Up,Up,True,0.879,0.52,12.0
 "trade_id      2095
 trade_id    2095.0
-Name: 1551, dtype: object",no_consensus,ABSTAIN,Down,,0.62,0.415,12.0
+Name: 1551, dtype: object",no_consensus,ABSTAIN,Down,,0.675,0.415,12.0
 "trade_id      2096
 trade_id    2096.0
-Name: 1552, dtype: object",no_consensus,ABSTAIN,Down,,0.843,0.46,13.0
+Name: 1552, dtype: object",no_consensus,ABSTAIN,Down,,0.845,0.46,13.0
 "trade_id      2097
 trade_id    2097.0
-Name: 1553, dtype: object",ml_gate,Down,Down,True,0.37,0.485,13.0
+Name: 1553, dtype: object",ml_gate,Down,Down,True,0.451,0.485,13.0
 "trade_id      2098
 trade_id    2098.0
-Name: 1554, dtype: object",ml_gate,Up,Up,True,0.515,0.505,13.0
+Name: 1554, dtype: object",ml_gate,Up,Up,True,0.411,0.505,13.0
 "trade_id      2099
 trade_id    2099.0
-Name: 1555, dtype: object",no_consensus,ABSTAIN,Up,,0.789,0.555,13.0
+Name: 1555, dtype: object",no_consensus,ABSTAIN,Up,,0.736,0.555,13.0
 "trade_id      2100
 trade_id    2100.0
-Name: 1556, dtype: object",no_consensus,ABSTAIN,Down,,0.857,0.535,13.0
+Name: 1556, dtype: object",no_consensus,ABSTAIN,Down,,0.851,0.535,13.0
 "trade_id      2101
 trade_id    2101.0
-Name: 1557, dtype: object",no_consensus,ABSTAIN,Down,,0.35,0.535,13.0
+Name: 1557, dtype: object",no_consensus,ABSTAIN,Down,,0.271,0.535,13.0
 "trade_id      2102
 trade_id    2102.0
-Name: 1558, dtype: object",no_consensus,ABSTAIN,Up,,0.639,0.515,13.0
+Name: 1558, dtype: object",no_consensus,ABSTAIN,Up,,0.597,0.515,13.0
 "trade_id      2103
 trade_id    2103.0
-Name: 1559, dtype: object",ml_gate,Up,Up,True,0.404,0.505,13.0
+Name: 1559, dtype: object",ml_gate,Up,Up,True,0.334,0.505,13.0
 "trade_id      2104
 trade_id    2104.0
-Name: 1560, dtype: object",no_consensus,ABSTAIN,Down,,0.711,0.545,13.0
+Name: 1560, dtype: object",no_consensus,ABSTAIN,Down,,0.666,0.545,13.0
 "trade_id      2105
 trade_id    2105.0
-Name: 1561, dtype: object",no_consensus,ABSTAIN,Down,,0.633,0.475,13.0
+Name: 1561, dtype: object",no_consensus,ABSTAIN,Down,,0.619,0.475,13.0
 "trade_id      2106
 trade_id    2106.0
-Name: 1562, dtype: object",no_consensus,ABSTAIN,Up,,0.65,0.505,13.0
+Name: 1562, dtype: object",no_consensus,ABSTAIN,Up,,0.682,0.505,13.0
 "trade_id      2108
 trade_id    2108.0
-Name: 1564, dtype: object",ml_gate,Down,Down,True,0.446,0.545,14.0
+Name: 1564, dtype: object",ml_gate,Down,Down,True,0.5,0.545,14.0
 "trade_id      2109
 trade_id    2109.0
-Name: 1565, dtype: object",ml_gate,Up,Up,True,0.546,0.535,14.0
+Name: 1565, dtype: object",ml_gate,Up,Up,True,0.49,0.535,14.0
 "trade_id      2110
 trade_id    2110.0
-Name: 1566, dtype: object",no_consensus,ABSTAIN,Up,,0.747,0.535,14.0
+Name: 1566, dtype: object",no_consensus,ABSTAIN,Up,,0.674,0.535,14.0
 "trade_id      2111
 trade_id    2111.0
-Name: 1567, dtype: object",ml_gate,Up,Down,False,0.255,0.535,14.0
+Name: 1567, dtype: object",ml_gate,Up,Down,False,0.214,0.535,14.0
 "trade_id      2112
 trade_id    2112.0
-Name: 1568, dtype: object",ml_gate,Down,Down,True,0.775,0.49,14.0
+Name: 1568, dtype: object",ml_gate,Down,Down,True,0.802,0.49,14.0
 "trade_id      2113
 trade_id    2113.0
-Name: 1569, dtype: object",empty_book,Down,Down,True,0.913,0.505,14.0
+Name: 1569, dtype: object",empty_book,Down,Down,True,0.922,0.505,14.0
 "trade_id      2114
 trade_id    2114.0
-Name: 1570, dtype: object",ml_gate,Up,Up,True,0.369,0.54,14.0
+Name: 1570, dtype: object",ml_gate,Up,Up,True,0.384,0.54,14.0
 "trade_id      2115
 trade_id    2115.0
-Name: 1571, dtype: object",no_consensus,ABSTAIN,Down,,0.768,0.575,14.0
+Name: 1571, dtype: object",no_consensus,ABSTAIN,Down,,0.817,0.575,14.0
 "trade_id      2116
 trade_id    2116.0
-Name: 1572, dtype: object",ml_gate,Up,Up,True,0.538,0.495,14.0
+Name: 1572, dtype: object",ml_gate,Up,Up,True,0.485,0.495,14.0
 "trade_id      2117
 trade_id    2117.0
-Name: 1573, dtype: object",no_consensus,ABSTAIN,Down,,0.652,0.485,14.0
+Name: 1573, dtype: object",no_consensus,ABSTAIN,Down,,0.569,0.485,14.0
 "trade_id      2119
 trade_id    2119.0
-Name: 1575, dtype: object",ml_gate,Up,Up,True,0.583,0.495,14.0
+Name: 1575, dtype: object",ml_gate,Up,Up,True,0.466,0.495,14.0
 "trade_id      2120
 trade_id    2120.0
-Name: 1576, dtype: object",ml_gate,Up,Up,True,0.903,0.505,15.0
+Name: 1576, dtype: object",ml_gate,Up,Up,True,0.88,0.505,15.0
 "trade_id      2121
 trade_id    2121.0
-Name: 1577, dtype: object",no_consensus,ABSTAIN,Down,,0.445,0.49,15.0
+Name: 1577, dtype: object",no_consensus,ABSTAIN,Down,,0.441,0.49,15.0
 "trade_id      2122
 trade_id    2122.0
-Name: 1578, dtype: object",no_consensus,ABSTAIN,Down,,0.862,0.49,15.0
+Name: 1578, dtype: object",no_consensus,ABSTAIN,Down,,0.761,0.49,15.0
 "trade_id      2123
 trade_id    2123.0
-Name: 1579, dtype: object",no_consensus,ABSTAIN,Down,,0.826,0.535,15.0
+Name: 1579, dtype: object",no_consensus,ABSTAIN,Down,,0.818,0.535,15.0
 "trade_id      2124
 trade_id    2124.0
-Name: 1580, dtype: object",no_consensus,ABSTAIN,Down,,0.592,0.525,15.0
+Name: 1580, dtype: object",no_consensus,ABSTAIN,Down,,0.717,0.525,15.0
 "trade_id      2126
 trade_id    2126.0
-Name: 1582, dtype: object",ml_gate,Up,Down,False,0.446,0.555,15.0
+Name: 1582, dtype: object",ml_gate,Up,Down,False,0.399,0.555,15.0
 "trade_id      2127
 trade_id    2127.0
-Name: 1583, dtype: object",ml_gate,Up,Down,False,0.38,0.605,15.0
+Name: 1583, dtype: object",ml_gate,Up,Down,False,0.423,0.605,15.0
 "trade_id      2128
 trade_id    2128.0
-Name: 1584, dtype: object",ml_gate,Up,Up,True,0.723,0.545,15.0
+Name: 1584, dtype: object",ml_gate,Up,Up,True,0.62,0.545,15.0
 "trade_id      2129
 trade_id    2129.0
-Name: 1585, dtype: object",no_consensus,ABSTAIN,Down,,0.435,0.545,15.0
+Name: 1585, dtype: object",no_consensus,ABSTAIN,Down,,0.428,0.545,15.0
 "trade_id      2130
 trade_id    2130.0
-Name: 1586, dtype: object",ml_gate,Up,Up,True,0.609,0.535,15.0
+Name: 1586, dtype: object",ml_gate,Up,Up,True,0.386,0.535,15.0
 "trade_id      2131
 trade_id    2131.0
-Name: 1587, dtype: object",no_consensus,ABSTAIN,Down,,0.731,0.505,15.0
+Name: 1587, dtype: object",no_consensus,ABSTAIN,Down,,0.784,0.505,15.0
 "trade_id      2132
 trade_id    2132.0
-Name: 1588, dtype: object",no_consensus,ABSTAIN,Down,,0.599,0.485,16.0
+Name: 1588, dtype: object",no_consensus,ABSTAIN,Down,,0.64,0.485,16.0
 "trade_id      2133
 trade_id    2133.0
-Name: 1589, dtype: object",ml_gate,Up,Up,True,0.686,0.495,16.0
+Name: 1589, dtype: object",ml_gate,Up,Up,True,0.698,0.495,16.0
 "trade_id      2134
 trade_id    2134.0
-Name: 1590, dtype: object",no_consensus,ABSTAIN,Down,,0.312,0.685,16.0
+Name: 1590, dtype: object",no_consensus,ABSTAIN,Down,,0.377,0.685,16.0
 "trade_id      2135
 trade_id    2135.0
-Name: 1591, dtype: object",ml_gate,Up,Up,True,0.78,0.41,16.0
+Name: 1591, dtype: object",ml_gate,Up,Up,True,0.791,0.41,16.0
 "trade_id      2136
 trade_id    2136.0
-Name: 1592, dtype: object",ml_gate,Up,Down,False,0.674,0.42,16.0
+Name: 1592, dtype: object",ml_gate,Up,Down,False,0.576,0.42,16.0
 "trade_id      2137
 trade_id    2137.0
-Name: 1593, dtype: object",ml_gate,Up,Up,True,0.666,0.485,16.0
+Name: 1593, dtype: object",ml_gate,Up,Up,True,0.513,0.485,16.0
 "trade_id      2138
 trade_id    2138.0
-Name: 1594, dtype: object",no_consensus,ABSTAIN,Down,,0.815,0.515,16.0
+Name: 1594, dtype: object",no_consensus,ABSTAIN,Down,,0.766,0.515,16.0
 "trade_id      2139
 trade_id    2139.0
 Name: 1595, dtype: object",no_consensus,ABSTAIN,Down,,0.716,0.455,16.0
 "trade_id      2140
 trade_id    2140.0
-Name: 1596, dtype: object",no_consensus,ABSTAIN,Down,,0.518,0.525,16.0
+Name: 1596, dtype: object",no_consensus,ABSTAIN,Down,,0.541,0.525,16.0
 "trade_id      2141
 trade_id    2141.0
-Name: 1597, dtype: object",ml_gate,Up,Down,False,0.555,0.485,16.0
+Name: 1597, dtype: object",ml_gate,Up,Down,False,0.506,0.485,16.0
 "trade_id      2142
 trade_id    2142.0
-Name: 1598, dtype: object",ml_gate,Down,Down,True,0.813,0.505,16.0
+Name: 1598, dtype: object",ml_gate,Down,Down,True,0.833,0.505,16.0
 "trade_id      2143
 trade_id    2143.0
-Name: 1599, dtype: object",no_consensus,ABSTAIN,Up,,0.605,0.505,16.0
+Name: 1599, dtype: object",no_consensus,ABSTAIN,Up,,0.53,0.505,16.0
 "trade_id      2144
 trade_id    2144.0
-Name: 1600, dtype: object",ml_gate,Down,Down,True,0.724,0.535,17.0
+Name: 1600, dtype: object",ml_gate,Down,Down,True,0.779,0.535,17.0
 "trade_id      2145
 trade_id    2145.0
-Name: 1601, dtype: object",ml_gate,Up,Up,True,0.245,0.545,17.0
+Name: 1601, dtype: object",ml_gate,Up,Up,True,0.231,0.545,17.0
 "trade_id      2146
 trade_id    2146.0
-Name: 1602, dtype: object",ml_gate,Down,Down,True,0.444,0.535,17.0
+Name: 1602, dtype: object",ml_gate,Down,Down,True,0.49,0.535,17.0
 "trade_id      2148
 trade_id    2148.0
-Name: 1604, dtype: object",no_consensus,ABSTAIN,Down,,0.5,0.505,17.0
+Name: 1604, dtype: object",no_consensus,ABSTAIN,Down,,0.498,0.505,17.0
 "trade_id      2149
 trade_id    2149.0
-Name: 1605, dtype: object",ml_gate,Up,Up,True,0.724,0.545,17.0
+Name: 1605, dtype: object",ml_gate,Up,Up,True,0.743,0.545,17.0
 "trade_id      2150
 trade_id    2150.0
-Name: 1606, dtype: object",ml_gate,Up,Up,True,0.603,0.535,17.0
+Name: 1606, dtype: object",ml_gate,Up,Up,True,0.522,0.535,17.0
 "trade_id      2151
 trade_id    2151.0
-Name: 1607, dtype: object",ml_gate,Up,Up,True,0.51,0.545,17.0
+Name: 1607, dtype: object",ml_gate,Up,Up,True,0.486,0.545,17.0
 "trade_id      2152
 trade_id    2152.0
-Name: 1608, dtype: object",ml_gate,Up,Up,True,0.685,0.505,17.0
+Name: 1608, dtype: object",ml_gate,Up,Up,True,0.584,0.505,17.0
 "trade_id      2153
 trade_id    2153.0
-Name: 1609, dtype: object",ml_gate,Up,Down,False,0.574,0.51,17.0
+Name: 1609, dtype: object",ml_gate,Up,Down,False,0.489,0.51,17.0
 "trade_id      2154
 trade_id    2154.0
-Name: 1610, dtype: object",no_consensus,ABSTAIN,Up,,0.659,0.465,17.0
+Name: 1610, dtype: object",no_consensus,ABSTAIN,Up,,0.692,0.465,17.0
 "trade_id      2155
 trade_id    2155.0
-Name: 1611, dtype: object",empty_book,Down,Down,True,0.783,0.505,17.0
+Name: 1611, dtype: object",empty_book,Down,Down,True,0.778,0.505,17.0
 "trade_id      2156
 trade_id    2156.0
-Name: 1612, dtype: object",empty_book,Down,Down,True,0.584,0.485,18.0
+Name: 1612, dtype: object",empty_book,Down,Down,True,0.553,0.485,18.0
 "trade_id      2157
 trade_id    2157.0
-Name: 1613, dtype: object",no_consensus,ABSTAIN,Up,,0.668,0.625,18.0
+Name: 1613, dtype: object",no_consensus,ABSTAIN,Up,,0.595,0.625,18.0
 "trade_id      2158
 trade_id    2158.0
-Name: 1614, dtype: object",ml_gate,Up,Up,True,0.752,0.505,18.0
+Name: 1614, dtype: object",ml_gate,Up,Up,True,0.829,0.505,18.0
 "trade_id      2159
 trade_id    2159.0
-Name: 1615, dtype: object",no_consensus,ABSTAIN,Up,,0.464,0.495,18.0
+Name: 1615, dtype: object",no_consensus,ABSTAIN,Up,,0.402,0.495,18.0
 "trade_id      2160
 trade_id    2160.0
-Name: 1616, dtype: object",no_consensus,ABSTAIN,Down,,0.725,0.455,18.0
+Name: 1616, dtype: object",no_consensus,ABSTAIN,Down,,0.614,0.455,18.0
 "trade_id      2161
 trade_id    2161.0
-Name: 1617, dtype: object",no_consensus,ABSTAIN,Up,,0.511,0.635,18.0
+Name: 1617, dtype: object",no_consensus,ABSTAIN,Up,,0.541,0.635,18.0
 "trade_id      2162
 trade_id    2162.0
-Name: 1618, dtype: object",ml_gate,Down,Up,False,0.816,0.5,18.0
+Name: 1618, dtype: object",ml_gate,Down,Up,False,0.745,0.5,18.0
 "trade_id      2163
 trade_id    2163.0
-Name: 1619, dtype: object",ml_gate,Up,Up,True,0.681,0.505,18.0
+Name: 1619, dtype: object",ml_gate,Up,Up,True,0.636,0.505,18.0
 "trade_id      2164
 trade_id    2164.0
-Name: 1620, dtype: object",empty_book,Down,Down,True,0.832,0.505,18.0
+Name: 1620, dtype: object",empty_book,Down,Down,True,0.884,0.505,18.0
 "trade_id      2165
 trade_id    2165.0
-Name: 1621, dtype: object",ml_gate,Down,Up,False,0.779,0.49,18.0
+Name: 1621, dtype: object",ml_gate,Down,Up,False,0.63,0.49,18.0
 "trade_id      2166
 trade_id    2166.0
-Name: 1622, dtype: object",no_consensus,ABSTAIN,Up,,0.77,0.495,18.0
+Name: 1622, dtype: object",no_consensus,ABSTAIN,Up,,0.601,0.495,18.0
 "trade_id      2167
 trade_id    2167.0
-Name: 1623, dtype: object",no_consensus,ABSTAIN,Down,,0.647,0.595,18.0
+Name: 1623, dtype: object",no_consensus,ABSTAIN,Down,,0.699,0.595,18.0
 "trade_id      2168
 trade_id    2168.0
-Name: 1624, dtype: object",ml_gate,Up,Down,False,0.828,0.505,19.0
+Name: 1624, dtype: object",ml_gate,Up,Down,False,0.733,0.505,19.0
 "trade_id      2169
 trade_id    2169.0
-Name: 1625, dtype: object",ml_gate,Up,Down,False,0.779,0.495,19.0
+Name: 1625, dtype: object",ml_gate,Up,Down,False,0.741,0.495,19.0
 "trade_id      2170
 trade_id    2170.0
-Name: 1626, dtype: object",ml_gate,Up,Up,True,0.949,0.495,19.0
+Name: 1626, dtype: object",ml_gate,Up,Up,True,0.933,0.495,19.0
 "trade_id      2171
 trade_id    2171.0
-Name: 1627, dtype: object",ml_gate,Up,Up,True,0.554,0.505,19.0
+Name: 1627, dtype: object",ml_gate,Up,Up,True,0.414,0.505,19.0
 "trade_id      2172
 trade_id    2172.0
-Name: 1628, dtype: object",no_consensus,ABSTAIN,Down,,0.568,0.505,19.0
+Name: 1628, dtype: object",no_consensus,ABSTAIN,Down,,0.534,0.505,19.0
 "trade_id      2173
 trade_id    2173.0
-Name: 1629, dtype: object",no_consensus,ABSTAIN,Up,,0.628,0.5,19.0
+Name: 1629, dtype: object",no_consensus,ABSTAIN,Up,,0.648,0.5,19.0
 "trade_id      2174
 trade_id    2174.0
-Name: 1630, dtype: object",ml_gate,Up,Up,True,0.341,0.505,19.0
+Name: 1630, dtype: object",ml_gate,Up,Up,True,0.321,0.505,19.0
 "trade_id      2175
 trade_id    2175.0
-Name: 1631, dtype: object",ml_gate,Down,Down,True,0.395,0.505,19.0
+Name: 1631, dtype: object",ml_gate,Down,Down,True,0.464,0.505,19.0
 "trade_id      2176
 trade_id    2176.0
-Name: 1632, dtype: object",ml_gate,Up,Up,True,0.612,0.475,19.0
+Name: 1632, dtype: object",ml_gate,Up,Up,True,0.499,0.475,19.0
 "trade_id      2177
 trade_id    2177.0
-Name: 1633, dtype: object",ml_gate,Up,Down,False,0.327,0.545,19.0
+Name: 1633, dtype: object",ml_gate,Up,Down,False,0.291,0.545,19.0
 "trade_id      2178
 trade_id    2178.0
-Name: 1634, dtype: object",no_consensus,ABSTAIN,Down,,0.944,0.395,19.0
+Name: 1634, dtype: object",no_consensus,ABSTAIN,Down,,0.914,0.395,19.0
 "trade_id      2179
 trade_id    2179.0
-Name: 1635, dtype: object",ml_gate,Down,Down,True,0.657,0.505,19.0
+Name: 1635, dtype: object",ml_gate,Down,Down,True,0.666,0.505,19.0
 "trade_id      2180
 trade_id    2180.0
-Name: 1636, dtype: object",ml_gate,Up,Up,True,0.537,0.535,20.0
+Name: 1636, dtype: object",ml_gate,Up,Up,True,0.381,0.535,20.0
 "trade_id      2181
 trade_id    2181.0
-Name: 1637, dtype: object",no_consensus,ABSTAIN,Up,,0.824,0.505,20.0
+Name: 1637, dtype: object",no_consensus,ABSTAIN,Up,,0.798,0.505,20.0
 "trade_id      2182
 trade_id    2182.0
-Name: 1638, dtype: object",ml_gate,Up,Down,False,0.556,0.505,20.0
+Name: 1638, dtype: object",ml_gate,Up,Down,False,0.473,0.505,20.0
 "trade_id      2183
 trade_id    2183.0
-Name: 1639, dtype: object",ml_gate,Up,Up,True,0.905,0.475,20.0
+Name: 1639, dtype: object",ml_gate,Up,Up,True,0.847,0.475,20.0
 "trade_id      2184
 trade_id    2184.0
-Name: 1640, dtype: object",ml_gate,Up,Up,True,0.624,0.465,20.0
+Name: 1640, dtype: object",ml_gate,Up,Up,True,0.578,0.465,20.0
 "trade_id      2185
 trade_id    2185.0
-Name: 1641, dtype: object",no_consensus,ABSTAIN,Down,,0.723,0.435,20.0
+Name: 1641, dtype: object",no_consensus,ABSTAIN,Down,,0.711,0.435,20.0
 "trade_id      2186
 trade_id    2186.0
-Name: 1642, dtype: object",empty_book,Down,Down,True,0.752,0.455,20.0
+Name: 1642, dtype: object",empty_book,Down,Down,True,0.817,0.455,20.0
 "trade_id      2187
 trade_id    2187.0
-Name: 1643, dtype: object",empty_book,Down,Down,True,0.684,0.455,20.0
+Name: 1643, dtype: object",empty_book,Down,Down,True,0.735,0.455,20.0
 "trade_id      2188
 trade_id    2188.0
-Name: 1644, dtype: object",empty_book,Down,Down,True,0.578,0.455,20.0
+Name: 1644, dtype: object",empty_book,Down,Down,True,0.658,0.455,20.0
 "trade_id      2189
 trade_id    2189.0
-Name: 1645, dtype: object",ml_gate,Down,Down,True,0.9,0.505,20.0
+Name: 1645, dtype: object",ml_gate,Down,Down,True,0.908,0.505,20.0
 "trade_id      2190
 trade_id    2190.0
-Name: 1646, dtype: object",ml_gate,Up,Up,True,0.598,0.525,20.0
+Name: 1646, dtype: object",ml_gate,Up,Up,True,0.715,0.525,20.0
 "trade_id      2191
 trade_id    2191.0
-Name: 1647, dtype: object",ml_gate,Up,Up,True,0.428,0.565,20.0
+Name: 1647, dtype: object",ml_gate,Up,Up,True,0.382,0.565,20.0
 "trade_id      2192
 trade_id    2192.0
-Name: 1648, dtype: object",no_consensus,ABSTAIN,Down,,0.86,0.505,21.0
+Name: 1648, dtype: object",no_consensus,ABSTAIN,Down,,0.854,0.505,21.0
 "trade_id      2193
 trade_id    2193.0
-Name: 1649, dtype: object",empty_book,Down,Down,True,0.891,0.485,21.0
+Name: 1649, dtype: object",empty_book,Down,Down,True,0.895,0.485,21.0
 "trade_id      2195
 trade_id    2195.0
-Name: 1651, dtype: object",ml_gate,Down,Down,True,0.814,0.505,21.0
+Name: 1651, dtype: object",ml_gate,Down,Down,True,0.636,0.505,21.0
 "trade_id      2196
 trade_id    2196.0
-Name: 1652, dtype: object",ml_gate,Up,Up,True,0.271,0.515,21.0
+Name: 1652, dtype: object",ml_gate,Up,Up,True,0.179,0.515,21.0
 "trade_id      2197
 trade_id    2197.0
-Name: 1653, dtype: object",ml_gate,Up,Up,True,0.794,0.505,21.0
+Name: 1653, dtype: object",ml_gate,Up,Up,True,0.704,0.505,21.0
 "trade_id      2198
 trade_id    2198.0
-Name: 1654, dtype: object",ml_gate,Up,Down,False,0.726,0.505,21.0
+Name: 1654, dtype: object",ml_gate,Up,Down,False,0.69,0.505,21.0
 "trade_id      2200
 trade_id    2200.0
-Name: 1656, dtype: object",ml_gate,Up,Up,True,0.412,0.495,21.0
+Name: 1656, dtype: object",ml_gate,Up,Up,True,0.384,0.495,21.0
 "trade_id      2201
 trade_id    2201.0
-Name: 1657, dtype: object",ml_gate,Up,Up,True,0.389,0.495,21.0
+Name: 1657, dtype: object",ml_gate,Up,Up,True,0.337,0.495,21.0
 "trade_id      2202
 trade_id    2202.0
-Name: 1658, dtype: object",ml_gate,Up,Up,True,0.837,0.475,21.0
+Name: 1658, dtype: object",ml_gate,Up,Up,True,0.736,0.475,21.0
 "trade_id      2203
 trade_id    2203.0
-Name: 1659, dtype: object",ml_gate,Down,Up,False,0.814,0.445,21.0
+Name: 1659, dtype: object",ml_gate,Down,Up,False,0.798,0.445,21.0
 "trade_id      2204
 trade_id    2204.0
 Name: 1660, dtype: object",ml_gate,Down,Down,True,0.573,0.465,22.0
 "trade_id      2206
 trade_id    2206.0
-Name: 1662, dtype: object",ml_gate,Down,Down,True,0.871,0.535,22.0
+Name: 1662, dtype: object",ml_gate,Down,Down,True,0.799,0.535,22.0
 "trade_id      2210
 trade_id    2210.0
-Name: 1666, dtype: object",ml_gate,Down,Down,True,0.784,0.515,22.0
+Name: 1666, dtype: object",ml_gate,Down,Down,True,0.814,0.515,22.0
 "trade_id      2211
 trade_id    2211.0
-Name: 1667, dtype: object",ml_gate,Down,Down,True,0.793,0.535,22.0
+Name: 1667, dtype: object",ml_gate,Down,Down,True,0.699,0.535,22.0
 "trade_id      2212
 trade_id    2212.0
-Name: 1668, dtype: object",ml_gate,Down,Down,True,0.605,0.505,22.0
+Name: 1668, dtype: object",ml_gate,Down,Down,True,0.606,0.505,22.0
 "trade_id      2215
 trade_id    2215.0
-Name: 1671, dtype: object",ml_gate,Down,Up,False,0.765,0.52,22.0
+Name: 1671, dtype: object",ml_gate,Down,Up,False,0.581,0.52,22.0
 "trade_id      2216
 trade_id    2216.0
-Name: 1672, dtype: object",ml_gate,Down,Up,False,0.83,0.485,23.0
+Name: 1672, dtype: object",ml_gate,Down,Up,False,0.887,0.485,23.0
 "trade_id      2217
 trade_id    2217.0
-Name: 1673, dtype: object",ml_gate,Down,Up,False,0.745,0.455,23.0
+Name: 1673, dtype: object",ml_gate,Down,Up,False,0.73,0.455,23.0
 "trade_id      2218
 trade_id    2218.0
-Name: 1674, dtype: object",ml_gate,Up,Up,True,0.851,0.505,23.0
+Name: 1674, dtype: object",ml_gate,Up,Up,True,0.822,0.505,23.0
 "trade_id      2219
 trade_id    2219.0
-Name: 1675, dtype: object",no_consensus,ABSTAIN,Up,,0.683,0.34,23.0
+Name: 1675, dtype: object",no_consensus,ABSTAIN,Up,,0.723,0.34,23.0
 "trade_id      2221
 trade_id    2221.0
-Name: 1677, dtype: object",ml_gate,Down,Down,True,0.6,0.43,23.0
+Name: 1677, dtype: object",ml_gate,Down,Down,True,0.581,0.43,23.0
 "trade_id      2222
 trade_id    2222.0
-Name: 1678, dtype: object",no_consensus,ABSTAIN,Down,,0.87,0.455,23.0
+Name: 1678, dtype: object",no_consensus,ABSTAIN,Down,,0.789,0.455,23.0
 "trade_id      2224
 trade_id    2224.0
-Name: 1680, dtype: object",ml_gate,Up,Up,True,0.359,0.575,23.0
+Name: 1680, dtype: object",ml_gate,Up,Up,True,0.377,0.575,23.0
 "trade_id      2226
 trade_id    2226.0
-Name: 1682, dtype: object",ml_gate,Up,Up,True,0.731,0.505,23.0
+Name: 1682, dtype: object",ml_gate,Up,Up,True,0.693,0.505,23.0
 "trade_id      2227
 trade_id    2227.0
-Name: 1683, dtype: object",empty_book,Down,Down,True,0.955,0.505,23.0
+Name: 1683, dtype: object",empty_book,Down,Down,True,0.957,0.505,23.0
 "trade_id      2228
 trade_id    2228.0
-Name: 1684, dtype: object",empty_book,Down,Down,True,0.87,0.505,0.0
+Name: 1684, dtype: object",empty_book,Down,Down,True,0.882,0.505,0.0
 "trade_id      2230
 trade_id    2230.0
-Name: 1686, dtype: object",no_consensus,ABSTAIN,Down,,0.89,0.505,0.0
+Name: 1686, dtype: object",no_consensus,ABSTAIN,Down,,0.902,0.505,0.0
 "trade_id      2231
 trade_id    2231.0
-Name: 1687, dtype: object",ml_gate,Up,Up,True,0.775,0.395,0.0
+Name: 1687, dtype: object",ml_gate,Up,Up,True,0.735,0.395,0.0
 "trade_id      2232
 trade_id    2232.0
-Name: 1688, dtype: object",empty_book,Down,Down,True,0.912,0.515,0.0
+Name: 1688, dtype: object",empty_book,Down,Down,True,0.911,0.515,0.0
 "trade_id      2235
 trade_id    2235.0
-Name: 1691, dtype: object",empty_book,Down,Down,True,0.91,0.485,0.0
+Name: 1691, dtype: object",empty_book,Down,Down,True,0.951,0.485,0.0
 "trade_id      2238
 trade_id    2238.0
-Name: 1694, dtype: object",ml_gate,Down,Down,True,0.465,0.505,0.0
+Name: 1694, dtype: object",ml_gate,Down,Down,True,0.597,0.505,0.0
 "trade_id      2239
 trade_id    2239.0
-Name: 1695, dtype: object",ml_gate,Up,Up,True,0.427,0.645,0.0
+Name: 1695, dtype: object",ml_gate,Up,Up,True,0.461,0.645,0.0
 "trade_id      2240
 trade_id    2240.0
-Name: 1696, dtype: object",ml_gate,Up,Up,True,0.934,0.525,1.0
+Name: 1696, dtype: object",ml_gate,Up,Up,True,0.893,0.525,1.0
 "trade_id      2242
 trade_id    2242.0
-Name: 1698, dtype: object",ml_gate,Up,Up,True,0.854,0.485,1.0
+Name: 1698, dtype: object",ml_gate,Up,Up,True,0.829,0.485,1.0
 "trade_id      2243
 trade_id    2243.0
-Name: 1699, dtype: object",empty_book,Up,Up,True,0.959,0.505,1.0
+Name: 1699, dtype: object",empty_book,Up,Up,True,0.961,0.505,1.0
 "trade_id      2248
 trade_id    2248.0
-Name: 1704, dtype: object",ml_gate,Down,Up,False,0.44,0.465,1.0
+Name: 1704, dtype: object",ml_gate,Down,Up,False,0.506,0.465,1.0
 "trade_id      2249
 trade_id    2249.0
-Name: 1705, dtype: object",ml_gate,Up,Up,True,0.279,0.485,1.0
+Name: 1705, dtype: object",ml_gate,Up,Up,True,0.366,0.485,1.0
 "trade_id      2255
 trade_id    2255.0
-Name: 1711, dtype: object",no_consensus,ABSTAIN,Down,,0.633,0.455,2.0
+Name: 1711, dtype: object",no_consensus,ABSTAIN,Down,,0.644,0.455,2.0
 "trade_id      2261
 trade_id    2261.0
-Name: 1717, dtype: object",ml_gate,Up,Up,True,0.817,0.485,2.0
+Name: 1717, dtype: object",ml_gate,Up,Up,True,0.814,0.485,2.0
 "trade_id      2262
 trade_id    2262.0
-Name: 1718, dtype: object",empty_book,Down,Down,True,0.802,0.44,2.0
+Name: 1718, dtype: object",empty_book,Down,Down,True,0.822,0.44,2.0
 "trade_id      2269
 trade_id    2269.0
-Name: 1725, dtype: object",no_consensus,ABSTAIN,Down,,0.573,0.515,3.0
+Name: 1725, dtype: object",no_consensus,ABSTAIN,Down,,0.556,0.515,3.0
 "trade_id      2271
 trade_id    2271.0
-Name: 1727, dtype: object",ml_gate,Down,Down,True,0.477,0.475,3.0
+Name: 1727, dtype: object",ml_gate,Down,Down,True,0.53,0.475,3.0
+"trade_id      2277
+trade_id    2277.0
+Name: 1733, dtype: object",no_consensus,ABSTAIN,Up,,0.835,0.495,4.0
+"trade_id      2278
+trade_id    2278.0
+Name: 1734, dtype: object",ml_gate,Up,Up,True,0.516,0.51,4.0
+"trade_id      2280
+trade_id    2280.0
+Name: 1736, dtype: object",no_consensus,ABSTAIN,Down,,0.693,0.535,4.0
+"trade_id      2282
+trade_id    2282.0
+Name: 1738, dtype: object",ml_gate,Up,Up,True,0.598,0.455,4.0
+"trade_id      2283
+trade_id    2283.0
+Name: 1739, dtype: object",empty_book,Down,Up,False,0.621,0.555,4.0
+"trade_id      2284
+trade_id    2284.0
+Name: 1740, dtype: object",no_consensus,ABSTAIN,Down,,0.592,0.465,4.0
+"trade_id      2286
+trade_id    2286.0
+Name: 1742, dtype: object",ml_gate,Up,Up,True,0.493,0.485,4.0
+"trade_id      2288
+trade_id    2288.0
+Name: 1744, dtype: object",empty_book,Down,Up,False,0.739,0.415,5.0
+"trade_id      2292
+trade_id    2292.0
+Name: 1748, dtype: object",no_consensus,ABSTAIN,Up,,0.657,0.495,5.0
+"trade_id      2295
+trade_id    2295.0
+Name: 1751, dtype: object",empty_book,Down,Down,True,0.733,0.49,5.0
+"trade_id      2296
+trade_id    2296.0
+Name: 1752, dtype: object",ml_gate,Down,Down,True,0.459,0.475,5.0
+"trade_id      2297
+trade_id    2297.0
+Name: 1753, dtype: object",empty_book,Down,Up,False,0.785,0.505,5.0
+"trade_id      2298
+trade_id    2298.0
+Name: 1754, dtype: object",empty_book,Down,Down,True,0.807,0.525,5.0
+"trade_id      2302
+trade_id    2302.0
+Name: 1758, dtype: object",no_consensus,ABSTAIN,Down,,0.492,0.505,6.0
+"trade_id      2303
+trade_id    2303.0
+Name: 1759, dtype: object",ml_gate,Up,Down,False,0.464,0.365,6.0
+"trade_id      2304
+trade_id    2304.0
+Name: 1760, dtype: object",no_consensus,ABSTAIN,Down,,0.696,0.385,6.0
+"trade_id      2305
+trade_id    2305.0
+Name: 1761, dtype: object",ml_gate,Up,Up,True,0.568,0.545,6.0
+"trade_id      2306
+trade_id    2306.0
+Name: 1762, dtype: object",ml_gate,Up,Down,False,0.632,0.435,6.0
+"trade_id      2307
+trade_id    2307.0
+Name: 1763, dtype: object",ml_gate,Up,Down,False,0.477,0.515,6.0
+"trade_id      2311
+trade_id    2311.0
+Name: 1767, dtype: object",no_consensus,ABSTAIN,Down,,0.614,0.395,6.0
+"trade_id      2312
+trade_id    2312.0
+Name: 1768, dtype: object",empty_book,Down,Down,True,0.719,0.515,7.0
+"trade_id      2313
+trade_id    2313.0
+Name: 1769, dtype: object",ml_gate,Up,Up,True,0.557,0.555,7.0
+"trade_id      2314
+trade_id    2314.0
+Name: 1770, dtype: object",empty_book,Down,Down,True,0.937,0.525,7.0
+"trade_id      2316
+trade_id    2316.0
+Name: 1772, dtype: object",empty_book,Down,Down,True,0.827,0.485,7.0
+"trade_id      2320
+trade_id    2320.0
+Name: 1776, dtype: object",ml_gate,Up,Up,True,0.696,0.505,7.0
+"trade_id      2321
+trade_id    2321.0
+Name: 1777, dtype: object",ml_gate,Up,Up,True,0.505,0.525,7.0
+"trade_id      2322
+trade_id    2322.0
+Name: 1778, dtype: object",no_consensus,ABSTAIN,Up,,0.882,0.505,7.0
+"trade_id      2323
+trade_id    2323.0
+Name: 1779, dtype: object",invalid_amount,Up,Up,True,0.641,0.57,7.0
+"trade_id      2324
+trade_id    2324.0
+Name: 1780, dtype: object",ml_gate,Up,Up,True,0.63,0.58,8.0
+"trade_id      2325
+trade_id    2325.0
+Name: 1781, dtype: object",empty_book,Down,Up,False,0.867,0.525,8.0
+"trade_id      2327
+trade_id    2327.0
+Name: 1783, dtype: object",no_consensus,ABSTAIN,Down,,0.547,0.615,8.0
+"trade_id      2328
+trade_id    2328.0
+Name: 1784, dtype: object",ml_gate,Up,Down,False,0.619,0.445,8.0
+"trade_id      2329
+trade_id    2329.0
+Name: 1785, dtype: object",no_consensus,ABSTAIN,Down,,0.724,0.435,8.0
+"trade_id      2330
+trade_id    2330.0
+Name: 1786, dtype: object",no_consensus,ABSTAIN,Down,,0.82,0.455,8.0
+"trade_id      2331
+trade_id    2331.0
+Name: 1787, dtype: object",no_consensus,ABSTAIN,Up,,0.76,0.455,8.0
+"trade_id      2332
+trade_id    2332.0
+Name: 1788, dtype: object",ml_gate,Up,Down,False,0.602,0.465,8.0
+"trade_id      2333
+trade_id    2333.0
+Name: 1789, dtype: object",ml_gate,Up,Down,False,0.793,0.51,8.0
+"trade_id      2334
+trade_id    2334.0
+Name: 1790, dtype: object",no_consensus,ABSTAIN,Up,,0.935,0.5,8.0
+"trade_id      2335
+trade_id    2335.0
+Name: 1791, dtype: object",ml_gate,Up,Down,False,0.625,0.505,8.0
+"trade_id      2336
+trade_id    2336.0
+Name: 1792, dtype: object",empty_book,Down,Down,True,0.849,0.445,9.0
+"trade_id      2339
+trade_id    2339.0
+Name: 1795, dtype: object",ml_gate,Up,Up,True,0.396,0.515,9.0
+"trade_id      2340
+trade_id    2340.0
+Name: 1796, dtype: object",empty_book,Down,Down,True,0.794,0.545,9.0
+"trade_id      2341
+trade_id    2341.0
+Name: 1797, dtype: object",empty_book,Down,Down,True,0.97,0.475,9.0
+"trade_id      2342
+trade_id    2342.0
+Name: 1798, dtype: object",no_consensus,ABSTAIN,Down,,0.457,0.525,9.0
+"trade_id      2343
+trade_id    2343.0
+Name: 1799, dtype: object",ml_gate,Up,Up,True,0.658,0.525,9.0
+"trade_id      2345
+trade_id    2345.0
+Name: 1801, dtype: object",no_consensus,ABSTAIN,Up,,0.943,0.505,9.0
+"trade_id      2346
+trade_id    2346.0
+Name: 1802, dtype: object",empty_book,Down,Down,True,0.922,0.505,9.0
+"trade_id      2347
+trade_id    2347.0
+Name: 1803, dtype: object",no_consensus,ABSTAIN,Down,,0.738,0.495,9.0
+"trade_id      2348
+trade_id    2348.0
+Name: 1804, dtype: object",ml_gate,Up,Down,False,0.571,0.495,10.0
+"trade_id      2349
+trade_id    2349.0
+Name: 1805, dtype: object",no_consensus,ABSTAIN,Down,,0.461,0.515,10.0
+"trade_id      2350
+trade_id    2350.0
+Name: 1806, dtype: object",ml_gate,Up,Down,False,0.432,0.515,10.0
+"trade_id      2351
+trade_id    2351.0
+Name: 1807, dtype: object",ml_gate,Up,Up,True,0.476,0.535,10.0
+"trade_id      2352
+trade_id    2352.0
+Name: 1808, dtype: object",no_consensus,ABSTAIN,Down,,0.884,0.545,10.0
+"trade_id      2354
+trade_id    2354.0
+Name: 1810, dtype: object",ml_gate,Up,Down,False,0.493,0.535,10.0
+"trade_id      2355
+trade_id    2355.0
+Name: 1811, dtype: object",empty_book,Down,Down,True,0.914,0.535,10.0
+"trade_id      2356
+trade_id    2356.0
+Name: 1812, dtype: object",no_consensus,ABSTAIN,Up,,0.634,0.545,10.0
+"trade_id      2357
+trade_id    2357.0
+Name: 1813, dtype: object",ml_gate,Up,Up,True,0.582,0.515,10.0
+"trade_id      2358
+trade_id    2358.0
+Name: 1814, dtype: object",empty_book,Up,Up,True,0.78,0.505,10.0
+"trade_id      2359
+trade_id    2359.0
+Name: 1815, dtype: object",empty_book,Down,Down,True,0.812,0.505,10.0
+"trade_id      2360
+trade_id    2360.0
+Name: 1816, dtype: object",no_consensus,ABSTAIN,Up,,0.927,0.505,11.0
+"trade_id      2361
+trade_id    2361.0
+Name: 1817, dtype: object",ml_gate,Up,Up,True,0.775,0.51,11.0
+"trade_id      2362
+trade_id    2362.0
+Name: 1818, dtype: object",ml_gate,Up,Up,True,0.724,0.485,11.0
+"trade_id      2363
+trade_id    2363.0
+Name: 1819, dtype: object",empty_book,Down,Down,True,0.807,0.475,11.0
+"trade_id      2364
+trade_id    2364.0
+Name: 1820, dtype: object",no_consensus,ABSTAIN,Up,,0.852,0.475,11.0
+"trade_id      2365
+trade_id    2365.0
+Name: 1821, dtype: object",ml_gate,Up,Up,True,0.53,0.475,11.0
+"trade_id      2366
+trade_id    2366.0
+Name: 1822, dtype: object",empty_book,Down,Down,True,0.922,0.47,11.0
+"trade_id      2367
+trade_id    2367.0
+Name: 1823, dtype: object",empty_book,Down,Down,True,0.949,0.495,11.0
+"trade_id      2368
+trade_id    2368.0
+Name: 1824, dtype: object",ml_gate,Up,Up,True,0.822,0.48,11.0
+"trade_id      2369
+trade_id    2369.0
+Name: 1825, dtype: object",ml_gate,Up,Up,True,0.955,0.505,11.0
+"trade_id      2370
+trade_id    2370.0
+Name: 1826, dtype: object",empty_book,Down,Down,True,0.942,0.495,11.0
+"trade_id      2371
+trade_id    2371.0
+Name: 1827, dtype: object",empty_book,Up,Up,True,0.691,0.355,11.0
+"trade_id      2372
+trade_id    2372.0
+Name: 1828, dtype: object",ml_gate,Up,Up,True,0.667,0.485,12.0
+"trade_id      2373
+trade_id    2373.0
+Name: 1829, dtype: object",empty_book,Up,Up,True,0.89,0.465,12.0
+"trade_id      2374
+trade_id    2374.0
+Name: 1830, dtype: object",ml_gate,Up,Up,True,0.645,0.475,12.0
+"trade_id      2375
+trade_id    2375.0
+Name: 1831, dtype: object",ml_gate,Up,Up,True,0.915,0.465,12.0
+"trade_id      2376
+trade_id    2376.0
+Name: 1832, dtype: object",no_consensus,ABSTAIN,Down,,0.824,0.465,12.0
+"trade_id      2377
+trade_id    2377.0
+Name: 1833, dtype: object",empty_book,Down,Down,True,0.876,0.415,12.0
+"trade_id      2378
+trade_id    2378.0
+Name: 1834, dtype: object",ml_gate,Up,Up,True,0.599,0.455,12.0
+"trade_id      2380
+trade_id    2380.0
+Name: 1836, dtype: object",empty_book,Up,Up,True,0.959,0.48,12.0
+"trade_id      2381
+trade_id    2381.0
+Name: 1837, dtype: object",empty_book,Down,Down,True,0.965,0.495,12.0
+"trade_id      2382
+trade_id    2382.0
+Name: 1838, dtype: object",ml_gate,Up,Up,True,0.735,0.49,12.0
+"trade_id      2383
+trade_id    2383.0
+Name: 1839, dtype: object",no_consensus,ABSTAIN,Up,,0.946,0.495,12.0
+"trade_id      2384
+trade_id    2384.0
+Name: 1840, dtype: object",ml_gate,Up,Up,True,0.626,0.455,13.0
+"trade_id      2385
+trade_id    2385.0
+Name: 1841, dtype: object",empty_book,Down,Down,True,0.896,0.455,13.0
+"trade_id      2386
+trade_id    2386.0
+Name: 1842, dtype: object",ml_gate,Up,Up,True,0.872,0.465,13.0
+"trade_id      2388
+trade_id    2388.0
+Name: 1844, dtype: object",no_consensus,ABSTAIN,Up,,0.937,0.445,13.0
+"trade_id      2389
+trade_id    2389.0
+Name: 1845, dtype: object",empty_book,Down,Down,True,0.885,0.415,13.0
+"trade_id      2392
+trade_id    2392.0
+Name: 1848, dtype: object",empty_book,Down,Down,True,0.744,0.465,13.0
+"trade_id      2395
+trade_id    2395.0
+Name: 1851, dtype: object",empty_book,Down,Down,True,0.742,0.535,13.0
+"trade_id      2396
+trade_id    2396.0
+Name: 1852, dtype: object",no_consensus,ABSTAIN,Up,,0.868,0.545,14.0
+"trade_id      2399
+trade_id    2399.0
+Name: 1855, dtype: object",empty_book,Down,Down,True,0.893,0.515,14.0
+"trade_id      2403
+trade_id    2403.0
+Name: 1859, dtype: object",empty_book,Down,Down,True,0.74,0.525,14.0
+"trade_id      2405
+trade_id    2405.0
+Name: 1861, dtype: object",empty_book,Up,Up,True,0.627,0.575,14.0
+"trade_id      2406
+trade_id    2406.0
+Name: 1862, dtype: object",no_consensus,ABSTAIN,Up,,0.795,0.545,14.0
+"trade_id      2407
+trade_id    2407.0
+Name: 1863, dtype: object",empty_book,Up,Up,True,0.511,0.545,14.0
+"trade_id      2409
+trade_id    2409.0
+Name: 1865, dtype: object",no_consensus,ABSTAIN,Down,,0.702,0.465,15.0
+"trade_id      2410
+trade_id    2410.0
+Name: 1866, dtype: object",no_consensus,ABSTAIN,Down,,0.792,0.485,15.0
+"trade_id      2411
+trade_id    2411.0
+Name: 1867, dtype: object",empty_book,Down,Down,True,0.914,0.495,15.0
+"trade_id      2413
+trade_id    2413.0
+Name: 1869, dtype: object",empty_book,Up,Up,True,0.718,0.505,15.0
+"trade_id      2420
+trade_id    2420.0
+Name: 1876, dtype: object",ml_gate,Down,Down,True,0.596,0.495,16.0
+"trade_id      2424
+trade_id    2424.0
+Name: 1880, dtype: object",empty_book,Down,Down,True,0.746,0.515,16.0
+"trade_id      2427
+trade_id    2427.0
+Name: 1883, dtype: object",ml_gate,Down,Up,False,0.807,0.545,16.0
+"trade_id      2428
+trade_id    2428.0
+Name: 1884, dtype: object",empty_book,Down,Down,True,0.772,0.505,16.0
+"trade_id      2429
+trade_id    2429.0
+Name: 1885, dtype: object",ml_gate,Down,Down,True,0.493,0.515,16.0
+"trade_id      2432
+trade_id    2432.0
+Name: 1888, dtype: object",empty_book,Down,Down,True,0.738,0.515,17.0
+"trade_id      2435
+trade_id    2435.0
+Name: 1891, dtype: object",empty_book,Down,Down,True,0.885,0.525,17.0
+"trade_id      2436
+trade_id    2436.0
+Name: 1892, dtype: object",ml_gate,Down,Down,True,0.511,0.54,17.0
+"trade_id      2437
+trade_id    2437.0
+Name: 1893, dtype: object",no_consensus,ABSTAIN,Down,,0.492,0.535,17.0
+"trade_id      2438
+trade_id    2438.0
+Name: 1894, dtype: object",empty_book,Up,Up,True,0.827,0.555,17.0
+"trade_id      2441
+trade_id    2441.0
+Name: 1897, dtype: object",ml_gate,Up,Down,False,0.385,0.57,17.0
+"trade_id      2442
+trade_id    2442.0
+Name: 1898, dtype: object",empty_book,Down,Down,True,0.907,0.545,17.0
+"trade_id      2446
+trade_id    2446.0
+Name: 1902, dtype: object",ml_gate,Up,Up,True,0.822,0.525,18.0
