@@ -243,8 +243,15 @@ class LiveSimulator:
         else:
             pnl = -fill_cost
 
-        # Update tracked balance from fills
-        self._tracked_balance = round(self._tracked_balance + pnl, 6)
+        # Use real wallet balance instead of running PnL total to avoid drift
+        try:
+            real_balance = self._executor.get_balance()
+            if real_balance > 0:
+                self._tracked_balance = real_balance
+            else:
+                self._tracked_balance = round(self._tracked_balance + pnl, 6)
+        except Exception:
+            self._tracked_balance = round(self._tracked_balance + pnl, 6)
 
         db.update_trade_outcome(
             self._conn,
