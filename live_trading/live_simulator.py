@@ -228,7 +228,7 @@ class LiveSimulator:
             fill_shares = fill_cost * (1.0 + payout_rate)
             pnl = fill_shares - fill_cost
 
-            # Auto-redeem: convert winning shares back to USDC on-chain
+            # Auto-redeem via Builder Relayer — executes through the proxy wallet
             if condition_id:
                 try:
                     redeemed = self._executor.redeem_positions(condition_id)

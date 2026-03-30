@@ -116,13 +116,13 @@ class Executor:
             raise
 
         # Step 2: Build BuilderConfig with the derived creds for proxy wallet settlement
-        builder_config = BuilderConfig(
-            local_builder_creds=BuilderApiKeyCreds(
-                key=creds.api_key,
-                secret=creds.api_secret,
-                passphrase=creds.api_passphrase,
-            )
+        self._builder_creds = BuilderApiKeyCreds(
+            key=creds.api_key,
+            secret=creds.api_secret,
+            passphrase=creds.api_passphrase,
         )
+        builder_config = BuilderConfig(local_builder_creds=self._builder_creds)
+        self._builder_config = builder_config
         logger.info("BuilderConfig created with local builder credentials")
 
         # Step 3: Create the real client with builder_config for proper on-chain settlement
@@ -305,69 +305,110 @@ class Executor:
             return None
 
     def redeem_positions(self, condition_id: str) -> bool:
-        """Redeem winning positions for a resolved market, converting shares back to USDC.
+        """Redeem winning positions via Polymarket's Builder Relayer.
 
-        Calls redeemPositions on the Conditional Tokens Framework contract on Polygon.
-        This is the on-chain equivalent of clicking "Claim" on the Polymarket website.
+        Submits a redeemPositions call through the relayer, which executes it
+        through the proxy wallet that actually holds the conditional tokens.
 
         Args:
             condition_id: the market's conditionId (from MarketInfo)
 
         Returns:
-            True if redemption tx was sent successfully, False otherwise.
+            True if redemption was submitted successfully, False otherwise.
         """
         if not condition_id:
             logger.warning("Cannot redeem: no condition_id")
             return False
 
-        logger.info(f"Attempting to redeem positions for condition {condition_id[:16]}...")
+        logger.info(f"Attempting to redeem via relayer for condition {condition_id[:16]}...")
 
-        for rpc_url in POLYGON_RPCS:
-            try:
-                logger.info(f"Trying redemption via {rpc_url}...")
-                w3 = Web3(Web3.HTTPProvider(rpc_url, request_kwargs={"timeout": 15}))
-                if not w3.is_connected():
-                    logger.warning(f"RPC {rpc_url} not connected, skipping")
-                    continue
+        try:
+            import json
+            import time
+            import requests
+            from eth_abi import encode as abi_encode
 
-                account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
-                logger.info(f"Redeeming from address: {account.address}")
-                ctf = w3.eth.contract(
-                    address=Web3.to_checksum_address(CTF_ADDRESS),
-                    abi=CTF_REDEEM_ABI,
-                )
-
-                # Convert conditionId to bytes32
-                condition_bytes = bytes.fromhex(condition_id.replace("0x", ""))
-
-                # indexSets [1, 2] = redeem both outcomes (only winning one has value)
-                tx = ctf.functions.redeemPositions(
+            # Encode redeemPositions calldata
+            selector = Web3.keccak(text="redeemPositions(address,bytes32,bytes32,uint256[])")[:4]
+            condition_bytes = bytes.fromhex(condition_id.replace("0x", "")).ljust(32, b'\x00')[:32]
+            calldata = selector + abi_encode(
+                ['address', 'bytes32', 'bytes32', 'uint256[]'],
+                [
                     Web3.to_checksum_address(USDC_ADDRESS),
                     PARENT_COLLECTION_ID,
                     condition_bytes,
                     [1, 2],
-                ).build_transaction({
-                    "from": account.address,
-                    "nonce": w3.eth.get_transaction_count(account.address),
-                    "gas": 300000,
-                    "gasPrice": w3.eth.gas_price,
-                    "chainId": CHAIN_ID,
-                })
+                ]
+            )
 
-                signed = account.sign_transaction(tx)
-                tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
-                receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=30)
+            # Build the transaction payload for the relayer
+            tx_payload = {
+                "to": CTF_ADDRESS,
+                "data": "0x" + calldata.hex(),
+                "value": "0",
+            }
 
-                if receipt["status"] == 1:
-                    logger.info(f"Redemption successful: tx={tx_hash.hex()}")
-                    return True
-                else:
-                    logger.warning(f"Redemption tx reverted: tx={tx_hash.hex()}")
-                    return False
+            body = json.dumps({
+                "chainId": CHAIN_ID,
+                "transactions": [tx_payload],
+                "description": f"Redeem positions for {condition_id[:16]}",
+            }, separators=(",", ":"))
 
-            except Exception as e:
-                logger.warning(f"Redemption via {rpc_url} failed: {type(e).__name__}: {e}")
-                continue
+            # Generate builder auth headers
+            method = "POST"
+            path = "/submit"
+            headers_payload = self._builder_config.generate_builder_headers(method, path, body)
+            if not headers_payload:
+                logger.warning("Failed to generate builder headers for relayer")
+                return False
 
-        logger.warning(f"Redemption failed for condition {condition_id[:16]}... (all RPCs failed)")
-        return False
+            headers = {
+                "Content-Type": "application/json",
+                **headers_payload.to_dict(),
+            }
+
+            # Submit to relayer
+            relayer_url = "https://relayer-v2.polymarket.com/submit"
+            response = requests.post(relayer_url, data=body, headers=headers, timeout=30)
+
+            if response.status_code == 200 or response.status_code == 201:
+                result = response.json()
+                tx_id = result.get("transactionId") or result.get("id") or result.get("txHash", "")
+                logger.info(f"Relayer redemption submitted: {tx_id or result}")
+
+                # Poll for completion if we got a transaction ID
+                if tx_id:
+                    for attempt in range(10):
+                        time.sleep(3)
+                        try:
+                            poll_headers_payload = self._builder_config.generate_builder_headers(
+                                "GET", f"/transactions/{tx_id}"
+                            )
+                            poll_headers = {**poll_headers_payload.to_dict()} if poll_headers_payload else {}
+                            poll_resp = requests.get(
+                                f"https://relayer-v2.polymarket.com/transactions/{tx_id}",
+                                headers=poll_headers, timeout=10,
+                            )
+                            if poll_resp.status_code == 200:
+                                status_data = poll_resp.json()
+                                status = status_data.get("status", "").upper()
+                                tx_hash = status_data.get("transactionHash", "")
+                                if status in ("CONFIRMED", "SUCCESS", "MINED"):
+                                    logger.info(f"Relayer redemption confirmed: tx={tx_hash}")
+                                    return True
+                                elif status in ("FAILED", "REVERTED"):
+                                    logger.warning(f"Relayer redemption failed: {status_data}")
+                                    return False
+                                # else still pending, continue polling
+                        except Exception:
+                            pass
+                    logger.info(f"Relayer redemption submitted but not confirmed after polling")
+                    return True  # submitted successfully even if we couldn't confirm
+                return True
+            else:
+                logger.warning(f"Relayer submit failed: {response.status_code} - {response.text[:200]}")
+                return False
+
+        except Exception as e:
+            logger.warning(f"Relayer redemption failed: {type(e).__name__}: {e}")
+            return False
