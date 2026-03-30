@@ -52,7 +52,8 @@ def get_wallet_balance() -> float:
         balance_raw = result.get("balance", "0") if isinstance(result, dict) else getattr(result, "balance", "0")
         _wallet_balance = int(balance_raw) / 1e6
         _wallet_balance_ts = now
-        print(f"Wallet balance: ${_wallet_balance:.2f}")
+        from datetime import datetime
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Wallet balance: ${_wallet_balance:.2f}")
         return _wallet_balance
     except Exception as e:
         print(f"Wallet balance fetch failed: {e}")

@@ -228,7 +228,7 @@ class LiveSimulator:
             fill_shares = fill_cost * (1.0 + payout_rate)
             pnl = fill_shares - fill_cost
 
-            # Auto-redeem via Builder Relayer — executes through the proxy wallet
+            # Auto-redeem via Builder Relayer
             if condition_id:
                 try:
                     redeemed = self._executor.redeem_positions(condition_id)

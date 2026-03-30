@@ -307,8 +307,11 @@ class Executor:
     def redeem_positions(self, condition_id: str) -> bool:
         """Redeem winning positions via Polymarket's Builder Relayer.
 
-        Submits a redeemPositions call through the relayer, which executes it
-        through the proxy wallet that actually holds the conditional tokens.
+        Follows the same flow as @polymarket/builder-relayer-client:
+        1. Encode redeemPositions as proxy(calls[]) on the ProxyFactory
+        2. Get relay payload (nonce + relay address) from relayer
+        3. Create and sign the relay struct hash
+        4. Submit signed request with builder auth headers
 
         Args:
             condition_id: the market's conditionId (from MarketInfo)
@@ -328,10 +331,17 @@ class Executor:
             import requests
             from eth_abi import encode as abi_encode
 
-            # Encode redeemPositions calldata
-            selector = Web3.keccak(text="redeemPositions(address,bytes32,bytes32,uint256[])")[:4]
+            RELAYER_BASE = "https://relayer-v2.polymarket.com"
+            PROXY_FACTORY = "0xaB45c5A4B0c941a2F231C04C3f49182e1A254052"
+            RELAY_HUB = "0xD216153c06E857cD7f72665E0aF1d7D82172F494"
+
+            account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
+            signer_address = account.address
+
+            # Step 1: Encode redeemPositions calldata
+            redeem_selector = Web3.keccak(text="redeemPositions(address,bytes32,bytes32,uint256[])")[:4]
             condition_bytes = bytes.fromhex(condition_id.replace("0x", "")).ljust(32, b'\x00')[:32]
-            calldata = selector + abi_encode(
+            redeem_calldata = redeem_selector + abi_encode(
                 ['address', 'bytes32', 'bytes32', 'uint256[]'],
                 [
                     Web3.to_checksum_address(USDC_ADDRESS),
@@ -341,103 +351,137 @@ class Executor:
                 ]
             )
 
-            # Build the transaction payload for the relayer
-            tx_payload = {
-                "to": CTF_ADDRESS,
-                "data": "0x" + calldata.hex(),
-                "value": "0",
-            }
+            # Step 2: Encode as proxy(calls[]) — calls is tuple[] of (typeCode, to, value, data)
+            # typeCode 0 = Call
+            proxy_selector = Web3.keccak(text="proxy((uint8,address,uint256,bytes)[])")[:4]
+            proxy_calldata = proxy_selector + abi_encode(
+                ['(uint8,address,uint256,bytes)[]'],
+                [[(0, Web3.to_checksum_address(CTF_ADDRESS), 0, redeem_calldata)]]
+            )
 
-            # Get signing key address
-            signer_address = Account.from_key(config.POLYMARKET_PRIVATE_KEY).address
-
-            body = json.dumps({
-                "chainId": CHAIN_ID,
-                "txType": "PROXY",
-                "signerAddress": signer_address,
-                "transactions": [tx_payload],
-                "description": f"Redeem positions for {condition_id[:16]}",
-            }, separators=(",", ":"))
-
-            # Generate builder auth headers — try multiple path formats
-            method = "POST"
-            path = "/submit"
-            headers_payload = self._builder_config.generate_builder_headers(method, path, body)
-            if not headers_payload:
-                logger.warning("Failed to generate builder headers for relayer")
+            # Step 3: Get relay payload (nonce + relay address)
+            builder_headers = self._builder_config.generate_builder_headers(
+                "GET", "/relay-payload"
+            )
+            relay_headers = {**builder_headers.to_dict()} if builder_headers else {}
+            relay_resp = requests.get(
+                f"{RELAYER_BASE}/relay-payload",
+                params={"address": signer_address, "type": "PROXY"},
+                headers=relay_headers,
+                timeout=10,
+            )
+            if relay_resp.status_code != 200:
+                logger.warning(f"Relay payload failed: {relay_resp.status_code} - {relay_resp.text[:200]}")
                 return False
 
-            headers = {
-                "Content-Type": "application/json",
-                **headers_payload.to_dict(),
+            relay_data = relay_resp.json()
+            relay_address = relay_data.get("address", "")
+            nonce = relay_data.get("nonce", "0")
+            logger.info(f"Relay payload: address={relay_address}, nonce={nonce}")
+
+            # Step 4: Create struct hash for signing
+            # Hash = keccak256("rlx:" + from + to + data + txFee + gasPrice + gasLimit + nonce + relayHub + relay)
+            relay_hub_prefix = bytes.fromhex("726c783a")  # "rlx:"
+            gas_limit = "10000000"
+            gas_price = "0"
+            tx_fee = "0"
+
+            from eth_abi import encode as eth_encode
+            data_to_hash = (
+                relay_hub_prefix
+                + bytes.fromhex(signer_address[2:].lower().zfill(40))
+                + bytes.fromhex(PROXY_FACTORY[2:].lower().zfill(40))
+                + proxy_calldata
+                + int(tx_fee).to_bytes(32, 'big')
+                + int(gas_price).to_bytes(32, 'big')
+                + int(gas_limit).to_bytes(32, 'big')
+                + int(nonce).to_bytes(32, 'big')
+                + bytes.fromhex(RELAY_HUB[2:].lower().zfill(40))
+                + bytes.fromhex(relay_address[2:].lower().zfill(40))
+            )
+            struct_hash = Web3.keccak(data_to_hash)
+
+            # Step 5: Sign the hash (eth_sign style — prefix with \x19Ethereum Signed Message)
+            from eth_account.messages import encode_defunct
+            message = encode_defunct(struct_hash)
+            signed = account.sign_message(message)
+            signature = signed.signature.hex()
+            if not signature.startswith("0x"):
+                signature = "0x" + signature
+
+            # Step 6: Derive proxy wallet address
+            # proxy = getPolyProxyWalletAddress(signer) — we already know this
+            proxy_wallet = config.POLYMARKET_FUNDER_ADDRESS
+
+            # Step 7: Build request
+            request = {
+                "from": signer_address,
+                "to": PROXY_FACTORY,
+                "proxyWallet": proxy_wallet,
+                "data": "0x" + proxy_calldata.hex(),
+                "nonce": str(nonce),
+                "signature": signature,
+                "signatureParams": {
+                    "gasPrice": gas_price,
+                    "gasLimit": gas_limit,
+                    "relayerFee": tx_fee,
+                    "relayHub": RELAY_HUB,
+                    "relay": relay_address,
+                },
+                "type": "PROXY",
+                "metadata": f"Redeem {condition_id[:16]}",
             }
 
-            # Submit to relayer — try multiple auth approaches
-            relayer_base = "https://relayer-v2.polymarket.com"
-            response = None
-            builder_headers = self._builder_config.generate_builder_headers(method, "/submit", body)
+            request_body = json.dumps(request, separators=(",", ":"))
 
-            # Approach 1: Builder headers only
-            auth_approaches = [
-                {
-                    "Content-Type": "application/json",
-                    **builder_headers.to_dict(),
-                },
-                # Approach 2: Builder headers + signer address
-                {
-                    "Content-Type": "application/json",
-                    "POLY_ADDRESS": signer_address,
-                    **builder_headers.to_dict(),
-                },
-                # Approach 3: Builder headers with lowercase
-                {
-                    "Content-Type": "application/json",
-                    "poly-builder-api-key": self._builder_creds.key,
-                    "poly-builder-passphrase": self._builder_creds.passphrase,
-                    "poly-builder-signature": builder_headers.to_dict()["POLY_BUILDER_SIGNATURE"],
-                    "poly-builder-timestamp": builder_headers.to_dict()["POLY_BUILDER_TIMESTAMP"],
-                },
-            ]
+            # Step 8: Submit with builder auth
+            submit_headers_payload = self._builder_config.generate_builder_headers(
+                "POST", "/submit", request_body
+            )
+            submit_headers = {
+                "Content-Type": "application/json",
+                **submit_headers_payload.to_dict(),
+            }
 
-            for i, try_headers in enumerate(auth_approaches):
-                response = requests.post(f"{relayer_base}/submit", data=body, headers=try_headers, timeout=30)
-                logger.info(f"Relayer auth approach {i+1}: {response.status_code} - {response.text[:100]}")
-                if response.status_code != 401:
-                    break
+            response = requests.post(
+                f"{RELAYER_BASE}/submit",
+                data=request_body,
+                headers=submit_headers,
+                timeout=30,
+            )
+            logger.info(f"Relayer submit: {response.status_code} - {response.text[:200]}")
 
-            if response and (response.status_code == 200 or response.status_code == 201):
+            if response.status_code in (200, 201):
                 result = response.json()
-                tx_id = result.get("transactionId") or result.get("id") or result.get("txHash", "")
+                tx_id = result.get("transactionID") or result.get("transactionId") or result.get("id", "")
                 logger.info(f"Relayer redemption submitted: {tx_id or result}")
 
-                # Poll for completion if we got a transaction ID
+                # Poll for confirmation
                 if tx_id:
                     for attempt in range(10):
                         time.sleep(3)
                         try:
-                            poll_headers_payload = self._builder_config.generate_builder_headers(
-                                "GET", f"/transactions/{tx_id}"
-                            )
-                            poll_headers = {**poll_headers_payload.to_dict()} if poll_headers_payload else {}
                             poll_resp = requests.get(
-                                f"https://relayer-v2.polymarket.com/transactions/{tx_id}",
-                                headers=poll_headers, timeout=10,
+                                f"{RELAYER_BASE}/transaction",
+                                params={"id": tx_id},
+                                timeout=10,
                             )
                             if poll_resp.status_code == 200:
                                 status_data = poll_resp.json()
-                                status = status_data.get("status", "").upper()
-                                tx_hash = status_data.get("transactionHash", "")
-                                if status in ("CONFIRMED", "SUCCESS", "MINED"):
-                                    logger.info(f"Relayer redemption confirmed: tx={tx_hash}")
-                                    return True
-                                elif status in ("FAILED", "REVERTED"):
-                                    logger.warning(f"Relayer redemption failed: {status_data}")
-                                    return False
-                                # else still pending, continue polling
+                                txns = status_data if isinstance(status_data, list) else [status_data]
+                                for txn in txns:
+                                    state = txn.get("state", "").upper()
+                                    tx_hash = txn.get("transactionHash", "")
+                                    if state in ("CONFIRMED", "MINED", "SUCCESS"):
+                                        logger.info(f"Relayer redemption confirmed: tx={tx_hash}")
+                                        return True
+                                    elif state in ("FAILED", "REVERTED"):
+                                        logger.warning(f"Relayer redemption failed: {txn}")
+                                        return False
                         except Exception:
                             pass
-                    logger.info(f"Relayer redemption submitted but not confirmed after polling")
-                    return True  # submitted successfully even if we couldn't confirm
+                    logger.info("Relayer redemption submitted, confirmation pending")
+                    return True
                 return True
             else:
                 logger.warning(f"Relayer submit failed: {response.status_code} - {response.text[:200]}")
@@ -445,4 +489,6 @@ class Executor:
 
         except Exception as e:
             logger.warning(f"Relayer redemption failed: {type(e).__name__}: {e}")
+            import traceback
+            logger.warning(traceback.format_exc())
             return False
