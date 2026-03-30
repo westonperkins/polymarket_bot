@@ -372,17 +372,37 @@ class Executor:
                 **headers_payload.to_dict(),
             }
 
-            # Submit to relayer — try multiple paths
+            # Submit to relayer — try multiple auth approaches
             relayer_base = "https://relayer-v2.polymarket.com"
             response = None
-            for try_path in ["/submit", "/relay", "/execute"]:
-                try_headers = {
+            builder_headers = self._builder_config.generate_builder_headers(method, "/submit", body)
+
+            # Approach 1: Builder headers only
+            auth_approaches = [
+                {
                     "Content-Type": "application/json",
-                    **self._builder_config.generate_builder_headers(method, try_path, body).to_dict(),
-                }
-                response = requests.post(f"{relayer_base}{try_path}", data=body, headers=try_headers, timeout=30)
-                if response.status_code != 404:
-                    logger.info(f"Relayer {try_path}: {response.status_code}")
+                    **builder_headers.to_dict(),
+                },
+                # Approach 2: Builder headers + signer address
+                {
+                    "Content-Type": "application/json",
+                    "POLY_ADDRESS": signer_address,
+                    **builder_headers.to_dict(),
+                },
+                # Approach 3: Builder headers with lowercase
+                {
+                    "Content-Type": "application/json",
+                    "poly-builder-api-key": self._builder_creds.key,
+                    "poly-builder-passphrase": self._builder_creds.passphrase,
+                    "poly-builder-signature": builder_headers.to_dict()["POLY_BUILDER_SIGNATURE"],
+                    "poly-builder-timestamp": builder_headers.to_dict()["POLY_BUILDER_TIMESTAMP"],
+                },
+            ]
+
+            for i, try_headers in enumerate(auth_approaches):
+                response = requests.post(f"{relayer_base}/submit", data=body, headers=try_headers, timeout=30)
+                logger.info(f"Relayer auth approach {i+1}: {response.status_code} - {response.text[:100]}")
+                if response.status_code != 401:
                     break
 
             if response and (response.status_code == 200 or response.status_code == 201):
