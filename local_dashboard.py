@@ -20,6 +20,44 @@ load_dotenv()
 DATABASE_URL = os.environ["DATABASE_URL"]
 PORT = 3000
 
+# ── Wallet balance via CLOB ───────────────────────────────────────
+_wallet_balance = None
+_wallet_balance_ts = 0
+
+def get_wallet_balance() -> float:
+    """Fetch real wallet balance from Polymarket CLOB. Cached for 30s."""
+    global _wallet_balance, _wallet_balance_ts
+    import time
+    now = time.time()
+    if _wallet_balance is not None and now - _wallet_balance_ts < 30:
+        return _wallet_balance
+    try:
+        from py_clob_client.client import ClobClient
+        pk = os.environ.get("POLYMARKET_PRIVATE_KEY", "")
+        funder = os.environ.get("POLYMARKET_FUNDER_ADDRESS", "")
+        sig_type = int(os.environ.get("POLYMARKET_SIGNATURE_TYPE", "0"))
+        if not pk or not funder:
+            return _wallet_balance or 0.0
+        client = ClobClient(
+            "https://clob.polymarket.com",
+            key=pk, chain_id=137,
+            signature_type=sig_type, funder=funder,
+        )
+        creds = client.create_or_derive_api_creds()
+        client.set_api_creds(creds)
+        from py_clob_client.clob_types import BalanceAllowanceParams, AssetType
+        result = client.get_balance_allowance(
+            BalanceAllowanceParams(asset_type=AssetType.COLLATERAL, signature_type=sig_type)
+        )
+        balance_raw = result.get("balance", "0") if isinstance(result, dict) else getattr(result, "balance", "0")
+        _wallet_balance = int(balance_raw) / 1e6
+        _wallet_balance_ts = now
+        print(f"Wallet balance: ${_wallet_balance:.2f}")
+        return _wallet_balance
+    except Exception as e:
+        print(f"Wallet balance fetch failed: {e}")
+        return _wallet_balance or 0.0
+
 
 def get_conn():
     conn = psycopg2.connect(DATABASE_URL, connect_timeout=15)
@@ -32,16 +70,22 @@ def query_state(conn):
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     # ── Portfolio ────────────────────────────────────────────────────
-    cur.execute("""
-        SELECT COALESCE(SUM(pnl), 0) AS total_pnl
-        FROM trades WHERE outcome IN ('win', 'loss') AND trading_mode = 'live'
-    """)
-    live_pnl = float(cur.fetchone()["total_pnl"])
-
     cur.execute("SELECT value FROM settings WHERE key = 'live_starting_balance'")
     row = cur.fetchone()
     live_starting = float(row["value"]) if row else 9.11
-    live_balance = live_starting + live_pnl
+
+    # Use real wallet balance, fall back to DB calculation
+    wallet_bal = get_wallet_balance()
+    if wallet_bal and wallet_bal > 0:
+        live_balance = wallet_bal
+        live_pnl = live_balance - live_starting
+    else:
+        cur.execute("""
+            SELECT COALESCE(SUM(pnl), 0) AS total_pnl
+            FROM trades WHERE outcome IN ('win', 'loss') AND trading_mode = 'live'
+        """)
+        live_pnl = float(cur.fetchone()["total_pnl"])
+        live_balance = live_starting + live_pnl
 
     # ── Trade Stats ──────────────────────────────────────────────────
     cur.execute("""
@@ -112,7 +156,7 @@ def query_state(conn):
                s.momentum_vote, s.reversion_vote, s.structure_vote, s.final_vote,
                s.up_odds, s.down_odds, s.seconds_before_close,
                s.cvd_buy_volume, s.cvd_sell_volume, s.cvd_trade_count,
-               s.ob_bid_volume, s.ob_ask_volume, s.ob_imbalance,
+               s.ob_bid_volume, s.ob_ask_volume,
                s.liq_long_usd, s.liq_short_usd,
                s.poly_book_up_bids, s.poly_book_up_asks,
                s.poly_book_down_bids, s.poly_book_down_asks, s.poly_book_bias,
