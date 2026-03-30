@@ -693,7 +693,7 @@ td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
 </div>
 
 <!-- ══ ROW 2: Daily P&L + Win Rate ════════════════════════ -->
-<div class="row-2-equal">
+<div class="row-3">
   <div class="card">
     <div class="card-header">
       <span class="card-title ct-green">Daily P&L</span>
@@ -705,6 +705,12 @@ td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
       <span class="card-title ct-cyan">Win Rate Over Time</span>
     </div>
     <canvas id="winrateChart" height="160"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title ct-yellow">Profit Factor Over Time</span>
+    </div>
+    <canvas id="pfChart" height="160"></canvas>
   </div>
 </div>
 
@@ -812,7 +818,7 @@ td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
 // STATE
 // ═══════════════════════════════════════════════════════════════
 let DATA = null;
-let equityChart=null, dailyPnlChart=null, winrateChart=null, skipChart=null;
+let equityChart=null, dailyPnlChart=null, winrateChart=null, skipChart=null, pfChart=null;
 let modelChart=null, slippageChart=null, edgeChart=null, voteChart=null;
 let hideSkips = localStorage.getItem('hideSkips') !== 'false';
 let portfolioHidden = localStorage.getItem('hidePortfolio') === 'true';
@@ -1105,6 +1111,52 @@ function renderWinRate(d) {
         scales: {
           x: { ticks: { maxTicksLimit: 20, font: { size: 8 } } },
           y: { min: 0, max: 100, ticks: { callback: v => v+'%' } },
+        }
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER: PROFIT FACTOR OVER TIME
+// ═══════════════════════════════════════════════════════════════
+function renderProfitFactor(d) {
+  const ec = d.equity_curve;
+  if (!ec || ec.length < 5) return;
+  let cumWins = 0, cumLosses = 0;
+  const labels = [], data = [];
+  for (let i = 0; i < ec.length; i++) {
+    const pnl = ec[i].pnl || 0;
+    if (pnl > 0) cumWins += pnl;
+    else cumLosses += Math.abs(pnl);
+    labels.push('#' + ec[i].id);
+    data.push(cumLosses > 0 ? Math.round(cumWins / cumLosses * 100) / 100 : 0);
+  }
+  const ctx = document.getElementById('pfChart').getContext('2d');
+  if (pfChart) {
+    pfChart.data.labels = labels;
+    pfChart.data.datasets[0].data = data;
+    pfChart.update('none');
+  } else {
+    pfChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{
+        label: 'Profit Factor', data, borderColor: '#d29922', borderWidth: 2,
+        pointRadius: 1, pointHoverRadius: 4,
+        fill: { target: 'origin', above: 'rgba(210,153,34,0.06)' }, tension: 0.3,
+      }, {
+        label: '1.0', data: data.map(() => 1.0),
+        borderColor: 'rgba(110,118,129,0.3)', borderWidth: 1, borderDash: [5,5],
+        pointRadius: 0, fill: false,
+      }]},
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? 'PF: ' + ctx.parsed.y.toFixed(2) : null } }
+        },
+        scales: {
+          x: { ticks: { maxTicksLimit: 20, font: { size: 8 } } },
+          y: { min: 0, ticks: { callback: v => v.toFixed(1) } },
         }
       }
     });
@@ -1597,6 +1649,7 @@ async function poll() {
     renderEquity(DATA);
     renderDailyPnl(DATA);
     renderWinRate(DATA);
+    renderProfitFactor(DATA);
     renderHeatmap(DATA);
     renderModelAccuracy(DATA);
     renderSlippage(DATA);
