@@ -400,7 +400,7 @@ class Executor:
             # Step 4: Create struct hash for signing
             # Hash = keccak256("rlx:" + from + to + data + txFee + gasPrice + gasLimit + nonce + relayHub + relay)
             relay_hub_prefix = bytes.fromhex("726c783a")  # "rlx:"
-            gas_limit = "10000000"
+            gas_limit = "300000"  # ~140k typical, 300k with safety margin
             gas_price = "0"
             tx_fee = "0"
 
@@ -480,7 +480,7 @@ class Executor:
 
                 # Poll for confirmation
                 if tx_id:
-                    for attempt in range(10):
+                    for attempt in range(15):
                         time.sleep(3)
                         try:
                             poll_resp = requests.get(
@@ -492,17 +492,20 @@ class Executor:
                                 status_data = poll_resp.json()
                                 txns = status_data if isinstance(status_data, list) else [status_data]
                                 for txn in txns:
-                                    state = txn.get("state", "").upper()
+                                    state = txn.get("state", "")
                                     tx_hash = txn.get("transactionHash", "")
-                                    if state in ("CONFIRMED", "MINED", "SUCCESS"):
-                                        logger.info(f"Relayer redemption confirmed: tx={tx_hash}")
+                                    logger.info(f"Relayer poll {attempt+1}: state={state} tx={tx_hash[:20]}...")
+                                    if state.upper() in ("STATE_CONFIRMED", "CONFIRMED", "MINED", "SUCCESS"):
+                                        logger.info(f"✅ Relayer redemption confirmed on-chain: tx={tx_hash}")
                                         return True
-                                    elif state in ("FAILED", "REVERTED"):
-                                        logger.warning(f"Relayer redemption failed: {txn}")
+                                    elif state.upper() in ("STATE_FAILED", "FAILED", "REVERTED"):
+                                        logger.warning(f"Relayer redemption failed on-chain: {txn}")
                                         return False
-                        except Exception:
-                            pass
-                    logger.info("Relayer redemption submitted, confirmation pending")
+                            else:
+                                logger.debug(f"Relayer poll {attempt+1}: {poll_resp.status_code}")
+                        except Exception as e:
+                            logger.debug(f"Relayer poll {attempt+1} error: {e}")
+                    logger.info("Relayer redemption submitted, confirmation pending after 45s")
                     return True
                 return True
             else:
