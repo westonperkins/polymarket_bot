@@ -99,20 +99,47 @@ def query_state(conn):
         "peak_balance": peak,
     }
 
-    # ── Recent Trades + Signals ──────────────────────────────────────
+    # ── Recent Trades + Signals (single JOIN) ────────────────────────
     cur.execute("""
-        SELECT id, timestamp, market_id, side, entry_odds, position_size,
-               payout_rate, confidence_level, outcome, pnl,
-               portfolio_balance_after, trading_mode, risk_reward_ratio,
-               skip_reason, market_outcome
-        FROM trades WHERE trading_mode = 'live'
-        ORDER BY id DESC LIMIT 500
+        SELECT t.id, t.timestamp, t.market_id, t.side, t.entry_odds, t.position_size,
+               t.payout_rate, t.confidence_level, t.outcome, t.pnl,
+               t.portfolio_balance_after, t.trading_mode, t.risk_reward_ratio,
+               t.skip_reason, t.market_outcome,
+               s.chainlink_price, s.spot_price, s.chainlink_spot_divergence,
+               s.candle_position_dollars, s.momentum_60s, s.momentum_120s,
+               s.cvd, s.order_book_ratio, s.liquidation_signal,
+               s.round_number_distance, s.time_regime, s.candle_streak,
+               s.momentum_vote, s.reversion_vote, s.structure_vote, s.final_vote,
+               s.up_odds, s.down_odds, s.seconds_before_close,
+               s.cvd_buy_volume, s.cvd_sell_volume, s.cvd_trade_count,
+               s.ob_bid_volume, s.ob_ask_volume, s.ob_imbalance,
+               s.liq_long_usd, s.liq_short_usd,
+               s.poly_book_up_bids, s.poly_book_up_asks,
+               s.poly_book_down_bids, s.poly_book_down_asks, s.poly_book_bias,
+               s.momentum_direction, s.hour_of_day, s.day_of_week,
+               s.fill_price_per_share, s.fill_slippage_pct,
+               s.btc_open_price, s.btc_high, s.btc_low, s.btc_entry_price,
+               s.btc_volatility, s.poly_spread, s.odds_velocity,
+               s.prev_candle_outcome, s.fair_up, s.fair_down,
+               s.fair_z_score, s.edge_up_bps, s.edge_down_bps, s.ml_win_prob
+        FROM trades t
+        LEFT JOIN signals s ON s.trade_id = t.id
+        WHERE t.trading_mode = 'live'
+        ORDER BY t.id DESC LIMIT 500
     """)
-    trades = [dict(r) for r in cur.fetchall()]
-    for t in trades:
-        cur.execute("SELECT * FROM signals WHERE trade_id = %s", (t["id"],))
-        sig = cur.fetchone()
-        t["signals"] = dict(sig) if sig else None
+    trade_cols = ['id','timestamp','market_id','side','entry_odds','position_size',
+                  'payout_rate','confidence_level','outcome','pnl',
+                  'portfolio_balance_after','trading_mode','risk_reward_ratio',
+                  'skip_reason','market_outcome']
+    trades = []
+    for r in cur.fetchall():
+        row = dict(r)
+        trade = {k: row[k] for k in trade_cols}
+        sig_data = {k: row[k] for k in row if k not in trade_cols and k != 'id'}
+        # Check if any signal data exists
+        has_signal = any(v is not None for k, v in sig_data.items() if k != 'trade_id')
+        trade["signals"] = sig_data if has_signal else None
+        trades.append(trade)
 
     # ── Equity Curve + Drawdown ──────────────────────────────────────
     cur.execute("""
