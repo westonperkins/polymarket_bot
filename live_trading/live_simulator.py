@@ -243,15 +243,21 @@ class LiveSimulator:
         else:
             pnl = -fill_cost
 
-        # Use real wallet balance instead of running PnL total to avoid drift
+        # Update tracked balance — use PnL-based tracking for consistency,
+        # then periodically sync with wallet when no orders are outstanding.
+        # Direct wallet reads can be temporarily low due to locked limit order funds.
+        self._tracked_balance = round(self._tracked_balance + pnl, 6)
+
+        # Sync with wallet if balance has drifted significantly (>$1)
+        # and no pending limit orders are locking funds
         try:
             real_balance = self._executor.get_balance()
-            if real_balance > 0:
-                self._tracked_balance = real_balance
-            else:
-                self._tracked_balance = round(self._tracked_balance + pnl, 6)
+            if real_balance > 0 and abs(real_balance - self._tracked_balance) > 1.0:
+                # Only sync if wallet is HIGHER than tracked (no locked funds)
+                if real_balance >= self._tracked_balance:
+                    self._tracked_balance = real_balance
         except Exception:
-            self._tracked_balance = round(self._tracked_balance + pnl, 6)
+            pass
 
         db.update_trade_outcome(
             self._conn,
