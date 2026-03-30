@@ -229,11 +229,11 @@ class LiveSimulator:
             pnl = fill_shares - fill_cost
 
             # Auto-redeem via Builder Relayer
+            # Auto-redeem via NegRisk Adapter through Builder Relayer
             if condition_id:
                 try:
-                    # Wait for on-chain resolution to propagate before redeeming
                     import time
-                    time.sleep(10)
+                    time.sleep(10)  # wait for on-chain resolution to propagate
                     redeemed = self._executor.redeem_positions(condition_id)
                     if redeemed:
                         logger.info(f"✅ Auto-redeemed trade {trade_id}")

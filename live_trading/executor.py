@@ -356,16 +356,21 @@ class Executor:
             account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
             signer_address = account.address
 
-            # Step 1: Encode redeemPositions calldata
-            redeem_selector = Web3.keccak(text="redeemPositions(address,bytes32,bytes32,uint256[])")[:4]
+            # Step 1: Encode NegRisk adapter redeemPositions calldata
+            # NegRisk markets use WrappedCollateral, not USDC directly.
+            # Must call NegRiskAdapter.redeemPositions(bytes32, uint256[])
+            # which internally handles CTF redemption + unwrapping to USDC.
+            NEG_RISK_ADAPTER = "0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296"
+
+            redeem_selector = Web3.keccak(text="redeemPositions(bytes32,uint256[])")[:4]
             condition_bytes = bytes.fromhex(condition_id.replace("0x", "")).ljust(32, b'\x00')[:32]
+            # Pass max uint256 for both outcomes — adapter redeems whatever balance exists
+            MAX_UINT = 2**256 - 1
             redeem_calldata = redeem_selector + abi_encode(
-                ['address', 'bytes32', 'bytes32', 'uint256[]'],
+                ['bytes32', 'uint256[]'],
                 [
-                    Web3.to_checksum_address(USDC_ADDRESS),
-                    PARENT_COLLECTION_ID,
                     condition_bytes,
-                    [1, 2],
+                    [MAX_UINT, MAX_UINT],
                 ]
             )
 
@@ -374,7 +379,7 @@ class Executor:
             proxy_selector = Web3.keccak(text="proxy((uint8,address,uint256,bytes)[])")[:4]
             proxy_calldata = proxy_selector + abi_encode(
                 ['(uint8,address,uint256,bytes)[]'],
-                [[(0, Web3.to_checksum_address(CTF_ADDRESS), 0, redeem_calldata)]]
+                [[(0, Web3.to_checksum_address(NEG_RISK_ADAPTER), 0, redeem_calldata)]]
             )
 
             # Step 3: Get relay payload (nonce + relay address)
