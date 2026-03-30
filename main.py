@@ -407,6 +407,8 @@ async def on_signal_window(
                     fill_cost = 0.0
                     fill_shares = filled_size  # each share = $1 on win
                     our_order_id = status.get("id", "")
+                    order_created_at = float(status.get("created_at", 0))
+                    earliest_match_time = None
                     assoc = status.get("associate_trades", [])
                     if assoc and config.TRADING_MODE == "live":
                         for tid in assoc:
@@ -418,6 +420,11 @@ async def on_signal_window(
                                 if trade_status == "FAILED":
                                     logger.warning(f"⚠️ Trade {tid} FAILED on-chain — ignoring phantom fill")
                                     continue
+
+                                # Track earliest fill time
+                                mt = float(trade_detail.get("match_time", 0))
+                                if mt > 0 and (earliest_match_time is None or mt < earliest_match_time):
+                                    earliest_match_time = mt
 
                                 trader_side = trade_detail.get("trader_side", "").upper()
 
@@ -456,9 +463,12 @@ async def on_signal_window(
                         payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
                         rr_ratio = round(payout_rate, 2)
 
+                        fill_delay = round(earliest_match_time - order_created_at, 1) if earliest_match_time and order_created_at else None
+
                         logger.info(
                             f"📋 LIMIT FILLED: {limit_side} | {fill_shares:.2f} shares @ ${fill_price:.3f} "
                             f"cost=${fill_cost:.2f} payout=${potential_win:.2f} R:R={rr_ratio:.1f}:1"
+                            f"{f' | fill_delay={fill_delay:.0f}s' if fill_delay is not None else ''}"
                         )
 
                         # Record the trade in DB
@@ -476,6 +486,21 @@ async def on_signal_window(
                             risk_reward_ratio=rr_ratio,
                         )
                         pending_trades[market.slug] = trade_id
+                        # Save signal snapshot with limit order timing
+                        from datetime import datetime, timezone
+                        db.insert_signals(
+                            conn,
+                            trade_id=trade_id,
+                            up_odds=odds.up_price,
+                            down_odds=odds.down_price,
+                            seconds_before_close=engine.seconds_until_close() or 0,
+                            fill_price_per_share=fill_price,
+                            hour_of_day=datetime.now(timezone.utc).hour,
+                            day_of_week=datetime.now(timezone.utc).weekday(),
+                            limit_order_placed_at=order_created_at if order_created_at else None,
+                            limit_order_filled_at=earliest_match_time if earliest_match_time else None,
+                            limit_fill_delay_sec=fill_delay,
+                        )
                         dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
                         return
 

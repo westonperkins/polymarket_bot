@@ -584,6 +584,10 @@ def insert_signals(
     edge_up_bps: Optional[float] = None,
     edge_down_bps: Optional[float] = None,
     ml_win_prob: Optional[float] = None,
+    # Limit order timing
+    limit_order_placed_at: Optional[float] = None,
+    limit_order_filled_at: Optional[float] = None,
+    limit_fill_delay_sec: Optional[float] = None,
 ) -> int:
     """Insert a signal snapshot for a trade and return its id."""
     with _cursor(conn) as cur:
@@ -605,10 +609,11 @@ def insert_signals(
                 btc_open_price, btc_high, btc_low, btc_entry_price,
                 btc_volatility, poly_spread, odds_velocity, prev_candle_outcome,
                 fair_up, fair_down, fair_z_score, edge_up_bps, edge_down_bps,
-                ml_win_prob)
+                ml_win_prob,
+                limit_order_placed_at, limit_order_filled_at, limit_fill_delay_sec)
                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                       %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 trade_id,
@@ -640,6 +645,7 @@ def insert_signals(
                 btc_volatility, poly_spread, odds_velocity, prev_candle_outcome,
                 fair_up, fair_down, fair_z_score, edge_up_bps, edge_down_bps,
                 ml_win_prob,
+                limit_order_placed_at, limit_order_filled_at, limit_fill_delay_sec,
             ),
         )
         signal_id = cur.fetchone()["id"]

@@ -167,6 +167,16 @@ BEGIN
     END IF;
 END $$;
 
+-- Migration: add limit order timing columns
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'signals' AND column_name = 'limit_order_placed_at') THEN
+        ALTER TABLE signals ADD COLUMN limit_order_placed_at DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN limit_order_filled_at DOUBLE PRECISION;
+        ALTER TABLE signals ADD COLUMN limit_fill_delay_sec DOUBLE PRECISION;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
