@@ -763,7 +763,6 @@ async def on_signal_window(
                     logger.info(
                         f"🤖 ML GATE: BLOCKED — {ml_prob:.1%} < {config.ML_CONFIDENCE_THRESHOLD:.0%}"
                     )
-                    from models.ensemble import EnsembleDecision
                     decision = EnsembleDecision(
                         side=None, confidence="skip",
                         momentum_vote=v_momentum, reversion_vote=v_reversion,
