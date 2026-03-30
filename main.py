@@ -562,7 +562,7 @@ async def on_signal_window(
         # Skip FAK trading if odds moved outside tradeable window
         if not odds.tradeable:
             logger.info(f"Odds outside tradeable window after limit check — skipping FAK")
-            decision = EnsembleDecision(side=None, confidence="skip", reason="No consensus", votes={})
+            decision = EnsembleDecision(side=None, confidence="skip", momentum_vote="ABSTAIN", reversion_vote="ABSTAIN", structure_vote="ABSTAIN", reason="Odds outside tradeable window")
             trade_id = simulator.enter_trade(market, odds, decision, signal_data={})
             if trade_id:
                 pending_trades[market.slug] = trade_id
