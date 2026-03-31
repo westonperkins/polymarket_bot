@@ -228,13 +228,17 @@ class LiveSimulator:
             fill_shares = fill_cost * (1.0 + payout_rate)
             pnl = fill_shares - fill_cost
 
-            # Auto-redeem via Builder Relayer
             # Auto-redeem via NegRisk Adapter through Builder Relayer
             if condition_id:
                 try:
                     import time
                     time.sleep(10)  # wait for on-chain resolution to propagate
-                    redeemed = self._executor.redeem_positions(condition_id)
+                    # For NegRisk: amounts = [yes_shares, no_shares] in raw token units
+                    if trade_side == "Up":
+                        amounts = [fill_shares, 0]
+                    else:
+                        amounts = [0, fill_shares]
+                    redeemed = self._executor.redeem_positions(condition_id, amounts=amounts)
                     if redeemed:
                         logger.info(f"✅ Auto-redeemed trade {trade_id}")
                     else:

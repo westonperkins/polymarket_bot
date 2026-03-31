@@ -318,17 +318,15 @@ class Executor:
             logger.debug(f"Get trade failed for {trade_id}: {e}")
             return None
 
-    def redeem_positions(self, condition_id: str) -> bool:
+    def redeem_positions(self, condition_id: str, amounts: list[float] = None) -> bool:
         """Redeem winning positions via Polymarket's Builder Relayer.
 
-        Follows the same flow as @polymarket/builder-relayer-client:
-        1. Encode redeemPositions as proxy(calls[]) on the ProxyFactory
-        2. Get relay payload (nonce + relay address) from relayer
-        3. Create and sign the relay struct hash
-        4. Submit signed request with builder auth headers
+        Uses the NegRisk Adapter for BTC 5-min Up/Down markets (which are NegRisk).
+        Amounts are [yes_shares, no_shares] — winning side gets the fill shares, other is 0.
 
         Args:
             condition_id: the market's conditionId (from MarketInfo)
+            amounts: [yes_shares, no_shares] for NegRisk redemption
 
         Returns:
             True if redemption was submitted successfully, False otherwise.
@@ -352,30 +350,37 @@ class Executor:
             RELAYER_BASE = "https://relayer-v2.polymarket.com"
             PROXY_FACTORY = "0xaB45c5A4B0c941a2F231C04C3f49182e1A254052"
             RELAY_HUB = "0xD216153c06E857cD7f72665E0aF1d7D82172F494"
+            NEG_RISK_ADAPTER = "0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296"
 
             account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
             signer_address = account.address
 
-            # Step 1: Encode redeemPositions calldata targeting CTF directly
-            # (Confirmed: successful Polymarket claims use CTF with USDC, not NegRisk adapter)
-            redeem_selector = Web3.keccak(text="redeemPositions(address,bytes32,bytes32,uint256[])")[:4]
+            # Step 1: Encode redeemPositions for NegRisk Adapter
+            # NegRisk: redeemPositions(bytes32 conditionId, uint256[] amounts)
+            # amounts = [yes_shares, no_shares] in raw token units (× 1e6)
             condition_bytes = bytes.fromhex(condition_id.replace("0x", "")).ljust(32, b'\x00')[:32]
+
+            if amounts:
+                # Convert float shares to raw token units (6 decimals like USDC)
+                int_amounts = [int(a * 1e6) for a in amounts]
+                logger.info(f"NegRisk redeem amounts: {amounts} -> raw: {int_amounts}")
+            else:
+                # Fallback: try small amounts if not provided
+                int_amounts = [1000000, 1000000]  # 1 share each
+                logger.warning("No amounts provided, using fallback of 1 share each")
+
+            redeem_selector = Web3.keccak(text="redeemPositions(bytes32,uint256[])")[:4]
             redeem_calldata = redeem_selector + abi_encode(
-                ['address', 'bytes32', 'bytes32', 'uint256[]'],
-                [
-                    Web3.to_checksum_address(USDC_ADDRESS),
-                    PARENT_COLLECTION_ID,
-                    condition_bytes,
-                    [1, 2],
-                ]
+                ['bytes32', 'uint256[]'],
+                [condition_bytes, int_amounts]
             )
 
-            # Step 2: Encode as proxy(calls[]) — calls is tuple[] of (typeCode, to, value, data)
+            # Step 2: Encode as proxy(calls[]) targeting NegRisk Adapter
             # typeCode 0 = Call
             proxy_selector = Web3.keccak(text="proxy((uint8,address,uint256,bytes)[])")[:4]
             proxy_calldata = proxy_selector + abi_encode(
                 ['(uint8,address,uint256,bytes)[]'],
-                [[(0, Web3.to_checksum_address(CTF_ADDRESS), 0, redeem_calldata)]]
+                [[(0, Web3.to_checksum_address(NEG_RISK_ADAPTER), 0, redeem_calldata)]]
             )
 
             # Step 3: Get relay payload (nonce + relay address)
