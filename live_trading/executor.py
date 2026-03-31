@@ -375,12 +375,23 @@ class Executor:
                 [condition_bytes, int_amounts]
             )
 
-            # Step 2: Encode as proxy(calls[]) targeting NegRisk Adapter
+            # Step 1b: Encode setApprovalForAll on CTF for the NegRisk Adapter
+            # The proxy wallet must approve the adapter to transfer its conditional tokens
+            approve_selector = Web3.keccak(text="setApprovalForAll(address,bool)")[:4]
+            approve_calldata = approve_selector + abi_encode(
+                ['address', 'bool'],
+                [Web3.to_checksum_address(NEG_RISK_ADAPTER), True]
+            )
+
+            # Step 2: Encode as proxy(calls[]) — batch: approve CTF + redeem via adapter
             # typeCode 0 = Call
             proxy_selector = Web3.keccak(text="proxy((uint8,address,uint256,bytes)[])")[:4]
             proxy_calldata = proxy_selector + abi_encode(
                 ['(uint8,address,uint256,bytes)[]'],
-                [[(0, Web3.to_checksum_address(NEG_RISK_ADAPTER), 0, redeem_calldata)]]
+                [[
+                    (0, Web3.to_checksum_address(CTF_ADDRESS), 0, approve_calldata),
+                    (0, Web3.to_checksum_address(NEG_RISK_ADAPTER), 0, redeem_calldata),
+                ]]
             )
 
             # Step 3: Get relay payload (nonce + relay address)
