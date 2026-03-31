@@ -208,23 +208,41 @@ def query_state(conn):
         equity_curve.append({**e, "drawdown_pct": dd_pct, "running_peak": running_peak})
 
     # ── P&L Calendar ─────────────────────────────────────────────────
+    # Use closing balance per day to calculate daily PnL (avoids ghost trade inflation)
     cur.execute("""
+        WITH daily AS (
+            SELECT
+                DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles') AS day,
+                MAX(portfolio_balance_after) FILTER (WHERE id = (
+                    SELECT MAX(id) FROM trades t2
+                    WHERE t2.trading_mode = 'live' AND t2.outcome IN ('win','loss')
+                      AND t2.portfolio_balance_after IS NOT NULL
+                      AND DATE(t2.timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles') =
+                          DATE(trades.timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
+                )) AS close_balance,
+                COUNT(*) FILTER (WHERE outcome = 'win') AS wins,
+                COUNT(*) FILTER (WHERE outcome = 'loss') AS losses,
+                COUNT(*) AS total
+            FROM trades
+            WHERE trading_mode = 'live' AND outcome IN ('win', 'loss')
+            GROUP BY DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
+            ORDER BY DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
+        )
         SELECT
-            TO_CHAR(DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles'), 'YYYY-MM-DD') AS day,
-            SUM(pnl) AS daily_pnl,
-            COUNT(*) FILTER (WHERE outcome = 'win') AS wins,
-            COUNT(*) FILTER (WHERE outcome = 'loss') AS losses,
-            COUNT(*) AS total
-        FROM trades
-        WHERE trading_mode = 'live' AND outcome IN ('win', 'loss')
-        GROUP BY DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
-        ORDER BY DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles')
+            TO_CHAR(day, 'YYYY-MM-DD') AS day,
+            close_balance,
+            LAG(close_balance) OVER (ORDER BY day) AS prev_close,
+            wins, losses, total
+        FROM daily
     """)
     calendar = []
     for r in cur.fetchall():
+        close = float(r["close_balance"] or 0)
+        prev = float(r["prev_close"]) if r["prev_close"] is not None else live_starting
+        daily_pnl = round(close - prev, 2)
         calendar.append({
             "day": r["day"],
-            "daily_pnl": float(r["daily_pnl"] or 0),
+            "daily_pnl": daily_pnl,
             "wins": int(r["wins"] or 0),
             "losses": int(r["losses"] or 0),
             "total": int(r["total"] or 0),
@@ -336,7 +354,6 @@ def query_state(conn):
     cur.execute("""
         SELECT
             COUNT(*) FILTER (WHERE outcome IN ('win','loss')) AS trades_today,
-            COALESCE(SUM(pnl) FILTER (WHERE outcome IN ('win','loss')), 0) AS pnl_today,
             COUNT(*) FILTER (WHERE outcome = 'win') AS wins_today,
             COUNT(*) FILTER (WHERE outcome = 'loss') AS losses_today
         FROM trades
@@ -345,6 +362,20 @@ def query_state(conn):
               DATE(NOW() AT TIME ZONE 'America/Los_Angeles')
     """)
     today = dict(cur.fetchone())
+
+    # Calculate today PnL from wallet balance vs yesterday's last balance
+    # This avoids inflation from manually-resolved ghost trades
+    cur.execute("""
+        SELECT portfolio_balance_after FROM trades
+        WHERE trading_mode = 'live' AND outcome IN ('win','loss')
+          AND portfolio_balance_after IS NOT NULL
+          AND DATE(timestamp::timestamptz AT TIME ZONE 'America/Los_Angeles') <
+              DATE(NOW() AT TIME ZONE 'America/Los_Angeles')
+        ORDER BY id DESC LIMIT 1
+    """)
+    yesterday_row = cur.fetchone()
+    yesterday_close = float(yesterday_row["portfolio_balance_after"]) if yesterday_row else live_starting
+    today["pnl_today"] = round(live_balance - yesterday_close, 2)
 
     cur.close()
 
@@ -783,7 +814,7 @@ td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
     <span class="dim" style="font-size:10px" id="trade-count"></span>
   </div>
   <div class="table-controls">
-    <input type="text" id="search" placeholder="Search market..." style="width:160px;">
+    <input type="text" id="search" placeholder="Search # or market..." style="width:160px;">
     <span class="filter-label">Side</span>
     <select id="filter-side"><option value="">All</option><option value="Up">Up</option><option value="Down">Down</option></select>
     <span class="filter-label">Result</span>
@@ -1571,7 +1602,7 @@ function getFilteredTrades() {
 
   return trades.filter(t => {
     if (hideSkips && t.confidence_level === 'skip') return false;
-    if (search && !t.market_id.toLowerCase().includes(search)) return false;
+    if (search && !t.market_id.toLowerCase().includes(search) && !String(t.id).includes(search)) return false;
     if (side && t.side !== side) return false;
     if (outcome && t.outcome !== outcome) return false;
     if (conf && t.confidence_level !== conf) return false;
@@ -1626,7 +1657,7 @@ function renderTrades() {
     if (t.timestamp) {
       try {
         const dt = new Date(t.timestamp);
-        timeStr = dt.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' });
+        timeStr = dt.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/Los_Angeles' });
       } catch(e) { timeStr = t.timestamp.slice(11, 19); }
     }
 
@@ -1679,7 +1710,12 @@ async function poll() {
     renderCalendar(DATA);
     renderTrades();
 
-    document.getElementById('footer').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' \u00B7 Auto-refreshes every 5s';
+    const tradingStart = new Date('2026-03-24T00:00:00-07:00'); // March 24 midnight PST
+    const now = new Date();
+    const diffMs = now - tradingStart;
+    const diffDays = Math.floor(diffMs / 86400000);
+    const diffHrs = Math.floor((diffMs % 86400000) / 3600000);
+    document.getElementById('footer').textContent = 'Day ' + diffDays + ' \u00B7 ' + diffDays + 'd ' + diffHrs + 'h since launch \u00B7 Last updated: ' + new Date().toLocaleTimeString() + ' \u00B7 Auto-refreshes every 5s';
   } catch(e) {
     document.getElementById('footer').textContent = 'Error: ' + e.message;
   }

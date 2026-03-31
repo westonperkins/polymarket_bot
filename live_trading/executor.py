@@ -355,43 +355,27 @@ class Executor:
             account = Account.from_key(config.POLYMARKET_PRIVATE_KEY)
             signer_address = account.address
 
-            # Step 1: Encode redeemPositions for NegRisk Adapter
-            # NegRisk: redeemPositions(bytes32 conditionId, uint256[] amounts)
-            # amounts = [yes_shares, no_shares] in raw token units (× 1e6)
+            # Step 1: Encode redeemPositions calldata targeting CTF directly
+            # (Confirmed: successful Polymarket website claims use CTF with USDC)
             condition_bytes = bytes.fromhex(condition_id.replace("0x", "")).ljust(32, b'\x00')[:32]
 
-            if amounts:
-                # Convert float shares to raw token units (6 decimals like USDC)
-                int_amounts = [int(a * 1e6) for a in amounts]
-                logger.info(f"NegRisk redeem amounts: {amounts} -> raw: {int_amounts}")
-            else:
-                # Fallback: try small amounts if not provided
-                int_amounts = [1000000, 1000000]  # 1 share each
-                logger.warning("No amounts provided, using fallback of 1 share each")
-
-            redeem_selector = Web3.keccak(text="redeemPositions(bytes32,uint256[])")[:4]
+            redeem_selector = Web3.keccak(text="redeemPositions(address,bytes32,bytes32,uint256[])")[:4]
             redeem_calldata = redeem_selector + abi_encode(
-                ['bytes32', 'uint256[]'],
-                [condition_bytes, int_amounts]
+                ['address', 'bytes32', 'bytes32', 'uint256[]'],
+                [
+                    Web3.to_checksum_address(USDC_ADDRESS),
+                    PARENT_COLLECTION_ID,
+                    condition_bytes,
+                    [1, 2],
+                ]
             )
 
-            # Step 1b: Encode setApprovalForAll on CTF for the NegRisk Adapter
-            # The proxy wallet must approve the adapter to transfer its conditional tokens
-            approve_selector = Web3.keccak(text="setApprovalForAll(address,bool)")[:4]
-            approve_calldata = approve_selector + abi_encode(
-                ['address', 'bool'],
-                [Web3.to_checksum_address(NEG_RISK_ADAPTER), True]
-            )
-
-            # Step 2: Encode as proxy(calls[]) — batch: approve CTF + redeem via adapter
-            # typeCode 0 = Call
+            # Step 2: Encode as proxy(calls[]) targeting CTF directly
+            # (Confirmed: successful Polymarket claims use CTF with USDC, not NegRisk adapter)
             proxy_selector = Web3.keccak(text="proxy((uint8,address,uint256,bytes)[])")[:4]
             proxy_calldata = proxy_selector + abi_encode(
                 ['(uint8,address,uint256,bytes)[]'],
-                [[
-                    (0, Web3.to_checksum_address(CTF_ADDRESS), 0, approve_calldata),
-                    (0, Web3.to_checksum_address(NEG_RISK_ADAPTER), 0, redeem_calldata),
-                ]]
+                [[(0, Web3.to_checksum_address(CTF_ADDRESS), 0, redeem_calldata)]]
             )
 
             # Step 3: Get relay payload (nonce + relay address)
