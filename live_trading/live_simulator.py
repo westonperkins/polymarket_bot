@@ -228,20 +228,11 @@ class LiveSimulator:
             fill_shares = fill_cost * (1.0 + payout_rate)
             pnl = fill_shares - fill_cost
 
-            # Auto-redeem via CTF through Builder Relayer
-            if condition_id:
-                try:
-                    import time
-                    time.sleep(60)  # wait for on-chain condition resolution to fully propagate
-                    redeemed = self._executor.redeem_positions(condition_id)
-                    if redeemed:
-                        logger.info(f"✅ Auto-redeemed trade {trade_id}")
-                    else:
-                        logger.warning(f"⚠️ Auto-redeem failed for trade {trade_id} — claim manually on Polymarket")
-                except Exception as e:
-                    logger.warning(f"⚠️ Auto-redeem error for trade {trade_id}: {e} — claim manually on Polymarket")
-            else:
-                logger.warning(f"📋 WIN but no condition_id — claim trade {trade_id} manually on Polymarket")
+            # Auto-claim disabled — CTF redeemPositions reverts through relayer
+            # despite encoding matching successful Polymarket claims exactly.
+            # The on-chain condition may not be redeemable yet when we try.
+            # Claim manually on Polymarket website.
+            logger.info(f"📋 WIN: claim trade {trade_id} on Polymarket website")
         else:
             pnl = -fill_cost
 

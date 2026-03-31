@@ -375,7 +375,19 @@ def query_state(conn):
     """)
     yesterday_row = cur.fetchone()
     yesterday_close = float(yesterday_row["portfolio_balance_after"]) if yesterday_row else live_starting
-    today["pnl_today"] = round(live_balance - yesterday_close, 2)
+    # Subtract deposits from today PnL so they don't inflate the number
+    cur.execute("SELECT value FROM settings WHERE key = 'total_deposits'")
+    dep_row = cur.fetchone()
+    total_deposits = float(dep_row["value"]) if dep_row else 0
+    # today_pnl = wallet - yesterday_close - (total_deposits - deposits_before_today)
+    # Since live_starting tracks total deposits: deposits_included_in_starting = live_starting - 9.11
+    # But simpler: total PnL = wallet - live_starting. Today = total - prior days.
+    # prior_days_pnl = yesterday_close - live_starting + deposits already in yesterday_close
+    # This is circular. Just use: today = wallet - yesterday_close - deposits_today
+    cur.execute("SELECT value FROM settings WHERE key = 'deposits_today'")
+    dep_today_row = cur.fetchone()
+    deposits_today = float(dep_today_row["value"]) if dep_today_row else 0
+    today["pnl_today"] = round(live_balance - yesterday_close - deposits_today, 2)
 
     cur.close()
 
