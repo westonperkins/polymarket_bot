@@ -228,25 +228,9 @@ class LiveSimulator:
             fill_shares = fill_cost * (1.0 + payout_rate)
             pnl = fill_shares - fill_cost
 
-            # Auto-redeem via NegRisk Adapter through Builder Relayer
-            if condition_id:
-                try:
-                    import time
-                    time.sleep(10)  # wait for on-chain resolution to propagate
-                    # For NegRisk: amounts = [yes_shares, no_shares] in raw token units
-                    if trade_side == "Up":
-                        amounts = [fill_shares, 0]
-                    else:
-                        amounts = [0, fill_shares]
-                    redeemed = self._executor.redeem_positions(condition_id, amounts=amounts)
-                    if redeemed:
-                        logger.info(f"✅ Auto-redeemed trade {trade_id}")
-                    else:
-                        logger.warning(f"⚠️ Auto-redeem failed for trade {trade_id} — claim manually on Polymarket")
-                except Exception as e:
-                    logger.warning(f"⚠️ Auto-redeem error for trade {trade_id}: {e} — claim manually on Polymarket")
-            else:
-                logger.warning(f"📋 WIN but no condition_id — claim trade {trade_id} manually on Polymarket")
+            # Auto-claim disabled while debugging relay hub internal revert
+            # Auth works, approval + NegRisk redeem batch submits, but still reverts on-chain
+            logger.info(f"📋 WIN: claim trade {trade_id} on Polymarket website")
         else:
             pnl = -fill_cost
 

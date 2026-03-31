@@ -417,7 +417,7 @@ class Executor:
             # Step 4: Create struct hash for signing
             # Hash = keccak256("rlx:" + from + to + data + txFee + gasPrice + gasLimit + nonce + relayHub + relay)
             relay_hub_prefix = bytes.fromhex("726c783a")  # "rlx:"
-            gas_limit = "150000"  # ~140k typical for redemptions
+            gas_limit = "500000"  # approval + redeem batch needs more gas
             gas_price = "0"
             tx_fee = "0"
 
