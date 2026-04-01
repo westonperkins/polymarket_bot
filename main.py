@@ -865,8 +865,9 @@ async def on_signal_window(
         # ── FAK disabled — record prediction but don't place order ──────
         if not config.FAK_ORDER_ENABLED and decision.side is not None:
             logger.info(f"FAK disabled — recording prediction: {decision.side} {decision.confidence}")
+            signal_data["_predicted_side"] = decision.side
             decision = EnsembleDecision(
-                side=decision.side, confidence="skip",
+                side=None, confidence="skip",
                 momentum_vote=decision.momentum_vote,
                 reversion_vote=decision.reversion_vote,
                 structure_vote=decision.structure_vote,
