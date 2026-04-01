@@ -280,4 +280,5 @@ class LiveSimulator:
     def _save_signals(self, trade_id: int, signal_data: dict) -> None:
         """Persist signal snapshot to the database."""
         if trade_id is not None:
-            db.insert_signals(self._conn, trade_id=trade_id, **signal_data)
+            clean = {k: v for k, v in signal_data.items() if not k.startswith("_")}
+            db.insert_signals(self._conn, trade_id=trade_id, **clean)

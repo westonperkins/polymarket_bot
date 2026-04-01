@@ -933,21 +933,48 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
             logger.info(f"Market outcome recorded: {winning_side} for {market.slug} ({updated} trades updated)")
 
             # Log prediction accuracy for all trades in this market
+            _LIMIT_SKIP_REASONS = {"rr_too_low", "no_edge", "no_balance", "position_too_small", "fill_expired", "order_placement_failed"}
+            gbm_pred = None
+            fak_pred = None
+            traded_side = None
+            traded_via = None
             with db._cursor(conn) as cur:
                 cur.execute(
-                    "SELECT side, outcome, skip_reason FROM trades WHERE market_id = %s",
+                    "SELECT t.side, t.outcome, t.skip_reason, s.limit_order_placed_at "
+                    "FROM trades t LEFT JOIN signals s ON s.trade_id = t.id "
+                    "WHERE t.market_id = %s",
                     (market.slug,),
                 )
                 for row in cur.fetchall():
-                    predicted = row["side"]
+                    side = row["side"]
                     skip = row.get("skip_reason") or ""
                     is_skip = row["outcome"] == "skip"
-                    correct = predicted == winning_side
-                    label = "✅" if correct else "❌"
-                    if is_skip:
-                        logger.info(f"{label} PREDICTION: {predicted} (skip: {skip}) → market went {winning_side}")
+                    if is_skip and skip in _LIMIT_SKIP_REASONS:
+                        gbm_pred = side
+                    elif is_skip:
+                        fak_pred = side
                     else:
-                        logger.info(f"{label} PREDICTION: {predicted} (traded) → market went {winning_side}")
+                        traded_side = side
+                        traded_via = "LIMIT" if row.get("limit_order_placed_at") else "FAK"
+                        # Traded limit = GBM prediction, traded FAK = FAK prediction
+                        if traded_via == "LIMIT":
+                            gbm_pred = side
+                        else:
+                            fak_pred = side
+
+            # Build summary log line
+            parts = []
+            if gbm_pred:
+                icon = "✅" if gbm_pred == winning_side else "❌"
+                parts.append(f"{icon} GBM predicted {gbm_pred}")
+            if fak_pred:
+                icon = "✅" if fak_pred == winning_side else "❌"
+                parts.append(f"{icon} FAK predicted {fak_pred}")
+            if traded_side:
+                icon = "✅" if traded_side == winning_side else "❌"
+                parts.append(f"{icon} Traded {traded_side} via {traded_via}")
+            parts.append(f"Market went {winning_side}")
+            logger.info(f"📊 {market.slug}: {' | '.join(parts)}")
 
             if trade_id:
                 simulator.settle_trade(trade_id, winning_side, market.condition_id)
