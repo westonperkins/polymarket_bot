@@ -474,9 +474,9 @@ body {
   z-index: 100;
 }
 .ticker-item {
-  flex: 1;
-  min-width: 120px;
-  padding: 8px 16px;
+  flex: 0 0 auto;
+  min-width: 100px;
+  padding: 8px 14px;
   border-right: 1px solid var(--border);
   text-align: center;
   white-space: nowrap;

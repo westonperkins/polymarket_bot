@@ -330,6 +330,13 @@ async def on_limit_entry_window(
         # Clamp price
         limit_price = max(0.01, min(0.99, limit_price))
 
+        # R:R filter — only take trades with R:R >= 1.0
+        # R:R = (1 - price) / price, so price must be <= 0.50
+        expected_rr = (1.0 - limit_price) / limit_price if limit_price > 0 else 0
+        if expected_rr < config.LIMIT_MIN_RR:
+            logger.info(f"Limit entry: R:R too low ({expected_rr:.1f}:1 at ${limit_price:.2f}, need >= {config.LIMIT_MIN_RR})")
+            return
+
         # Position sizing
         wallet_balance = simulator._executor.get_balance()
         if wallet_balance <= 0:
@@ -407,6 +414,25 @@ async def on_limit_entry_window(
                 },
             }
             dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f}"
+
+            # Fill expiry: wait 10 seconds, cancel if unfilled
+            # Instant taker sweeps (59% WR) happen within seconds.
+            # Orders sitting 15+ seconds are coin flips (adversarial fills).
+            import asyncio as _asyncio
+            await _asyncio.sleep(config.LIMIT_FILL_EXPIRY_SEC)
+            try:
+                status = simulator._executor.get_order_status(order_id)
+                if status:
+                    filled = float(status.get("size_matched") or status.get("filledSize") or 0)
+                    if filled == 0:
+                        simulator._executor.cancel_order(order_id)
+                        # Remove from pending since it was cancelled
+                        pending_limit_orders.pop(market.slug, None)
+                        logger.info(f"⏱️ Limit order expired after {config.LIMIT_FILL_EXPIRY_SEC}s — cancelled (no fill)")
+                    else:
+                        logger.info(f"⏱️ Limit order filled within 10s ({filled:.2f} shares)")
+            except Exception as e:
+                logger.debug(f"Fill expiry check failed: {e}")
         else:
             dashboard.status_message = "LIMIT ORDER: placement failed"
 
