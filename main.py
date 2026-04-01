@@ -860,6 +860,17 @@ async def on_signal_window(
         dashboard.last_signals = signal_data
         dashboard.last_decision = decision
 
+        # ── FAK disabled — record prediction but don't place order ──────
+        if not config.FAK_ORDER_ENABLED and decision.side is not None:
+            logger.info(f"FAK disabled — recording prediction: {decision.side} {decision.confidence}")
+            decision = EnsembleDecision(
+                side=None, confidence="skip",
+                momentum_vote=decision.momentum_vote,
+                reversion_vote=decision.reversion_vote,
+                structure_vote=decision.structure_vote,
+                reason=f"FAK disabled (would have traded {decision.side} {decision.confidence})",
+            )
+
         # ── Enter trade ─────────────────────────────────────────────────
         trade_id = simulator.enter_trade(market, odds, decision, signal_data)
 
