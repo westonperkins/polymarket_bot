@@ -92,6 +92,22 @@ class TimingEngine:
         self.running = False
 
     async def _process_one_market(self) -> None:
+        # Check trading hours blackout (PST)
+        from datetime import datetime, timezone, timedelta
+        pst = timezone(timedelta(hours=-7))
+        now_pst = datetime.now(pst)
+        hour_pst = now_pst.hour
+        start = config.TRADING_BLACKOUT_START_PST
+        end = config.TRADING_BLACKOUT_END_PST
+        if start > end:  # wraps midnight (e.g., 22-8)
+            in_blackout = hour_pst >= start or hour_pst < end
+        else:
+            in_blackout = start <= hour_pst < end
+        if in_blackout:
+            logger.info(f"Trading blackout ({start}:00-{end}:00 PST) — sleeping 5 minutes")
+            await asyncio.sleep(300)
+            return
+
         market = await self._discover_market()
         if market is None:
             logger.warning("No market found, retrying in 30s")

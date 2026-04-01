@@ -88,6 +88,12 @@ US_MARKET_CLOSE_ET = 16.0  # 4:00 PM
 ASIAN_OPEN_ET = 22.0       # 10:00 PM
 ASIAN_CLOSE_ET = 6.0       # 6:00 AM
 
+# ── Trading Hours ────────────────────────────────────────────────────────
+# Blackout window in PST — bot skips trading during these hours
+# Data shows overnight (10pm-8am PST) has 40% win rate vs 49% daytime
+TRADING_BLACKOUT_START_PST = int(os.environ.get("TRADING_BLACKOUT_START_PST", "22"))  # 10 PM PST
+TRADING_BLACKOUT_END_PST = int(os.environ.get("TRADING_BLACKOUT_END_PST", "8"))      # 8 AM PST
+
 # ── Web Dashboard ──────────────────────────────────────────────────────
 WEB_PORT = 8080
 WEB_REFRESH_INTERVAL = 5  # seconds between frontend polls

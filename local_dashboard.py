@@ -97,6 +97,8 @@ def query_state(conn):
             COUNT(*) FILTER (WHERE outcome = 'skip') AS skips,
             COALESCE(AVG(pnl) FILTER (WHERE outcome = 'win'), 0) AS avg_win,
             COALESCE(AVG(pnl) FILTER (WHERE outcome = 'loss'), 0) AS avg_loss,
+            COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY pnl) FILTER (WHERE outcome = 'win'), 0) AS median_win,
+            COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ABS(pnl)) FILTER (WHERE outcome = 'loss'), 0) AS median_loss,
             COALESCE(SUM(pnl) FILTER (WHERE outcome = 'win'), 0) AS sum_wins,
             COALESCE(ABS(SUM(pnl) FILTER (WHERE outcome = 'loss')), 0) AS sum_losses,
             MAX(pnl) AS best_trade,
@@ -138,6 +140,8 @@ def query_state(conn):
         "win_rate": round(wins / total * 100, 1) if total > 0 else 0,
         "avg_win": round(float(s["avg_win"] or 0), 2),
         "avg_loss": round(float(s["avg_loss"] or 0), 2),
+        "median_win": round(float(s["median_win"] or 0), 2),
+        "median_loss": round(float(s["median_loss"] or 0), 2),
         "profit_factor": profit_factor,
         "best_trade": float(s["best_trade"]) if s["best_trade"] is not None else 0,
         "worst_trade": float(s["worst_trade"]) if s["worst_trade"] is not None else 0,
@@ -696,6 +700,7 @@ td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
   <div class="ticker-item"><div class="ticker-label">Max Drawdown</div><div class="ticker-value" id="tk-drawdown">--</div></div>
   <div class="ticker-item"><div class="ticker-label">Profit Factor</div><div class="ticker-value" id="tk-pf">--</div></div>
   <div class="ticker-item"><div class="ticker-label">Avg Win / Loss</div><div class="ticker-value" id="tk-avg">--</div></div>
+  <div class="ticker-item"><div class="ticker-label">Median Win / Loss</div><div class="ticker-value" id="tk-median">--</div></div>
   <div class="ticker-item">
     <div class="ticker-label">Controls</div>
     <div style="display:flex; gap:4px; justify-content:center; margin-top:4px;">
@@ -962,6 +967,7 @@ function renderTicker(d) {
   document.getElementById('tk-pf').className = `ticker-value ${p.profit_factor >= 1.5 ? 'pos' : p.profit_factor >= 1 ? 'yellow' : 'neg'}`;
 
   document.getElementById('tk-avg').innerHTML = `<span class="pos">+$${fmt(p.avg_win)}</span> / <span class="neg">$${fmt(Math.abs(p.avg_loss))}</span>`;
+  document.getElementById('tk-median').innerHTML = `<span class="pos">+$${fmt(p.median_win)}</span> / <span class="neg">$${fmt(p.median_loss)}</span>`;
 }
 
 // ═══════════════════════════════════════════════════════════════

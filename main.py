@@ -555,6 +555,25 @@ async def on_signal_window(
                         }
                         # Merge in T-120 signal data (fair value, price context, etc.)
                         sig.update(limit_signal_data)
+
+                        # Run ML gate prediction (record only, don't block — trade already filled)
+                        if ml_gate_model is not None:
+                            try:
+                                from ml.features import build_features_from_signal_data, GATE_FEATURE_COLS
+                                ml_features = build_features_from_signal_data(sig)
+                                import pandas as pd
+                                import numpy as np
+                                df = pd.DataFrame([ml_features])
+                                for col in GATE_FEATURE_COLS:
+                                    if col not in df.columns:
+                                        df[col] = np.nan
+                                df = df[GATE_FEATURE_COLS]
+                                ml_prob = float(ml_gate_model.predict_proba(df)[0][1])
+                                sig["ml_win_prob"] = ml_prob
+                                logger.info(f"🤖 ML GATE (record only): P(win)={ml_prob:.1%} for limit fill")
+                            except Exception as e:
+                                logger.debug(f"ML gate prediction failed for limit fill: {e}")
+
                         db.insert_signals(conn, trade_id=trade_id, **sig)
                         dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
                         return
