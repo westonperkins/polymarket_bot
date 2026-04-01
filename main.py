@@ -31,23 +31,24 @@ from signals.fair_value import compute_fair_value
 from timing_engine import TimingEngine
 from notifications import notify_win, notify_loss, notify_trade_placed, notify_critical_sync
 
-# ML gate — load model at startup if enabled
+# ML gate — always load model for recording predictions;
+# ML_GATE_ENABLED controls whether predictions *block* trades
 ml_gate_model = None
-if config.ML_GATE_ENABLED:
-    try:
-        import xgboost as xgb
-        from ml.features import build_features_from_signal_data, GATE_FEATURE_COLS
-        from pathlib import Path
-        model_path = Path(config.ML_MODEL_PATH)
-        if model_path.exists():
-            ml_gate_model = xgb.XGBClassifier()
-            ml_gate_model.load_model(str(model_path))
-        else:
-            print(f"ML gate model not found at {model_path} — gate disabled")
-    except ImportError:
-        print("xgboost not installed — ML gate disabled")
-    except Exception as e:
-        print(f"Failed to load ML gate model: {e} — gate disabled")
+try:
+    import xgboost as xgb
+    from ml.features import build_features_from_signal_data, GATE_FEATURE_COLS
+    from pathlib import Path
+    model_path = Path(config.ML_MODEL_PATH)
+    if model_path.exists():
+        ml_gate_model = xgb.XGBClassifier()
+        ml_gate_model.load_model(str(model_path))
+        print(f"ML model loaded from {model_path} (gate {'ENABLED' if config.ML_GATE_ENABLED else 'record-only'})")
+    else:
+        print(f"ML model not found at {model_path} — no predictions will be recorded")
+except ImportError:
+    print("xgboost not installed — ML gate disabled")
+except Exception as e:
+    print(f"Failed to load ML gate model: {e} — gate disabled")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -810,7 +811,7 @@ async def on_signal_window(
                     f"🤖 ML GATE: P(win)={ml_prob:.1%} (threshold={config.ML_CONFIDENCE_THRESHOLD:.0%})"
                 )
 
-                if ml_prob < config.ML_CONFIDENCE_THRESHOLD:
+                if config.ML_GATE_ENABLED and ml_prob < config.ML_CONFIDENCE_THRESHOLD:
                     logger.info(
                         f"🤖 ML GATE: BLOCKED — {ml_prob:.1%} < {config.ML_CONFIDENCE_THRESHOLD:.0%}"
                     )
