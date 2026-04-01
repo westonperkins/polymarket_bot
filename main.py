@@ -264,6 +264,11 @@ async def on_limit_entry_window(
         if config.TRADING_MODE != "live":
             return
 
+        # Check kill switch before placing any orders
+        if simulator._risk.is_killed:
+            logger.info("Limit entry skipped — kill switch is active")
+            return
+
         dashboard.status_message = "LIMIT ENTRY — computing fair value..."
 
         # Fetch signals for ML gate
@@ -559,10 +564,11 @@ async def on_signal_window(
                         # Run ML gate prediction (record only, don't block — trade already filled)
                         if ml_gate_model is not None:
                             try:
-                                from ml.features import build_features_from_signal_data, GATE_FEATURE_COLS
-                                ml_features = build_features_from_signal_data(sig)
+                                # build_features_from_signal_data and GATE_FEATURE_COLS
+                                # are imported at module level (line 39) when ML_GATE_ENABLED
                                 import pandas as pd
                                 import numpy as np
+                                ml_features = build_features_from_signal_data(sig)
                                 df = pd.DataFrame([ml_features])
                                 for col in GATE_FEATURE_COLS:
                                     if col not in df.columns:
