@@ -46,11 +46,16 @@ class LiveSimulator:
         if decision.side is None:
             # Determine skip reason from decision
             skip_reason = "ml_gate" if "ML gate" in (decision.reason or "") else "no_consensus"
+            predicted_side = signal_data.get("_predicted_side") if signal_data else None
+            if not predicted_side:
+                # No prediction (ensemble had no consensus) — don't record a fake side
+                logger.info(f"⏭️  SKIP: {market.slug} — {decision.reason}")
+                return None
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
-                side="Up",
-                entry_odds=odds.up_price,
+                side=predicted_side,
+                entry_odds=odds.up_price if predicted_side == "Up" else odds.down_price,
                 position_size=0.0,
                 payout_rate=0.0,
                 confidence_level="skip",

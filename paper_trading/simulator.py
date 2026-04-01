@@ -41,12 +41,14 @@ class Simulator:
             trade_id if a trade was placed, None if skipped.
         """
         if decision.side is None:
-            # Skip — log it in the database
+            predicted_side = signal_data.get("_predicted_side") if signal_data else None
+            if not predicted_side:
+                return None
             trade_id = db.insert_trade(
                 self._conn,
                 market_id=market.slug,
-                side="Up",  # placeholder for skips
-                entry_odds=odds.up_price,
+                side=predicted_side,
+                entry_odds=odds.up_price if predicted_side == "Up" else odds.down_price,
                 position_size=0.0,
                 payout_rate=0.0,
                 confidence_level="skip",
