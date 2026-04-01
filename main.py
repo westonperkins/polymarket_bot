@@ -314,6 +314,80 @@ async def on_limit_entry_window(
             logger.info("Limit entry: could not compute fair value")
             return
 
+        # Build signal data dict now — used for both trades and skips
+        from datetime import datetime, timezone
+        momentum = spot_tracker.get_momentum()
+        signal_data = {
+            "spot_price": spot_price,
+            "chainlink_price": chainlink_price if not isinstance(chainlink_price, Exception) else None,
+            "chainlink_spot_divergence": (spot_price - chainlink_price) if spot_price and chainlink_price and not isinstance(chainlink_price, Exception) else None,
+            "up_odds": odds.up_price,
+            "down_odds": odds.down_price,
+            "cvd": cvd_result.cvd if cvd_result and not isinstance(cvd_result, Exception) else None,
+            "cvd_buy_volume": cvd_result.buy_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
+            "cvd_sell_volume": cvd_result.sell_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
+            "cvd_trade_count": cvd_result.trade_count if cvd_result and not isinstance(cvd_result, Exception) else None,
+            "order_book_ratio": ob_result.ratio if ob_result and not isinstance(ob_result, Exception) else None,
+            "ob_bid_volume": ob_result.bid_volume if ob_result and not isinstance(ob_result, Exception) else None,
+            "ob_ask_volume": ob_result.ask_volume if ob_result and not isinstance(ob_result, Exception) else None,
+            "liquidation_signal": liq_result.net_pressure if liq_result and not isinstance(liq_result, Exception) else None,
+            "liq_long_usd": liq_result.long_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
+            "liq_short_usd": liq_result.short_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
+            "poly_book_up_bids": poly_book.up_bid_volume if poly_book and not isinstance(poly_book, Exception) else None,
+            "poly_book_up_asks": poly_book.up_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
+            "poly_book_down_bids": poly_book.down_bid_volume if poly_book and not isinstance(poly_book, Exception) else None,
+            "poly_book_down_asks": poly_book.down_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
+            "poly_book_bias": poly_book.bias if poly_book and not isinstance(poly_book, Exception) else None,
+            "momentum_60s": momentum.momentum_60s if momentum else None,
+            "momentum_120s": momentum.momentum_120s if momentum else None,
+            "momentum_direction": momentum.direction if momentum else None,
+            "fair_up": fair.fair_up,
+            "fair_down": fair.fair_down,
+            "fair_z_score": fair.z_score,
+            "edge_up_bps": fair.edge_up_bps,
+            "edge_down_bps": fair.edge_down_bps,
+            "btc_open_price": spot_tracker.candle_open_price,
+            "btc_high": spot_tracker.candle_high,
+            "btc_low": spot_tracker.candle_low,
+            "btc_entry_price": spot_price,
+            "btc_volatility": spot_tracker.get_volatility(),
+            "poly_spread": odds.spread if odds else None,
+            "prev_candle_outcome": last_market_outcome,
+            "hour_of_day": datetime.now(timezone.utc).hour,
+            "day_of_week": datetime.now(timezone.utc).weekday(),
+        }
+
+        # Helper to record a skip with all signal data + GBM prediction
+        def _record_skip(predicted_side: str, skip_reason: str):
+            """Save a skip trade with signal data so we can evaluate predictions."""
+            entry_odds = odds.up_price if predicted_side == "Up" else odds.down_price
+            # Run ML prediction if model loaded
+            if ml_gate_model is not None:
+                try:
+                    import pandas as pd
+                    import numpy as np
+                    ml_features = build_features_from_signal_data(signal_data, predicted_side, "medium", entry_odds)
+                    ml_prob = float(ml_gate_model.predict_proba(ml_features)[0, 1])
+                    signal_data["ml_win_prob"] = round(ml_prob, 4)
+                except Exception:
+                    pass
+            trade_id = db.insert_trade(
+                simulator._conn,
+                market_id=market.slug,
+                side=predicted_side,
+                entry_odds=entry_odds,
+                position_size=0.0,
+                payout_rate=0.0,
+                confidence_level="skip",
+                outcome="skip",
+                pnl=0.0,
+                portfolio_balance_after=simulator._tracked_balance,
+                skip_reason=skip_reason,
+            )
+            if trade_id:
+                db.insert_signals(simulator._conn, trade_id=trade_id, **signal_data)
+            logger.info(f"📝 Recorded prediction: {predicted_side} (skip: {skip_reason})")
+
         # Determine direction from fair value
         edge_discount = config.LIMIT_EDGE_DISCOUNT_BPS / 10000.0
         if fair.fair_up > fair.fair_down and fair.edge_up_bps > 0:
@@ -325,7 +399,8 @@ async def on_limit_entry_window(
             token_id = market.clob_token_id_down
             limit_price = round(fair.fair_down - edge_discount, 2)
         else:
-            logger.info(f"Limit entry: no edge (fair_up={fair.fair_up:.3f} fair_down={fair.fair_down:.3f})")
+            predicted = "Up" if fair.fair_up >= fair.fair_down else "Down"
+            _record_skip(predicted, "no_edge")
             return
 
         # Clamp price
@@ -336,17 +411,20 @@ async def on_limit_entry_window(
         expected_rr = (1.0 - limit_price) / limit_price if limit_price > 0 else 0
         if expected_rr < config.LIMIT_MIN_RR:
             logger.info(f"Limit entry: R:R too low ({expected_rr:.1f}:1 at ${limit_price:.2f}, need >= {config.LIMIT_MIN_RR})")
+            _record_skip(side, "rr_too_low")
             return
 
         # Position sizing
         wallet_balance = simulator._executor.get_balance()
         if wallet_balance <= 0:
+            _record_skip(side, "no_balance")
             return
         position_usd = round(wallet_balance * config.RISK_MEDIUM_CONFIDENCE, 2)
         num_shares = round(position_usd / limit_price, 2) if limit_price > 0 else 0
 
         if num_shares < config.LIMIT_MIN_SHARES:
             logger.info(f"Limit entry: position too small ({num_shares:.1f} shares, min {config.LIMIT_MIN_SHARES})")
+            _record_skip(side, "position_too_small")
             return
 
         logger.info(
@@ -363,56 +441,9 @@ async def on_limit_entry_window(
         )
 
         if order_id:
-            from datetime import datetime, timezone
-            momentum = spot_tracker.get_momentum()
             pending_limit_orders[market.slug] = {
                 "order_id": order_id,
-                "signal_data": {
-                    "spot_price": spot_price,
-                    "chainlink_price": chainlink_price if not isinstance(chainlink_price, Exception) else None,
-                    "chainlink_spot_divergence": (spot_price - chainlink_price) if spot_price and chainlink_price and not isinstance(chainlink_price, Exception) else None,
-                    "up_odds": odds.up_price,
-                    "down_odds": odds.down_price,
-                    # CVD
-                    "cvd": cvd_result.cvd if cvd_result and not isinstance(cvd_result, Exception) else None,
-                    "cvd_buy_volume": cvd_result.buy_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
-                    "cvd_sell_volume": cvd_result.sell_volume if cvd_result and not isinstance(cvd_result, Exception) else None,
-                    "cvd_trade_count": cvd_result.trade_count if cvd_result and not isinstance(cvd_result, Exception) else None,
-                    # Order book
-                    "order_book_ratio": ob_result.ratio if ob_result and not isinstance(ob_result, Exception) else None,
-                    "ob_bid_volume": ob_result.bid_volume if ob_result and not isinstance(ob_result, Exception) else None,
-                    "ob_ask_volume": ob_result.ask_volume if ob_result and not isinstance(ob_result, Exception) else None,
-                    # Liquidations
-                    "liquidation_signal": liq_result.net_pressure if liq_result and not isinstance(liq_result, Exception) else None,
-                    "liq_long_usd": liq_result.long_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
-                    "liq_short_usd": liq_result.short_liquidated_usd if liq_result and not isinstance(liq_result, Exception) else None,
-                    # Polymarket book
-                    "poly_book_up_bids": poly_book.up_bid_volume if poly_book and not isinstance(poly_book, Exception) else None,
-                    "poly_book_up_asks": poly_book.up_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
-                    "poly_book_down_bids": poly_book.down_bid_volume if poly_book and not isinstance(poly_book, Exception) else None,
-                    "poly_book_down_asks": poly_book.down_ask_volume if poly_book and not isinstance(poly_book, Exception) else None,
-                    "poly_book_bias": poly_book.bias if poly_book and not isinstance(poly_book, Exception) else None,
-                    # Momentum
-                    "momentum_60s": momentum.momentum_60s if momentum else None,
-                    "momentum_120s": momentum.momentum_120s if momentum else None,
-                    "momentum_direction": momentum.direction if momentum else None,
-                    # Fair value
-                    "fair_up": fair.fair_up,
-                    "fair_down": fair.fair_down,
-                    "fair_z_score": fair.z_score,
-                    "edge_up_bps": fair.edge_up_bps,
-                    "edge_down_bps": fair.edge_down_bps,
-                    # Price context
-                    "btc_open_price": spot_tracker.candle_open_price,
-                    "btc_high": spot_tracker.candle_high,
-                    "btc_low": spot_tracker.candle_low,
-                    "btc_entry_price": spot_price,
-                    "btc_volatility": spot_tracker.get_volatility(),
-                    "poly_spread": odds.spread if odds else None,
-                    "prev_candle_outcome": last_market_outcome,
-                    "hour_of_day": datetime.now(timezone.utc).hour,
-                    "day_of_week": datetime.now(timezone.utc).weekday(),
-                },
+                "signal_data": signal_data,
             }
             dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f}"
 
@@ -427,14 +458,15 @@ async def on_limit_entry_window(
                     filled = float(status.get("size_matched") or status.get("filledSize") or 0)
                     if filled == 0:
                         simulator._executor.cancel_order(order_id)
-                        # Remove from pending since it was cancelled
                         pending_limit_orders.pop(market.slug, None)
+                        _record_skip(side, "fill_expired")
                         logger.info(f"⏱️ Limit order expired after {config.LIMIT_FILL_EXPIRY_SEC}s — cancelled (no fill)")
                     else:
                         logger.info(f"⏱️ Limit order filled within 10s ({filled:.2f} shares)")
             except Exception as e:
                 logger.debug(f"Fill expiry check failed: {e}")
         else:
+            _record_skip(side, "order_placement_failed")
             dashboard.status_message = "LIMIT ORDER: placement failed"
 
     except Exception as e:
