@@ -930,6 +930,23 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
             updated = db.update_market_outcome(conn, market.slug, winning_side)
             logger.info(f"Market outcome recorded: {winning_side} for {market.slug} ({updated} trades updated)")
 
+            # Log prediction accuracy for all trades in this market
+            with db._cursor(conn) as cur:
+                cur.execute(
+                    "SELECT side, outcome, skip_reason FROM trades WHERE market_id = %s",
+                    (market.slug,),
+                )
+                for row in cur.fetchall():
+                    predicted = row["side"]
+                    skip = row.get("skip_reason") or ""
+                    is_skip = row["outcome"] == "skip"
+                    correct = predicted == winning_side
+                    label = "✅" if correct else "❌"
+                    if is_skip:
+                        logger.info(f"{label} PREDICTION: {predicted} (skip: {skip}) → market went {winning_side}")
+                    else:
+                        logger.info(f"{label} PREDICTION: {predicted} (traded) → market went {winning_side}")
+
             if trade_id:
                 simulator.settle_trade(trade_id, winning_side, market.condition_id)
                 # Send Discord notification
