@@ -925,6 +925,31 @@ async def on_signal_window(
 async def on_market_close(market: MarketInfo, session: aiohttp.ClientSession):
     """Called after market closes — launch background resolution."""
     try:
+        # Record any unfilled limit orders as GBM prediction skips
+        limit_info = pending_limit_orders.pop(market.slug, None)
+        if limit_info:
+            gbm_side = limit_info.get("gbm_side")
+            fak_confirmed = limit_info.get("fak_confirmed", False)
+            skip_reason = "unfilled_fak_confirmed" if fak_confirmed else "unfilled"
+            if gbm_side:
+                trade_id_skip = db.insert_trade(
+                    conn,
+                    market_id=market.slug,
+                    side=gbm_side,
+                    entry_odds=0.0,
+                    position_size=0.0,
+                    payout_rate=0.0,
+                    confidence_level="skip",
+                    outcome="skip",
+                    pnl=0.0,
+                    portfolio_balance_after=simulator._tracked_balance,
+                    skip_reason=skip_reason,
+                )
+                if trade_id_skip:
+                    clean = {k: v for k, v in limit_info.get("signal_data", {}).items() if not k.startswith("_")}
+                    db.insert_signals(conn, trade_id=trade_id_skip, **clean)
+                logger.info(f"📝 Recorded unfilled limit prediction: GBM={gbm_side} (skip: {skip_reason})")
+
         trade_id = pending_trades.pop(market.slug, None)
 
         # Always resolve in background to record market_outcome for skips too
@@ -964,7 +989,7 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
             logger.info(f"Market outcome recorded: {winning_side} for {market.slug} ({updated} trades updated)")
 
             # Log prediction accuracy for all trades in this market
-            _LIMIT_SKIP_REASONS = {"rr_too_low", "no_edge", "no_balance", "position_too_small", "fill_expired", "order_placement_failed"}
+            _LIMIT_SKIP_REASONS = {"rr_too_low", "no_edge", "no_balance", "position_too_small", "fill_expired", "order_placement_failed", "unfilled_fak_confirmed", "unfilled", "fak_disagrees"}
             gbm_pred = None
             fak_pred = None
             traded_side = None
