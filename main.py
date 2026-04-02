@@ -444,27 +444,9 @@ async def on_limit_entry_window(
             pending_limit_orders[market.slug] = {
                 "order_id": order_id,
                 "signal_data": signal_data,
+                "gbm_side": side,
             }
-            dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f}"
-
-            # Fill expiry: wait 10 seconds, cancel if unfilled
-            # Instant taker sweeps (59% WR) happen within seconds.
-            # Orders sitting 15+ seconds are coin flips (adversarial fills).
-            import asyncio as _asyncio
-            await _asyncio.sleep(config.LIMIT_FILL_EXPIRY_SEC)
-            try:
-                status = simulator._executor.get_order_status(order_id)
-                if status:
-                    filled = float(status.get("size_matched") or status.get("filledSize") or 0)
-                    if filled == 0:
-                        simulator._executor.cancel_order(order_id)
-                        pending_limit_orders.pop(market.slug, None)
-                        _record_skip(side, "fill_expired")
-                        logger.info(f"⏱️ Limit order expired after {config.LIMIT_FILL_EXPIRY_SEC}s — cancelled (no fill)")
-                    else:
-                        logger.info(f"⏱️ Limit order filled within 10s ({filled:.2f} shares)")
-            except Exception as e:
-                logger.debug(f"Fill expiry check failed: {e}")
+            dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f} (open until T-30 FAK confirmation)"
         else:
             _record_skip(side, "order_placement_failed")
             dashboard.status_message = "LIMIT ORDER: placement failed"
@@ -475,26 +457,32 @@ async def on_limit_entry_window(
 
 
 async def on_cancel_window(market: MarketInfo):
-    """Called at T-15 — cancel any unfilled limit orders."""
+    """Called at T-15 — cancel any unfilled limit orders (unless FAK confirmed)."""
     try:
-        limit_info = pending_limit_orders.pop(market.slug, None)
+        limit_info = pending_limit_orders.get(market.slug)
         if not limit_info:
             return
         order_id = limit_info["order_id"]
 
         if config.TRADING_MODE != "live":
+            pending_limit_orders.pop(market.slug, None)
             return
 
-        # Check if already filled — put back so signal window can record it
+        # Check if already filled — keep in pending for market close
         status = simulator._executor.get_order_status(order_id)
         if status:
             filled = status.get("filledSize") or status.get("size_matched") or 0
             if float(filled) > 0:
                 logger.info(f"📋 Limit order filled (not cancelling): {order_id}")
-                pending_limit_orders[market.slug] = limit_info  # restore for signal window
                 return
 
+        # If FAK confirmed this order, let it ride until close
+        if limit_info.get("fak_confirmed"):
+            logger.info(f"📋 FAK-confirmed limit order still open at T-15 — letting it ride")
+            return
+
         # Cancel unfilled order
+        pending_limit_orders.pop(market.slug, None)
         simulator._executor.cancel_order(order_id)
         logger.info(f"🗑️ Limit order cancelled at T-15: {order_id}")
 
@@ -511,7 +499,7 @@ async def on_signal_window(
     try:
         # Check if a limit order already filled for this market
         if market.slug in pending_limit_orders:
-            limit_info = pending_limit_orders.pop(market.slug)
+            limit_info = pending_limit_orders.get(market.slug)
             order_id = limit_info["order_id"]
             limit_signal_data = limit_info.get("signal_data", {})
             status = simulator._executor.get_order_status(order_id) if config.TRADING_MODE == "live" else None
@@ -640,6 +628,7 @@ async def on_signal_window(
                                 logger.debug(f"ML gate prediction failed for limit fill: {e}")
 
                         db.insert_signals(conn, trade_id=trade_id, **sig)
+                        pending_limit_orders.pop(market.slug, None)
                         dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
                         return
 
@@ -861,6 +850,47 @@ async def on_signal_window(
         # Update dashboard
         dashboard.last_signals = signal_data
         dashboard.last_decision = decision
+
+        # ── FAK confirmation gate for unfilled limit orders ────────────
+        # If a limit order is still pending (not yet filled — fill check above
+        # would have returned), use the ensemble as a confirmation filter.
+        limit_info = pending_limit_orders.get(market.slug)
+        if limit_info and decision.side is not None:
+            gbm_side = limit_info.get("gbm_side")
+            order_id = limit_info["order_id"]
+            if decision.side == gbm_side:
+                limit_info["fak_confirmed"] = True
+                logger.info(f"✅ FAK CONFIRMS GBM: both predict {gbm_side} — keeping limit order open")
+            else:
+                # FAK disagrees — cancel the limit order
+                try:
+                    simulator._executor.cancel_order(order_id)
+                    logger.info(f"🚫 FAK DISAGREES: GBM={gbm_side} FAK={decision.side} — cancelled limit order")
+                except Exception as e:
+                    logger.debug(f"Cancel failed (may already be filled/cancelled): {e}")
+                pending_limit_orders.pop(market.slug, None)
+                _record_skip = None  # can't call limit's _record_skip from here
+                # Record as a skip with the GBM prediction
+                trade_id = db.insert_trade(
+                    conn,
+                    market_id=market.slug,
+                    side=gbm_side,
+                    entry_odds=odds.up_price if gbm_side == "Up" else odds.down_price,
+                    position_size=0.0,
+                    payout_rate=0.0,
+                    confidence_level="skip",
+                    outcome="skip",
+                    pnl=0.0,
+                    portfolio_balance_after=simulator._tracked_balance,
+                    skip_reason="fak_disagrees",
+                )
+                if trade_id:
+                    clean = {k: v for k, v in limit_info.get("signal_data", {}).items() if not k.startswith("_")}
+                    db.insert_signals(conn, trade_id=trade_id, **clean)
+        elif limit_info and decision.side is None:
+            # FAK has no consensus — keep the limit order open (GBM had conviction)
+            gbm_side = limit_info.get("gbm_side")
+            logger.info(f"⚖️ FAK no consensus — keeping {gbm_side} limit order open (GBM conviction)")
 
         # ── FAK disabled — record prediction but don't place order ──────
         if not config.FAK_ORDER_ENABLED and decision.side is not None:
