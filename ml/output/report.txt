@@ -3,52 +3,52 @@ POLYMARKET BOT — ML ANALYSIS REPORT
 ======================================================================
 
 --- DATA OVERVIEW ---
-Total resolved trades: 505
-Total skipped cycles: 1832
-Wins: 234 | Losses: 271
-Win rate: 46.3%
-Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-01T16:44:30.690660+00:00
+Total resolved trades: 541
+Total skipped cycles: 2227
+Wins: 247 | Losses: 294
+Win rate: 45.7%
+Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-03T04:44:30.434866+00:00
 
 Signals with >20% missing data:
   odds_velocity: 100.0% null
-  ml_win_prob: 89.9% null
-  limit_order_placed_at: 62.2% null
-  limit_order_filled_at: 62.2% null
-  limit_fill_delay_sec: 62.2% null
-  fill_slippage_pct: 56.2% null
-  candle_position_dollars: 54.7% null
-  round_number_distance: 54.7% null
-  time_regime: 54.7% null
-  candle_streak: 54.7% null
+  ml_win_prob: 89.8% null
+  limit_order_placed_at: 58.8% null
+  limit_order_filled_at: 58.8% null
+  limit_fill_delay_sec: 58.8% null
+  fill_slippage_pct: 58.4% null
+  candle_position_dollars: 56.9% null
+  round_number_distance: 56.9% null
+  time_regime: 56.9% null
+  candle_streak: 56.9% null
 
 --- MODEL PERFORMANCE (Cross-Validated) ---
-  Fold 1: acc=72.6% prec=51.8% rec=58.3% f1=0.549 brier=0.214
-  Fold 2: acc=51.2% prec=36.5% rec=95.8% f1=0.529 brier=0.345
-  Fold 3: acc=67.9% prec=89.2% rec=58.9% f1=0.710 brier=0.207
-  Fold 4: acc=60.7% prec=64.3% rec=73.5% f1=0.686 brier=0.267
-  Fold 5: acc=58.3% prec=51.6% rec=86.5% f1=0.646 brier=0.250
+  Fold 1: acc=76.7% prec=56.7% rec=68.0% f1=0.618 brier=0.196
+  Fold 2: acc=51.1% prec=42.7% rec=97.0% f1=0.593 brier=0.341
+  Fold 3: acc=61.1% prec=67.2% rec=70.9% f1=0.690 brier=0.231
+  Fold 4: acc=63.3% prec=71.1% rec=61.5% f1=0.660 brier=0.236
+  Fold 5: acc=56.7% prec=48.1% rec=70.3% f1=0.571 brier=0.257
 
-  Average accuracy: 62.1% (baseline: 46.3%)
-  Model adds +15.8% edge over random
+  Average accuracy: 61.8% (baseline: 45.7%)
+  Model adds +16.1% edge over random
 
 --- TOP 10 PREDICTIVE SIGNALS ---
-   1. fill_slippage_pct                   importance=0.1077
-   2. risk_reward_ratio                   importance=0.0475
-   3. is_asian_hours                      importance=0.0468
-   4. momentum_60s                        importance=0.0298
-   5. order_book_ratio                    importance=0.0285
-   6. cvd_ratio                           importance=0.0279
-   7. btc_position_in_range               importance=0.0273
-   8. ob_imbalance                        importance=0.0270
-   9. candle_position_dollars             importance=0.0270
-  10. edge_up_bps                         importance=0.0269
+   1. fill_slippage_pct                   importance=0.0951
+   2. risk_reward_ratio                   importance=0.0514
+   3. btc_low                             importance=0.0397
+   4. cvd_imbalance                       importance=0.0333
+   5. fill_price_per_share                importance=0.0323
+   6. btc_high                            importance=0.0290
+   7. ob_bid_volume                       importance=0.0284
+   8. fair_up                             importance=0.0257
+   9. cvd                                 importance=0.0247
+  10. ob_imbalance                        importance=0.0246
 
 --- BOTTOM 10 (LEAST USEFUL) ---
+      momentum_vote_num                   importance=0.0000
+      reversion_vote_num                  importance=0.0000
       structure_vote_num                  importance=0.0000
       confidence_num                      importance=0.0000
-      side_num                            importance=0.0000
       streak_is_up                        importance=0.0000
-      prev_candle_up                      importance=0.0000
       has_cvd                             importance=0.0000
       has_orderbook                       importance=0.0000
       has_liquidations                    importance=0.0000
@@ -56,44 +56,49 @@ Signals with >20% missing data:
       has_fair_value                      importance=0.0000
 
 --- SKIP VERIFICATION ---
-Skips with known outcome: 1317
-Skips where ensemble had a direction: 994 (would have won 833/994 = 83.8%)
+Skips with known outcome: 1702
+Skips where ensemble had a direction: 1196 (would have won 995/1196 = 83.2%)
 
 By skip reason:
-  empty_book               :  540 skips, 497 would have won (92.0%)
-  ml_gate                  :  390 skips, 281 would have won (72.1%)
-  no_consensus             :  323 skips,   0 would have won (0.0%)
+  empty_book               :  562 skips, 519 would have won (92.3%)
+  no_consensus             :  501 skips, 127 would have won (25.3%)
+  ml_gate                  :  393 skips, 284 would have won (72.3%)
+  rr_too_low               :  151 skips,   0 would have won (0.0%)
   risk_blocked             :   45 skips,  39 would have won (86.7%)
-  invalid_amount           :   19 skips,  16 would have won (84.2%)
+  invalid_amount           :   30 skips,  26 would have won (86.7%)
+  fill_expired             :   12 skips,   0 would have won (0.0%)
+  no_edge                  :    6 skips,   0 would have won (0.0%)
+  unfilled_fak_confirmed   :    1 skips,   0 would have won (0.0%)
+  fak_disagrees            :    1 skips,   0 would have won (0.0%)
 
-Average model P(win) on skips: 0.686
-High-confidence skips (model >60%): 906 — THESE ARE MISSED OPPORTUNITIES
+Average model P(win) on skips: 0.684
+High-confidence skips (model >60%): 1170 — THESE ARE MISSED OPPORTUNITIES
 
 --- STRATEGY COMPARISON ---
 Strategy                             Trades   Win%        PnL  Avg PnL    MaxDD     PF
 -------------------------------------------------------------------------------------
-Baseline (actual)                       505 46.3% $    81.51 $   0.16 $ 246.71  1.07
-ML filter (>55%)                        214 91.6% $   691.83 $   3.23 $  10.98  9.70
-ML filter (>60%)                        198 92.4% $   637.59 $   3.22 $  12.98 10.62
-ML filter (>65%)                        176 94.3% $   598.18 $   3.40 $   7.87 15.09
-ML filter (>70%)                        151 95.4% $   409.30 $   2.71 $   7.32 13.67
-Entry T-20s to T-35s                    337 47.8% $   124.03 $   0.37 $ 186.75  1.15
+Baseline (actual)                       541 45.7% $    86.56 $   0.16 $ 246.71  1.07
+ML filter (>55%)                        232 91.4% $   766.80 $   3.31 $  10.98 10.28
+ML filter (>60%)                        210 92.4% $   597.11 $   2.84 $  10.98  9.55
+ML filter (>65%)                        185 94.1% $   505.10 $   2.73 $   7.87 12.67
+ML filter (>70%)                        162 95.7% $   365.85 $   2.26 $   7.32 14.28
+Entry T-20s to T-35s                    373 46.6% $   129.08 $   0.35 $ 186.75  1.15
 Entry T-50s to T-70s                     75 29.3% $   -18.92 $  -0.25 $  91.46  0.89
-Slippage <=10%                          175 27.4% $   159.65 $   0.91 $ 184.53  1.27
-Slippage <=20%                          197 29.4% $   152.10 $   0.77 $ 202.78  1.25
-Slippage <=30%                          207 31.4% $   153.38 $   0.74 $ 205.37  1.24
-Slippage <=50%                          217 33.6% $    85.88 $   0.40 $ 215.44  1.12
-Edge >=50bps                            285 40.7% $   -71.87 $  -0.25 $  92.16  0.86
-Edge >=100bps                           252 42.1% $   -69.26 $  -0.27 $  87.89  0.85
-Edge >=200bps                           217 45.6% $   -17.56 $  -0.08 $  81.29  0.95
-Edge >=500bps                           161 49.7% $   -30.67 $  -0.19 $  87.43  0.89
-Best hours ([15.0, 14.0, 21.0])          44 68.2% $    50.72 $   1.15 $  15.84  2.34
+Slippage <=10%                          178 27.0% $   149.22 $   0.84 $ 189.52  1.25
+Slippage <=20%                          201 29.4% $   143.83 $   0.72 $ 202.99  1.23
+Slippage <=30%                          211 31.3% $   145.11 $   0.69 $ 205.59  1.23
+Slippage <=50%                          221 33.5% $    77.61 $   0.35 $ 215.66  1.11
+Edge >=50bps                            321 40.2% $   -66.82 $  -0.21 $  98.25  0.88
+Edge >=100bps                           288 41.3% $   -64.21 $  -0.22 $  93.97  0.87
+Edge >=200bps                           249 44.6% $   -13.39 $  -0.05 $  84.17  0.97
+Edge >=500bps                           186 47.3% $   -43.67 $  -0.23 $  89.84  0.86
+Best hours ([15.0, 14.0, 23.0])          58 65.5% $    50.76 $   0.88 $  17.62  1.86
 High confidence only (3/3)               28 46.4% $    40.98 $   1.46 $  89.27  1.27
 
 --- ACTIONABLE RECOMMENDATIONS ---
 
-1. SLIPPAGE: Slippage <=10% improves PnL to $159.65 vs $81.51. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
+1. SLIPPAGE: Slippage <=10% improves PnL to $149.22 vs $86.56. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
 
-2. ML FILTER: ML filter (>55%) achieves 91.6% win rate. Consider adding model confidence gate.
+2. ML FILTER: ML filter (>55%) achieves 91.4% win rate. Consider adding model confidence gate.
 
 ======================================================================
