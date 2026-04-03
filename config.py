@@ -131,7 +131,7 @@ LIMIT_MIN_SHARES = float(os.environ.get("LIMIT_MIN_SHARES", "5"))
 LIMIT_MIN_RR = float(os.environ.get("LIMIT_MIN_RR", "1.0"))          # minimum R:R to place limit order
 LIMIT_FILL_EXPIRY_SEC = int(os.environ.get("LIMIT_FILL_EXPIRY_SEC", "10"))  # cancel unfilled orders after N seconds
 
-ML_GATE_ENABLED = os.environ.get("ML_GATE_ENABLED", "false").lower() == "true"
-ML_CONFIDENCE_THRESHOLD = float(os.environ.get("ML_CONFIDENCE_THRESHOLD", "0.60"))
+ML_GATE_ENABLED = os.environ.get("ML_GATE_ENABLED", "true").lower() == "true"
+ML_CONFIDENCE_THRESHOLD = float(os.environ.get("ML_CONFIDENCE_THRESHOLD", "0.55"))
 ML_MODEL_PATH = os.environ.get("ML_MODEL_PATH", "ml/output/gate_model.json")           # stop if balance drops below X% of starting
 

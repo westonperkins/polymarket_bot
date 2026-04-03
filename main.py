@@ -406,13 +406,8 @@ async def on_limit_entry_window(
         # Clamp price
         limit_price = max(0.01, min(0.99, limit_price))
 
-        # R:R filter — only take trades with R:R >= 1.0
-        # R:R = (1 - price) / price, so price must be <= 0.50
+        # R:R computed here, but checked at T-30 with dynamic ML-based threshold
         expected_rr = (1.0 - limit_price) / limit_price if limit_price > 0 else 0
-        if expected_rr < config.LIMIT_MIN_RR:
-            logger.info(f"Limit entry: R:R too low ({expected_rr:.1f}:1 at ${limit_price:.2f}, need >= {config.LIMIT_MIN_RR})")
-            _record_skip(side, "rr_too_low")
-            return
 
         # Position sizing
         wallet_balance = simulator._executor.get_balance()
@@ -434,15 +429,16 @@ async def on_limit_entry_window(
             f"— waiting for FAK confirmation at T-30"
         )
 
-        # Store GBM prediction for T-30 FAK confirmation (order placed there, not here)
+        # Store GBM prediction for T-30 ML gate confirmation (order placed there, not here)
         pending_limit_orders[market.slug] = {
             "gbm_side": side,
             "token_id": token_id,
             "limit_price": limit_price,
             "num_shares": num_shares,
+            "expected_rr": expected_rr,
             "signal_data": signal_data,
         }
-        dashboard.status_message = f"GBM: {side} @ ${limit_price:.2f} — waiting for FAK confirmation at T-30"
+        dashboard.status_message = f"GBM: {side} @ ${limit_price:.2f} R:R={expected_rr:.1f}:1 — waiting for ML gate at T-30"
 
     except Exception as e:
         logger.error(f"Limit entry failed for {market.slug}: {type(e).__name__}: {e}", exc_info=True)
@@ -782,30 +778,21 @@ async def on_signal_window(
         }
 
         # ── ML confidence gate ─────────────────────────────────────────
+        # Run ML on GBM side (not ensemble side) so it fires even without ensemble consensus
         ml_prob = None
-        if ml_gate_model is not None and decision.side is not None:
+        ml_eval_side = gbm_prediction.get("gbm_side") if gbm_prediction else decision.side
+        if ml_gate_model is not None and ml_eval_side is not None:
             try:
-                entry_odds = odds.up_price if decision.side == "Up" else odds.down_price
+                entry_odds = odds.up_price if ml_eval_side == "Up" else odds.down_price
                 features = build_features_from_signal_data(
-                    signal_data, decision.side, decision.confidence, entry_odds,
+                    signal_data, ml_eval_side, decision.confidence, entry_odds,
                 )
                 ml_prob = float(ml_gate_model.predict_proba(features)[0, 1])
                 signal_data["ml_win_prob"] = round(ml_prob, 4)
 
                 logger.info(
-                    f"🤖 ML GATE: P(win)={ml_prob:.1%} (threshold={config.ML_CONFIDENCE_THRESHOLD:.0%})"
+                    f"🤖 ML GATE: P(win)={ml_prob:.1%} for {ml_eval_side} (threshold={config.ML_CONFIDENCE_THRESHOLD:.0%})"
                 )
-
-                if config.ML_GATE_ENABLED and ml_prob < config.ML_CONFIDENCE_THRESHOLD:
-                    logger.info(
-                        f"🤖 ML GATE: BLOCKED — {ml_prob:.1%} < {config.ML_CONFIDENCE_THRESHOLD:.0%}"
-                    )
-                    decision = EnsembleDecision(
-                        side=None, confidence="skip",
-                        momentum_vote=v_momentum, reversion_vote=v_reversion,
-                        structure_vote=v_structure,
-                        reason=f"ML gate blocked (P(win)={ml_prob:.1%})",
-                    )
             except Exception as e:
                 logger.warning(f"ML gate error: {type(e).__name__}: {e}")
 
@@ -813,35 +800,34 @@ async def on_signal_window(
         dashboard.last_signals = signal_data
         dashboard.last_decision = decision
 
-        # ── GBM + FAK confirmation → place limit order ─────────────────
-        # Only place a limit order when both GBM (T-120) and FAK (T-30) agree.
-        # This eliminates adverse selection from early fills.
+        # ── GBM + ML gate confirmation → place limit order ──────────────
+        # Place limit order when GBM has a prediction AND ML gate approves.
+        # Dynamic R:R threshold based on ML confidence:
+        #   P(win) > 70% → min R:R 0.5:1
+        #   P(win) > 60% → min R:R 0.75:1
+        #   P(win) > 55% → min R:R 1.0:1
+        #   P(win) ≤ 55% → skip
         if gbm_prediction and config.LIMIT_ORDER_ENABLED and config.TRADING_MODE == "live":
             gbm_side = gbm_prediction.get("gbm_side")
-            if decision.side is not None and decision.side == gbm_side:
-                # Both agree — place the limit order now
-                token_id = gbm_prediction["token_id"]
-                limit_price = gbm_prediction["limit_price"]
-                num_shares = gbm_prediction["num_shares"]
-                logger.info(
-                    f"✅ FAK CONFIRMS GBM: both predict {gbm_side} — placing limit order "
-                    f"${limit_price:.2f} x {num_shares:.0f} shares"
-                )
-                order_id = simulator._executor.place_limit_order(
-                    token_id=token_id,
-                    price=limit_price,
-                    size=num_shares,
-                )
-                if order_id:
-                    gbm_prediction["order_id"] = order_id
-                    gbm_prediction["fak_confirmed"] = True
-                    dashboard.status_message = f"LIMIT ORDER: {gbm_side} {num_shares:.0f} @ ${limit_price:.2f} (GBM+FAK confirmed)"
-                else:
-                    logger.warning(f"Limit order placement failed after GBM+FAK confirmation")
-                    pending_limit_orders.pop(market.slug, None)
-            elif decision.side is not None and decision.side != gbm_side:
-                # FAK disagrees — record skip, no order
-                logger.info(f"🚫 FAK DISAGREES: GBM={gbm_side} FAK={decision.side} — no order placed")
+            token_id = gbm_prediction["token_id"]
+            limit_price = gbm_prediction["limit_price"]
+            num_shares = gbm_prediction["num_shares"]
+            expected_rr = gbm_prediction.get("expected_rr", 0)
+
+            # Determine dynamic R:R threshold from ML confidence
+            if ml_prob is not None and ml_prob > 0.70:
+                min_rr = 0.5
+            elif ml_prob is not None and ml_prob > 0.60:
+                min_rr = 0.75
+            elif ml_prob is not None and ml_prob > config.ML_CONFIDENCE_THRESHOLD:
+                min_rr = 1.0
+            else:
+                min_rr = None  # ML gate blocks
+
+            if min_rr is None:
+                # ML confidence too low — skip
+                ml_pct = f"{ml_prob:.1%}" if ml_prob is not None else "N/A"
+                logger.info(f"🤖 ML GATE SKIP: P(win)={ml_pct} below {config.ML_CONFIDENCE_THRESHOLD:.0%} — no order")
                 skip_trade_id = db.insert_trade(
                     conn,
                     market_id=market.slug,
@@ -853,16 +839,53 @@ async def on_signal_window(
                     outcome="skip",
                     pnl=0.0,
                     portfolio_balance_after=simulator._tracked_balance,
-                    skip_reason="fak_disagrees",
+                    skip_reason="ml_gate",
+                )
+                if skip_trade_id:
+                    clean = {k: v for k, v in gbm_prediction.get("signal_data", {}).items() if not k.startswith("_")}
+                    db.insert_signals(conn, trade_id=skip_trade_id, **clean)
+                pending_limit_orders.pop(market.slug, None)
+            elif expected_rr < min_rr:
+                # R:R too low for this ML confidence level
+                logger.info(
+                    f"📉 R:R too low for ML confidence: R:R={expected_rr:.1f}:1 < {min_rr}:1 "
+                    f"(P(win)={ml_prob:.1%}) — no order"
+                )
+                skip_trade_id = db.insert_trade(
+                    conn,
+                    market_id=market.slug,
+                    side=gbm_side,
+                    entry_odds=odds.up_price if gbm_side == "Up" else odds.down_price,
+                    position_size=0.0,
+                    payout_rate=0.0,
+                    confidence_level="skip",
+                    outcome="skip",
+                    pnl=0.0,
+                    portfolio_balance_after=simulator._tracked_balance,
+                    skip_reason="rr_too_low",
                 )
                 if skip_trade_id:
                     clean = {k: v for k, v in gbm_prediction.get("signal_data", {}).items() if not k.startswith("_")}
                     db.insert_signals(conn, trade_id=skip_trade_id, **clean)
                 pending_limit_orders.pop(market.slug, None)
             else:
-                # FAK has no consensus — record skip, no order
-                logger.info(f"⚖️ FAK no consensus — GBM predicted {gbm_side}, no order placed")
-                pending_limit_orders.pop(market.slug, None)
+                # ML gate passed + R:R acceptable — place the limit order
+                logger.info(
+                    f"✅ ML GATE CONFIRMED: {gbm_side} P(win)={ml_prob:.1%} R:R={expected_rr:.1f}:1 "
+                    f"(min {min_rr}:1) — placing limit order ${limit_price:.2f} x {num_shares:.0f} shares"
+                )
+                order_id = simulator._executor.place_limit_order(
+                    token_id=token_id,
+                    price=limit_price,
+                    size=num_shares,
+                )
+                if order_id:
+                    gbm_prediction["order_id"] = order_id
+                    gbm_prediction["fak_confirmed"] = True
+                    dashboard.status_message = f"LIMIT ORDER: {gbm_side} {num_shares:.0f} @ ${limit_price:.2f} (ML P(win)={ml_prob:.1%})"
+                else:
+                    logger.warning(f"Limit order placement failed after ML gate confirmation")
+                    pending_limit_orders.pop(market.slug, None)
 
         # ── FAK disabled — record prediction but don't place order ──────
         if not config.FAK_ORDER_ENABLED and decision.side is not None:

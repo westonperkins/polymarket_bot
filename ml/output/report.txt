@@ -3,45 +3,45 @@ POLYMARKET BOT — ML ANALYSIS REPORT
 ======================================================================
 
 --- DATA OVERVIEW ---
-Total resolved trades: 541
-Total skipped cycles: 2227
-Wins: 247 | Losses: 294
-Win rate: 45.7%
-Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-03T04:44:30.434866+00:00
+Total resolved trades: 547
+Total skipped cycles: 2364
+Wins: 248 | Losses: 299
+Win rate: 45.3%
+Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-03T22:14:45.529584+00:00
 
 Signals with >20% missing data:
   odds_velocity: 100.0% null
-  ml_win_prob: 89.8% null
-  limit_order_placed_at: 58.8% null
-  limit_order_filled_at: 58.8% null
-  limit_fill_delay_sec: 58.8% null
-  fill_slippage_pct: 58.4% null
-  candle_position_dollars: 56.9% null
-  round_number_distance: 56.9% null
-  time_regime: 56.9% null
-  candle_streak: 56.9% null
+  ml_win_prob: 89.9% null
+  fill_slippage_pct: 58.9% null
+  limit_order_placed_at: 58.1% null
+  limit_order_filled_at: 58.1% null
+  limit_fill_delay_sec: 58.1% null
+  candle_position_dollars: 57.4% null
+  round_number_distance: 57.4% null
+  time_regime: 57.4% null
+  candle_streak: 57.4% null
 
 --- MODEL PERFORMANCE (Cross-Validated) ---
-  Fold 1: acc=76.7% prec=56.7% rec=68.0% f1=0.618 brier=0.196
-  Fold 2: acc=51.1% prec=42.7% rec=97.0% f1=0.593 brier=0.341
-  Fold 3: acc=61.1% prec=67.2% rec=70.9% f1=0.690 brier=0.231
-  Fold 4: acc=63.3% prec=71.1% rec=61.5% f1=0.660 brier=0.236
-  Fold 5: acc=56.7% prec=48.1% rec=70.3% f1=0.571 brier=0.257
+  Fold 1: acc=71.4% prec=48.6% rec=68.0% f1=0.567 brier=0.204
+  Fold 2: acc=49.5% prec=42.7% rec=91.4% f1=0.582 brier=0.326
+  Fold 3: acc=58.2% prec=66.1% rec=66.1% f1=0.661 brier=0.241
+  Fold 4: acc=64.8% prec=68.0% rec=68.0% f1=0.680 brier=0.214
+  Fold 5: acc=56.0% prec=46.9% rec=62.2% f1=0.535 brier=0.253
 
-  Average accuracy: 61.8% (baseline: 45.7%)
-  Model adds +16.1% edge over random
+  Average accuracy: 60.0% (baseline: 45.3%)
+  Model adds +14.7% edge over random
 
 --- TOP 10 PREDICTIVE SIGNALS ---
-   1. fill_slippage_pct                   importance=0.0951
-   2. risk_reward_ratio                   importance=0.0514
-   3. btc_low                             importance=0.0397
-   4. cvd_imbalance                       importance=0.0333
-   5. fill_price_per_share                importance=0.0323
-   6. btc_high                            importance=0.0290
-   7. ob_bid_volume                       importance=0.0284
-   8. fair_up                             importance=0.0257
-   9. cvd                                 importance=0.0247
-  10. ob_imbalance                        importance=0.0246
+   1. fill_slippage_pct                   importance=0.0815
+   2. risk_reward_ratio                   importance=0.0497
+   3. btc_entry_price                     importance=0.0373
+   4. fill_price_per_share                importance=0.0315
+   5. ob_bid_volume                       importance=0.0293
+   6. btc_position_in_range               importance=0.0267
+   7. edge_down_bps                       importance=0.0264
+   8. cvd                                 importance=0.0254
+   9. up_odds                             importance=0.0249
+  10. btc_open_price                      importance=0.0241
 
 --- BOTTOM 10 (LEAST USEFUL) ---
       momentum_vote_num                   importance=0.0000
@@ -56,49 +56,50 @@ Signals with >20% missing data:
       has_fair_value                      importance=0.0000
 
 --- SKIP VERIFICATION ---
-Skips with known outcome: 1702
-Skips where ensemble had a direction: 1196 (would have won 995/1196 = 83.2%)
+Skips with known outcome: 1839
+Skips where ensemble had a direction: 1267 (would have won 1042/1267 = 82.2%)
 
 By skip reason:
+  no_consensus             :  572 skips, 174 would have won (30.4%)
   empty_book               :  562 skips, 519 would have won (92.3%)
-  no_consensus             :  501 skips, 127 would have won (25.3%)
   ml_gate                  :  393 skips, 284 would have won (72.3%)
-  rr_too_low               :  151 skips,   0 would have won (0.0%)
+  rr_too_low               :  210 skips,   0 would have won (0.0%)
   risk_blocked             :   45 skips,  39 would have won (86.7%)
   invalid_amount           :   30 skips,  26 would have won (86.7%)
   fill_expired             :   12 skips,   0 would have won (0.0%)
-  no_edge                  :    6 skips,   0 would have won (0.0%)
-  unfilled_fak_confirmed   :    1 skips,   0 would have won (0.0%)
-  fak_disagrees            :    1 skips,   0 would have won (0.0%)
+  no_edge                  :    8 skips,   0 would have won (0.0%)
+  unfilled_fak_confirmed   :    4 skips,   0 would have won (0.0%)
+  fak_disagrees            :    2 skips,   0 would have won (0.0%)
+  unfilled                 :    1 skips,   0 would have won (0.0%)
 
-Average model P(win) on skips: 0.684
-High-confidence skips (model >60%): 1170 — THESE ARE MISSED OPPORTUNITIES
+Average model P(win) on skips: 0.692
+High-confidence skips (model >60%): 1309 — THESE ARE MISSED OPPORTUNITIES
 
 --- STRATEGY COMPARISON ---
 Strategy                             Trades   Win%        PnL  Avg PnL    MaxDD     PF
 -------------------------------------------------------------------------------------
-Baseline (actual)                       541 45.7% $    86.56 $   0.16 $ 246.71  1.07
-ML filter (>55%)                        232 91.4% $   766.80 $   3.31 $  10.98 10.28
-ML filter (>60%)                        210 92.4% $   597.11 $   2.84 $  10.98  9.55
-ML filter (>65%)                        185 94.1% $   505.10 $   2.73 $   7.87 12.67
-ML filter (>70%)                        162 95.7% $   365.85 $   2.26 $   7.32 14.28
-Entry T-20s to T-35s                    373 46.6% $   129.08 $   0.35 $ 186.75  1.15
+Baseline (actual)                       547 45.3% $    74.32 $   0.14 $ 246.71  1.06
+ML filter (>55%)                        235 89.4% $   716.23 $   3.05 $  12.58  7.70
+ML filter (>60%)                        211 92.4% $   693.63 $   3.29 $  10.98 11.47
+ML filter (>65%)                        190 95.3% $   654.14 $   3.44 $   7.87 18.06
+ML filter (>70%)                        163 95.7% $   389.72 $   2.39 $   7.32 15.14
+Entry T-20s to T-35s                    378 46.3% $   119.22 $   0.32 $ 186.75  1.13
 Entry T-50s to T-70s                     75 29.3% $   -18.92 $  -0.25 $  91.46  0.89
 Slippage <=10%                          178 27.0% $   149.22 $   0.84 $ 189.52  1.25
 Slippage <=20%                          201 29.4% $   143.83 $   0.72 $ 202.99  1.23
 Slippage <=30%                          211 31.3% $   145.11 $   0.69 $ 205.59  1.23
 Slippage <=50%                          221 33.5% $    77.61 $   0.35 $ 215.66  1.11
-Edge >=50bps                            321 40.2% $   -66.82 $  -0.21 $  98.25  0.88
-Edge >=100bps                           288 41.3% $   -64.21 $  -0.22 $  93.97  0.87
-Edge >=200bps                           249 44.6% $   -13.39 $  -0.05 $  84.17  0.97
-Edge >=500bps                           186 47.3% $   -43.67 $  -0.23 $  89.84  0.86
-Best hours ([15.0, 14.0, 23.0])          58 65.5% $    50.76 $   0.88 $  17.62  1.86
+Edge >=50bps                            326 39.9% $   -75.80 $  -0.23 $  98.25  0.87
+Edge >=100bps                           292 41.1% $   -70.11 $  -0.24 $  93.97  0.86
+Edge >=200bps                           253 44.3% $   -19.29 $  -0.08 $  84.17  0.95
+Edge >=500bps                           190 46.8% $   -49.57 $  -0.26 $  96.20  0.85
+Best hours ([15.0, 14.0, 23.0])          59 64.4% $    47.24 $   0.80 $  17.62  1.75
 High confidence only (3/3)               28 46.4% $    40.98 $   1.46 $  89.27  1.27
 
 --- ACTIONABLE RECOMMENDATIONS ---
 
-1. SLIPPAGE: Slippage <=10% improves PnL to $149.22 vs $86.56. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
+1. SLIPPAGE: Slippage <=10% improves PnL to $149.22 vs $74.32. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
 
-2. ML FILTER: ML filter (>55%) achieves 91.4% win rate. Consider adding model confidence gate.
+2. ML FILTER: ML filter (>55%) achieves 89.4% win rate. Consider adding model confidence gate.
 
 ======================================================================
