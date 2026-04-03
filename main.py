@@ -428,28 +428,21 @@ async def on_limit_entry_window(
             return
 
         logger.info(
-            f"📋 LIMIT ENTRY: {side} | fair={fair.fair_up:.3f}/{fair.fair_down:.3f} "
+            f"📋 GBM PREDICTION: {side} | fair={fair.fair_up:.3f}/{fair.fair_down:.3f} "
             f"price=${limit_price:.2f} shares={num_shares:.0f} "
-            f"edge={fair.edge_up_bps if side == 'Up' else fair.edge_down_bps:+.0f}bps"
+            f"edge={fair.edge_up_bps if side == 'Up' else fair.edge_down_bps:+.0f}bps "
+            f"— waiting for FAK confirmation at T-30"
         )
 
-        # Place limit order
-        order_id = simulator._executor.place_limit_order(
-            token_id=token_id,
-            price=limit_price,
-            size=num_shares,
-        )
-
-        if order_id:
-            pending_limit_orders[market.slug] = {
-                "order_id": order_id,
-                "signal_data": signal_data,
-                "gbm_side": side,
-            }
-            dashboard.status_message = f"LIMIT ORDER: {side} {num_shares:.0f} shares @ ${limit_price:.2f} (open until T-30 FAK confirmation)"
-        else:
-            _record_skip(side, "order_placement_failed")
-            dashboard.status_message = "LIMIT ORDER: placement failed"
+        # Store GBM prediction for T-30 FAK confirmation (order placed there, not here)
+        pending_limit_orders[market.slug] = {
+            "gbm_side": side,
+            "token_id": token_id,
+            "limit_price": limit_price,
+            "num_shares": num_shares,
+            "signal_data": signal_data,
+        }
+        dashboard.status_message = f"GBM: {side} @ ${limit_price:.2f} — waiting for FAK confirmation at T-30"
 
     except Exception as e:
         logger.error(f"Limit entry failed for {market.slug}: {type(e).__name__}: {e}", exc_info=True)
@@ -457,34 +450,135 @@ async def on_limit_entry_window(
 
 
 async def on_cancel_window(market: MarketInfo):
-    """Called at T-15 — cancel any unfilled limit orders (unless FAK confirmed)."""
+    """Called at T-15 — check fills on limit orders placed at T-30, cancel unfilled."""
     try:
         limit_info = pending_limit_orders.get(market.slug)
         if not limit_info:
             return
-        order_id = limit_info["order_id"]
+
+        order_id = limit_info.get("order_id")
+        if not order_id:
+            # GBM computed but no order placed (FAK disagreed or no consensus)
+            return
 
         if config.TRADING_MODE != "live":
             pending_limit_orders.pop(market.slug, None)
             return
 
-        # Check if already filled — keep in pending for market close
+        # Check if filled in the ~15 seconds since placement at T-30
         status = simulator._executor.get_order_status(order_id)
         if status:
-            filled = status.get("filledSize") or status.get("size_matched") or 0
-            if float(filled) > 0:
-                logger.info(f"📋 Limit order filled (not cancelling): {order_id}")
+            filled = float(status.get("size_matched") or status.get("filledSize") or 0)
+            if filled > 0:
+                # Filled! Record the trade
+                gbm_side = limit_info.get("gbm_side")
+                limit_signal_data = limit_info.get("signal_data", {})
+                our_order_id = status.get("id", "")
+                order_created_at = float(status.get("created_at", 0))
+
+                # Get fill details from associate trades
+                fill_cost = 0.0
+                fill_shares = filled
+                earliest_match_time = None
+                assoc = status.get("associate_trades", [])
+                for tid in assoc:
+                    trade_detail = simulator._executor.get_trade_details(tid)
+                    if trade_detail:
+                        logger.info(f"📋 Trade detail for {tid}: {trade_detail}")
+                        trade_status = trade_detail.get("status", "").upper()
+                        if trade_status == "FAILED":
+                            continue
+                        mt = float(trade_detail.get("match_time", 0))
+                        if mt > 0 and (earliest_match_time is None or mt < earliest_match_time):
+                            earliest_match_time = mt
+                        trader_side = trade_detail.get("trader_side", "").upper()
+                        if trader_side == "TAKER" and trade_detail.get("taker_order_id") == our_order_id:
+                            t_price = float(trade_detail.get("price", 0))
+                            t_size = float(trade_detail.get("size", 0))
+                            fill_cost += t_price * t_size
+                            logger.info(f"📋 Our fill (taker): {t_size} shares @ ${t_price:.3f} = ${t_price * t_size:.2f}")
+                        else:
+                            for mo in trade_detail.get("maker_orders", []):
+                                if mo.get("order_id") == our_order_id:
+                                    mo_price = float(mo.get("price", 0))
+                                    mo_size = float(mo.get("matched_amount", 0))
+                                    fill_cost += mo_price * mo_size
+                                    logger.info(f"📋 Our fill (maker): {mo_size} shares @ ${mo_price:.3f} = ${mo_price * mo_size:.2f}")
+                                    break
+
+                if fill_cost <= 0:
+                    fill_price = float(status.get("price") or 0)
+                    fill_cost = round(fill_shares * fill_price, 6) if fill_price > 0 else 0
+
+                side_token = status.get("asset_id", "")
+                limit_side = "Up" if side_token == market.clob_token_id_up else "Down"
+                fill_price = fill_cost / fill_shares if fill_shares > 0 else 0
+                potential_win = fill_shares - fill_cost
+                payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
+                rr_ratio = round(payout_rate, 2)
+                fill_delay = round(earliest_match_time - order_created_at, 1) if earliest_match_time and order_created_at else None
+
+                logger.info(
+                    f"📋 LIMIT FILLED: {limit_side} | {fill_shares:.2f} shares @ ${fill_price:.3f} "
+                    f"cost=${fill_cost:.2f} payout=${potential_win:.2f} R:R={rr_ratio:.1f}:1"
+                    f"{f' | fill_delay={fill_delay:.0f}s' if fill_delay is not None else ''}"
+                )
+
+                trade_id = db.insert_trade(
+                    conn,
+                    market_id=market.slug,
+                    side=limit_side,
+                    entry_odds=fill_price,
+                    position_size=fill_cost,
+                    payout_rate=payout_rate,
+                    confidence_level="medium",
+                    outcome="pending",
+                    pnl=0.0,
+                    portfolio_balance_after=getattr(simulator, '_tracked_balance', 0),
+                    risk_reward_ratio=rr_ratio,
+                )
+                pending_trades[market.slug] = trade_id
+
+                from datetime import datetime, timezone
+                sig = {
+                    "up_odds": fill_price if limit_side == "Up" else 1 - fill_price,
+                    "down_odds": fill_price if limit_side == "Down" else 1 - fill_price,
+                    "seconds_before_close": engine.seconds_until_close() or 0,
+                    "fill_price_per_share": fill_price,
+                    "hour_of_day": datetime.now(timezone.utc).hour,
+                    "day_of_week": datetime.now(timezone.utc).weekday(),
+                    "limit_order_placed_at": order_created_at,
+                    "limit_order_filled_at": earliest_match_time,
+                    "limit_fill_delay_sec": fill_delay,
+                }
+                sig.update({k: v for k, v in limit_info.get("signal_data", {}).items() if not k.startswith("_")})
+
+                if ml_gate_model is not None:
+                    try:
+                        import pandas as pd
+                        import numpy as np
+                        ml_features = build_features_from_signal_data(sig)
+                        df = pd.DataFrame([ml_features])
+                        for col in GATE_FEATURE_COLS:
+                            if col not in df.columns:
+                                df[col] = np.nan
+                        df = df[GATE_FEATURE_COLS]
+                        ml_prob = float(ml_gate_model.predict_proba(df)[0][1])
+                        sig["ml_win_prob"] = ml_prob
+                        logger.info(f"🤖 ML GATE (record only): P(win)={ml_prob:.1%} for limit fill")
+                    except Exception as e:
+                        logger.debug(f"ML gate prediction failed for limit fill: {e}")
+
+                clean_sig = {k: v for k, v in sig.items() if not k.startswith("_")}
+                db.insert_signals(conn, trade_id=trade_id, **clean_sig)
+                pending_limit_orders.pop(market.slug, None)
+                dashboard.status_message = f"LIMIT FILLED: {limit_side} {fill_shares:.0f} @ ${fill_price:.3f} (GBM+FAK confirmed)"
                 return
 
-        # If FAK confirmed this order, let it ride until close
-        if limit_info.get("fak_confirmed"):
-            logger.info(f"📋 FAK-confirmed limit order still open at T-15 — letting it ride")
-            return
-
-        # Cancel unfilled order
-        pending_limit_orders.pop(market.slug, None)
+        # Not filled — cancel the order
         simulator._executor.cancel_order(order_id)
-        logger.info(f"🗑️ Limit order cancelled at T-15: {order_id}")
+        pending_limit_orders.pop(market.slug, None)
+        logger.info(f"🗑️ Limit order cancelled at T-15 (unfilled after ~15s): {order_id}")
 
     except Exception as e:
         logger.warning(f"Cancel window error: {type(e).__name__}: {e}")
@@ -495,146 +589,14 @@ async def on_signal_window(
     odds: MarketOdds,
     session: aiohttp.ClientSession,
 ):
-    """Called at T-30s — fetch all signals, vote, and enter trade."""
+    """Called at T-30s — fetch all signals, vote, place limit if GBM+FAK agree."""
     try:
-        # Check if a limit order already filled for this market
-        if market.slug in pending_limit_orders:
-            limit_info = pending_limit_orders.get(market.slug)
-            order_id = limit_info["order_id"]
-            limit_signal_data = limit_info.get("signal_data", {})
-            status = simulator._executor.get_order_status(order_id) if config.TRADING_MODE == "live" else None
-            if status:
-                # Log full status for debugging
-                logger.info(f"📋 Limit order status: {status}")
-
-                filled_size = float(status.get("size_matched") or status.get("filledSize") or 0)
-                if filled_size > 0:
-                    # Try to get actual fill cost from associate_trades
-                    fill_cost = 0.0
-                    fill_shares = filled_size  # each share = $1 on win
-                    our_order_id = status.get("id", "")
-                    order_created_at = float(status.get("created_at", 0))
-                    earliest_match_time = None
-                    assoc = status.get("associate_trades", [])
-                    if assoc and config.TRADING_MODE == "live":
-                        for tid in assoc:
-                            trade_detail = simulator._executor.get_trade_details(tid)
-                            if trade_detail:
-                                logger.info(f"📋 Trade detail for {tid}: {trade_detail}")
-                                # Skip failed trades — match never settled on-chain
-                                trade_status = trade_detail.get("status", "").upper()
-                                if trade_status == "FAILED":
-                                    logger.warning(f"⚠️ Trade {tid} FAILED on-chain — ignoring phantom fill")
-                                    continue
-
-                                # Track earliest fill time
-                                mt = float(trade_detail.get("match_time", 0))
-                                if mt > 0 and (earliest_match_time is None or mt < earliest_match_time):
-                                    earliest_match_time = mt
-
-                                trader_side = trade_detail.get("trader_side", "").upper()
-
-                                if trader_side == "TAKER" and trade_detail.get("taker_order_id") == our_order_id:
-                                    # We are the taker — use top-level price * size
-                                    t_price = float(trade_detail.get("price", 0))
-                                    t_size = float(trade_detail.get("size", 0))
-                                    fill_cost += t_price * t_size
-                                    logger.info(f"📋 Our fill (taker): {t_size} shares @ ${t_price:.3f} = ${t_price * t_size:.2f}")
-                                else:
-                                    # We are a maker — find our order in maker_orders
-                                    maker_orders = trade_detail.get("maker_orders", [])
-                                    for mo in maker_orders:
-                                        if mo.get("order_id") == our_order_id:
-                                            mo_price = float(mo.get("price", 0))
-                                            mo_size = float(mo.get("matched_amount", 0))
-                                            fill_cost += mo_price * mo_size
-                                            logger.info(f"📋 Our fill (maker): {mo_size} shares @ ${mo_price:.3f} = ${mo_price * mo_size:.2f}")
-                                            break
-                    # If all associate trades failed on-chain, skip — no real fill
-                    if fill_cost <= 0 and assoc:
-                        logger.warning(f"⚠️ All associate trades failed — no real fill, continuing to signal window")
-                    else:
-                        if fill_cost <= 0:
-                            # No associate trades to check — fallback to limit price
-                            fill_price = float(status.get("price") or 0)
-                            fill_cost = round(filled_size * fill_price, 6) if fill_price > 0 else 0
-
-                        side_token = status.get("asset_id", "")
-                        limit_side = "Up" if side_token == market.clob_token_id_up else "Down"
-                        entry_odds = odds.up_price if limit_side == "Up" else odds.down_price
-
-                        # R:R and payout from actual fill
-                        fill_price = fill_cost / fill_shares if fill_shares > 0 else 0
-                        potential_win = fill_shares - fill_cost
-                        payout_rate = potential_win / fill_cost if fill_cost > 0 else 0
-                        rr_ratio = round(payout_rate, 2)
-
-                        fill_delay = round(earliest_match_time - order_created_at, 1) if earliest_match_time and order_created_at else None
-
-                        logger.info(
-                            f"📋 LIMIT FILLED: {limit_side} | {fill_shares:.2f} shares @ ${fill_price:.3f} "
-                            f"cost=${fill_cost:.2f} payout=${potential_win:.2f} R:R={rr_ratio:.1f}:1"
-                            f"{f' | fill_delay={fill_delay:.0f}s' if fill_delay is not None else ''}"
-                        )
-
-                        # Record the trade in DB
-                        trade_id = db.insert_trade(
-                            conn,
-                            market_id=market.slug,
-                            side=limit_side,
-                            entry_odds=entry_odds,
-                            position_size=fill_cost,
-                            payout_rate=payout_rate,
-                            confidence_level="medium",
-                            outcome="pending",
-                            pnl=0.0,
-                            portfolio_balance_after=getattr(simulator, '_tracked_balance', 0),
-                            risk_reward_ratio=rr_ratio,
-                        )
-                        pending_trades[market.slug] = trade_id
-                        # Save signal snapshot with limit order timing
-                        from datetime import datetime, timezone
-                        sig = {
-                            "up_odds": odds.up_price,
-                            "down_odds": odds.down_price,
-                            "seconds_before_close": engine.seconds_until_close() or 0,
-                            "fill_price_per_share": fill_price,
-                            "hour_of_day": datetime.now(timezone.utc).hour,
-                            "day_of_week": datetime.now(timezone.utc).weekday(),
-                            "limit_order_placed_at": order_created_at if order_created_at else None,
-                            "limit_order_filled_at": earliest_match_time if earliest_match_time else None,
-                            "limit_fill_delay_sec": fill_delay,
-                        }
-                        # Merge in T-120 signal data (fair value, price context, etc.)
-                        sig.update(limit_signal_data)
-
-                        # Run ML gate prediction (record only, don't block — trade already filled)
-                        if ml_gate_model is not None:
-                            try:
-                                # build_features_from_signal_data and GATE_FEATURE_COLS
-                                # are imported at module level (line 39) when ML_GATE_ENABLED
-                                import pandas as pd
-                                import numpy as np
-                                ml_features = build_features_from_signal_data(sig)
-                                df = pd.DataFrame([ml_features])
-                                for col in GATE_FEATURE_COLS:
-                                    if col not in df.columns:
-                                        df[col] = np.nan
-                                df = df[GATE_FEATURE_COLS]
-                                ml_prob = float(ml_gate_model.predict_proba(df)[0][1])
-                                sig["ml_win_prob"] = ml_prob
-                                logger.info(f"🤖 ML GATE (record only): P(win)={ml_prob:.1%} for limit fill")
-                            except Exception as e:
-                                logger.debug(f"ML gate prediction failed for limit fill: {e}")
-
-                        db.insert_signals(conn, trade_id=trade_id, **sig)
-                        pending_limit_orders.pop(market.slug, None)
-                        dashboard.status_message = f"LIMIT FILLED: {limit_side} {filled_size:.0f} shares @ ${fill_price:.3f}"
-                        return
+        # Get pending GBM prediction from T-120 (if any)
+        gbm_prediction = pending_limit_orders.get(market.slug)
 
         # Skip FAK trading if odds moved outside tradeable window
         if not odds.tradeable:
-            logger.info(f"Odds outside tradeable window after limit check — skipping FAK")
+            logger.info(f"Odds outside tradeable window — skipping")
             decision = EnsembleDecision(side=None, confidence="skip", momentum_vote="ABSTAIN", reversion_vote="ABSTAIN", structure_vote="ABSTAIN", reason="Odds outside tradeable window")
             trade_id = simulator.enter_trade(market, odds, decision, signal_data={})
             if trade_id:
@@ -851,27 +813,36 @@ async def on_signal_window(
         dashboard.last_signals = signal_data
         dashboard.last_decision = decision
 
-        # ── FAK confirmation gate for unfilled limit orders ────────────
-        # If a limit order is still pending (not yet filled — fill check above
-        # would have returned), use the ensemble as a confirmation filter.
-        limit_info = pending_limit_orders.get(market.slug)
-        if limit_info and decision.side is not None:
-            gbm_side = limit_info.get("gbm_side")
-            order_id = limit_info["order_id"]
-            if decision.side == gbm_side:
-                limit_info["fak_confirmed"] = True
-                logger.info(f"✅ FAK CONFIRMS GBM: both predict {gbm_side} — keeping limit order open")
-            else:
-                # FAK disagrees — cancel the limit order
-                try:
-                    simulator._executor.cancel_order(order_id)
-                    logger.info(f"🚫 FAK DISAGREES: GBM={gbm_side} FAK={decision.side} — cancelled limit order")
-                except Exception as e:
-                    logger.debug(f"Cancel failed (may already be filled/cancelled): {e}")
-                pending_limit_orders.pop(market.slug, None)
-                _record_skip = None  # can't call limit's _record_skip from here
-                # Record as a skip with the GBM prediction
-                trade_id = db.insert_trade(
+        # ── GBM + FAK confirmation → place limit order ─────────────────
+        # Only place a limit order when both GBM (T-120) and FAK (T-30) agree.
+        # This eliminates adverse selection from early fills.
+        if gbm_prediction and config.LIMIT_ORDER_ENABLED and config.TRADING_MODE == "live":
+            gbm_side = gbm_prediction.get("gbm_side")
+            if decision.side is not None and decision.side == gbm_side:
+                # Both agree — place the limit order now
+                token_id = gbm_prediction["token_id"]
+                limit_price = gbm_prediction["limit_price"]
+                num_shares = gbm_prediction["num_shares"]
+                logger.info(
+                    f"✅ FAK CONFIRMS GBM: both predict {gbm_side} — placing limit order "
+                    f"${limit_price:.2f} x {num_shares:.0f} shares"
+                )
+                order_id = simulator._executor.place_limit_order(
+                    token_id=token_id,
+                    price=limit_price,
+                    size=num_shares,
+                )
+                if order_id:
+                    gbm_prediction["order_id"] = order_id
+                    gbm_prediction["fak_confirmed"] = True
+                    dashboard.status_message = f"LIMIT ORDER: {gbm_side} {num_shares:.0f} @ ${limit_price:.2f} (GBM+FAK confirmed)"
+                else:
+                    logger.warning(f"Limit order placement failed after GBM+FAK confirmation")
+                    pending_limit_orders.pop(market.slug, None)
+            elif decision.side is not None and decision.side != gbm_side:
+                # FAK disagrees — record skip, no order
+                logger.info(f"🚫 FAK DISAGREES: GBM={gbm_side} FAK={decision.side} — no order placed")
+                skip_trade_id = db.insert_trade(
                     conn,
                     market_id=market.slug,
                     side=gbm_side,
@@ -884,13 +855,14 @@ async def on_signal_window(
                     portfolio_balance_after=simulator._tracked_balance,
                     skip_reason="fak_disagrees",
                 )
-                if trade_id:
-                    clean = {k: v for k, v in limit_info.get("signal_data", {}).items() if not k.startswith("_")}
-                    db.insert_signals(conn, trade_id=trade_id, **clean)
-        elif limit_info and decision.side is None:
-            # FAK has no consensus — keep the limit order open (GBM had conviction)
-            gbm_side = limit_info.get("gbm_side")
-            logger.info(f"⚖️ FAK no consensus — keeping {gbm_side} limit order open (GBM conviction)")
+                if skip_trade_id:
+                    clean = {k: v for k, v in gbm_prediction.get("signal_data", {}).items() if not k.startswith("_")}
+                    db.insert_signals(conn, trade_id=skip_trade_id, **clean)
+                pending_limit_orders.pop(market.slug, None)
+            else:
+                # FAK has no consensus — record skip, no order
+                logger.info(f"⚖️ FAK no consensus — GBM predicted {gbm_side}, no order placed")
+                pending_limit_orders.pop(market.slug, None)
 
         # ── FAK disabled — record prediction but don't place order ──────
         if not config.FAK_ORDER_ENABLED and decision.side is not None:
