@@ -888,9 +888,9 @@ async def on_signal_window(
                     pending_limit_orders.pop(market.slug, None)
 
         # ── FAK disabled — record prediction but don't place order ──────
-        # Only applies when limit orders are also disabled (pure FAK mode).
-        # When limit orders are enabled, the ML gate handles order placement above.
-        if not config.FAK_ORDER_ENABLED and not config.LIMIT_ORDER_ENABLED and decision.side is not None:
+        # When FAK is disabled, null out the ensemble decision so enter_trade()
+        # doesn't place a FAK order. Limit orders are handled by the ML gate above.
+        if not config.FAK_ORDER_ENABLED and decision.side is not None:
             logger.info(f"FAK disabled — recording prediction: {decision.side} {decision.confidence}")
             signal_data["_predicted_side"] = decision.side
             decision = EnsembleDecision(
