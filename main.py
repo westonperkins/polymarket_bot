@@ -418,9 +418,14 @@ async def on_limit_entry_window(
         num_shares = round(position_usd / limit_price, 2) if limit_price > 0 else 0
 
         if num_shares < config.LIMIT_MIN_SHARES:
-            logger.info(f"Limit entry: position too small ({num_shares:.1f} shares, min {config.LIMIT_MIN_SHARES})")
-            _record_skip(side, "position_too_small")
-            return
+            if config.LIMIT_FORCE_MIN_SHARES:
+                num_shares = config.LIMIT_MIN_SHARES
+                position_usd = round(num_shares * limit_price, 2)
+                logger.info(f"Limit entry: forcing minimum {num_shares:.0f} shares (${position_usd:.2f})")
+            else:
+                logger.info(f"Limit entry: position too small ({num_shares:.1f} shares, min {config.LIMIT_MIN_SHARES})")
+                _record_skip(side, "position_too_small")
+                return
 
         logger.info(
             f"📋 GBM PREDICTION: {side} | fair={fair.fair_up:.3f}/{fair.fair_down:.3f} "
