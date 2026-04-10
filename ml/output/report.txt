@@ -3,52 +3,52 @@ POLYMARKET BOT — ML ANALYSIS REPORT
 ======================================================================
 
 --- DATA OVERVIEW ---
-Total resolved trades: 547
-Total skipped cycles: 2364
-Wins: 248 | Losses: 299
-Win rate: 45.3%
-Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-03T22:14:45.529584+00:00
+Total resolved trades: 557
+Total skipped cycles: 4005
+Wins: 248 | Losses: 309
+Win rate: 44.5%
+Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-06T00:09:45.507526+00:00
 
 Signals with >20% missing data:
   odds_velocity: 100.0% null
-  ml_win_prob: 89.9% null
-  fill_slippage_pct: 58.9% null
-  limit_order_placed_at: 58.1% null
-  limit_order_filled_at: 58.1% null
-  limit_fill_delay_sec: 58.1% null
-  candle_position_dollars: 57.4% null
-  round_number_distance: 57.4% null
-  time_regime: 57.4% null
-  candle_streak: 57.4% null
+  ml_win_prob: 89.6% null
+  fill_slippage_pct: 59.1% null
+  candle_position_dollars: 57.6% null
+  round_number_distance: 57.6% null
+  time_regime: 57.6% null
+  candle_streak: 57.6% null
+  momentum_vote: 57.6% null
+  reversion_vote: 57.6% null
+  structure_vote: 57.6% null
 
 --- MODEL PERFORMANCE (Cross-Validated) ---
-  Fold 1: acc=71.4% prec=48.6% rec=68.0% f1=0.567 brier=0.204
-  Fold 2: acc=49.5% prec=42.7% rec=91.4% f1=0.582 brier=0.326
-  Fold 3: acc=58.2% prec=66.1% rec=66.1% f1=0.661 brier=0.241
-  Fold 4: acc=64.8% prec=68.0% rec=68.0% f1=0.680 brier=0.214
-  Fold 5: acc=56.0% prec=46.9% rec=62.2% f1=0.535 brier=0.253
+  Fold 1: acc=70.7% prec=47.1% rec=64.0% f1=0.542 brier=0.211
+  Fold 2: acc=45.6% prec=42.2% rec=94.6% f1=0.583 brier=0.355
+  Fold 3: acc=64.1% prec=69.2% rec=77.6% f1=0.732 brier=0.223
+  Fold 4: acc=66.3% prec=66.7% rec=78.4% f1=0.721 brier=0.201
+  Fold 5: acc=54.4% prec=36.6% rec=48.4% f1=0.417 brier=0.258
 
-  Average accuracy: 60.0% (baseline: 45.3%)
-  Model adds +14.7% edge over random
+  Average accuracy: 60.2% (baseline: 44.5%)
+  Model adds +15.7% edge over random
 
 --- TOP 10 PREDICTIVE SIGNALS ---
-   1. fill_slippage_pct                   importance=0.0815
-   2. risk_reward_ratio                   importance=0.0497
-   3. btc_entry_price                     importance=0.0373
-   4. fill_price_per_share                importance=0.0315
-   5. ob_bid_volume                       importance=0.0293
-   6. btc_position_in_range               importance=0.0267
-   7. edge_down_bps                       importance=0.0264
-   8. cvd                                 importance=0.0254
-   9. up_odds                             importance=0.0249
-  10. btc_open_price                      importance=0.0241
+   1. fill_slippage_pct                   importance=0.0805
+   2. risk_reward_ratio                   importance=0.0492
+   3. btc_low                             importance=0.0346
+   4. fill_price_per_share                importance=0.0309
+   5. up_odds                             importance=0.0271
+   6. btc_position_in_range               importance=0.0257
+   7. ob_bid_volume                       importance=0.0256
+   8. reversion_vote_num                  importance=0.0242
+   9. btc_volatility                      importance=0.0241
+  10. fair_down                           importance=0.0239
 
 --- BOTTOM 10 (LEAST USEFUL) ---
+      fair_z_score                        importance=0.0000
       momentum_vote_num                   importance=0.0000
-      reversion_vote_num                  importance=0.0000
       structure_vote_num                  importance=0.0000
       confidence_num                      importance=0.0000
-      streak_is_up                        importance=0.0000
+      streak_length                       importance=0.0000
       has_cvd                             importance=0.0000
       has_orderbook                       importance=0.0000
       has_liquidations                    importance=0.0000
@@ -56,50 +56,97 @@ Signals with >20% missing data:
       has_fair_value                      importance=0.0000
 
 --- SKIP VERIFICATION ---
-Skips with known outcome: 1839
-Skips where ensemble had a direction: 1267 (would have won 1042/1267 = 82.2%)
+Skips with known outcome: 3422
+Skips where ensemble had a direction: 2607 (would have won 2093/2607 = 80.3%)
 
 By skip reason:
-  no_consensus             :  572 skips, 174 would have won (30.4%)
-  empty_book               :  562 skips, 519 would have won (92.3%)
-  ml_gate                  :  393 skips, 284 would have won (72.3%)
-  rr_too_low               :  210 skips,   0 would have won (0.0%)
-  risk_blocked             :   45 skips,  39 would have won (86.7%)
+  no_consensus             : 1858 skips, 1179 would have won (63.5%)
+  empty_book               :  570 skips, 527 would have won (92.5%)
+  ml_gate                  :  513 skips, 284 would have won (55.4%)
+  rr_too_low               :  283 skips,   0 would have won (0.0%)
+  risk_blocked             :   91 skips,  77 would have won (84.6%)
   invalid_amount           :   30 skips,  26 would have won (86.7%)
+  position_too_small       :   26 skips,   0 would have won (0.0%)
+  no_edge                  :   25 skips,   0 would have won (0.0%)
   fill_expired             :   12 skips,   0 would have won (0.0%)
-  no_edge                  :    8 skips,   0 would have won (0.0%)
+  unfilled                 :    7 skips,   0 would have won (0.0%)
   unfilled_fak_confirmed   :    4 skips,   0 would have won (0.0%)
-  fak_disagrees            :    2 skips,   0 would have won (0.0%)
-  unfilled                 :    1 skips,   0 would have won (0.0%)
+  fak_disagrees            :    3 skips,   0 would have won (0.0%)
 
-Average model P(win) on skips: 0.692
-High-confidence skips (model >60%): 1309 — THESE ARE MISSED OPPORTUNITIES
+Average model P(win) on skips: 0.672
+High-confidence skips (model >60%): 2312 — THESE ARE MISSED OPPORTUNITIES
 
 --- STRATEGY COMPARISON ---
-Strategy                             Trades   Win%        PnL  Avg PnL    MaxDD     PF
--------------------------------------------------------------------------------------
-Baseline (actual)                       547 45.3% $    74.32 $   0.14 $ 246.71  1.06
-ML filter (>55%)                        235 89.4% $   716.23 $   3.05 $  12.58  7.70
-ML filter (>60%)                        211 92.4% $   693.63 $   3.29 $  10.98 11.47
-ML filter (>65%)                        190 95.3% $   654.14 $   3.44 $   7.87 18.06
-ML filter (>70%)                        163 95.7% $   389.72 $   2.39 $   7.32 15.14
-Entry T-20s to T-35s                    378 46.3% $   119.22 $   0.32 $ 186.75  1.13
-Entry T-50s to T-70s                     75 29.3% $   -18.92 $  -0.25 $  91.46  0.89
-Slippage <=10%                          178 27.0% $   149.22 $   0.84 $ 189.52  1.25
-Slippage <=20%                          201 29.4% $   143.83 $   0.72 $ 202.99  1.23
-Slippage <=30%                          211 31.3% $   145.11 $   0.69 $ 205.59  1.23
-Slippage <=50%                          221 33.5% $    77.61 $   0.35 $ 215.66  1.11
-Edge >=50bps                            326 39.9% $   -75.80 $  -0.23 $  98.25  0.87
-Edge >=100bps                           292 41.1% $   -70.11 $  -0.24 $  93.97  0.86
-Edge >=200bps                           253 44.3% $   -19.29 $  -0.08 $  84.17  0.95
-Edge >=500bps                           190 46.8% $   -49.57 $  -0.26 $  96.20  0.85
-Best hours ([15.0, 14.0, 23.0])          59 64.4% $    47.24 $   0.80 $  17.62  1.75
-High confidence only (3/3)               28 46.4% $    40.98 $   1.46 $  89.27  1.27
+Strategy                             Trades   Win%        PnL  Avg PnL    AvgW    AvgL    R:R    MaxDD     PF
+--------------------------------------------------------------------------------------------------------------
+Baseline (actual)                       557 44.5% $    60.40 $   0.11 $  5.17 $ -3.96   1.31 $ 246.71  1.05
+ML filter (>55%)                        233 89.7% $   724.63 $   3.11 $  3.95 $ -4.19   0.94 $  12.32  8.21
+ML filter (>60%)                        215 92.6% $   622.46 $   2.90 $  3.45 $ -4.04   0.85 $  10.98 10.62
+ML filter (>65%)                        189 94.2% $   519.58 $   2.75 $  3.17 $ -4.08   0.78 $   7.87 12.57
+ML filter (>70%)                        165 97.0% $   479.64 $   2.91 $  3.12 $ -3.81   0.82 $   7.32 26.18
+Entry T-0s to T-20s                       8  0.0% $    -8.19 $  -1.02 $  0.00 $ -1.02   0.00 $   5.83  0.00
+Entry T-20s to T-35s                    381 45.9% $   111.12 $   0.29 $  5.80 $ -4.39   1.32 $ 186.75  1.12
+Entry T-50s to T-70s                     75 29.3% $   -18.92 $  -0.25 $  6.76 $ -3.16   2.14 $  91.46  0.89
+Slippage <=10%                          181 26.5% $   141.12 $   0.78 $ 15.54 $ -4.55   3.42 $ 197.62  1.23
+Slippage <=20%                          204 28.9% $   135.73 $   0.67 $ 13.07 $ -4.38   2.98 $ 208.93  1.21
+Slippage <=30%                          214 30.8% $   137.01 $   0.64 $ 11.92 $ -4.39   2.72 $ 211.53  1.21
+Slippage <=50%                          224 33.0% $    69.51 $   0.31 $ 10.76 $ -4.85   2.22 $ 221.60  1.10
+Edge >=50bps                            336 38.7% $   -89.73 $  -0.27 $  3.85 $ -2.86   1.34 $ 104.56  0.85
+Edge >=100bps                           301 39.9% $   -83.76 $  -0.28 $  3.69 $ -2.91   1.27 $  96.92  0.84
+Edge >=200bps                           262 42.7% $   -32.94 $  -0.13 $  3.61 $ -2.92   1.24 $  91.21  0.92
+Edge >=500bps                           198 44.9% $   -63.12 $  -0.32 $  3.06 $ -3.08   0.99 $ 108.71  0.81
+Best hours ([15.0, 14.0, 23.0])          59 64.4% $    47.24 $   0.80 $  2.89 $ -2.99   0.97 $  17.62  1.75
+High confidence only (3/3)               28 46.4% $    40.98 $   1.46 $ 15.03 $-10.30   1.46 $  89.27  1.27
+
+--- TAKER EXECUTION COUNTERFACTUAL ---
+Simulates what would have happened if every directional cycle had been
+executed as a taker at T-30 (mid + half-spread) instead of as a passive
+limit. PnL is normalized to $1 per trade. Scored with the gate model
+(no execution features) to avoid bias from adversely-selected fills.
+
+Strategy                             Trades   Win%        PnL  Avg PnL    AvgW    AvgL    R:R    MaxDD     PF
+--------------------------------------------------------------------------------------------------------------
+Taker all dir (1.0c spread)            3098 74.4% $  5750.86 $   1.86 $  2.84 $ -1.00   2.84 $  67.99  8.25
+Taker ML>55% (1.0c spread)              824 85.6% $  3792.29 $   4.60 $  5.55 $ -1.00   5.55 $   4.00 32.87
+Taker ML>60% (1.0c spread)              632 88.8% $  2716.95 $   4.30 $  4.97 $ -1.00   4.97 $   2.06 39.27
+Taker ML>65% (1.0c spread)              465 92.7% $  1450.48 $   3.12 $  3.44 $ -1.00   3.44 $   2.00 43.66
+Taker ML>70% (1.0c spread)              341 94.4% $  1359.22 $   3.99 $  4.28 $ -1.00   4.28 $   2.00 72.54
+
+Best in-sample taker bucket: Taker ML>55% (1.0c spread)
+  → 824 trades at 85.6% win rate, $4.60 avg PnL/trade, R:R 5.55
+  → vs. baseline: 557 trades at 44.5%, $0.11 avg PnL/trade
+  ⚠ In-sample only — see HOLDOUT section below for the credibility check.
+
+--- TAKER COUNTERFACTUAL — TEMPORAL HOLDOUT ---
+Trained gate model on first 70% of decided trades (389 rows), then scored
+only cycles after the split timestamp (2026-03-31T02:19:30):
+  • 168 held-out decided trades
+  • 2399 held-out skipped cycles
+  • 1946 directional cycles in the holdout window
+
+Strategy                                       Trades   Win%        PnL  Avg PnL    AvgW    AvgL    R:R    MaxDD     PF
+------------------------------------------------------------------------------------------------------------------------
+Taker HOLDOUT(train=70%) all dir (1.0c spread)    1946 75.4% $   946.68 $   0.49 $  0.97 $ -1.00   0.97 $  39.60  2.98
+Taker HOLDOUT(train=70%) ML>55% (1.0c spread)     866 82.1% $   532.72 $   0.62 $  0.97 $ -1.00   0.97 $  13.48  4.44
+Taker HOLDOUT(train=70%) ML>60% (1.0c spread)     715 82.0% $   438.75 $   0.61 $  0.97 $ -1.00   0.97 $  11.91  4.40
+Taker HOLDOUT(train=70%) ML>65% (1.0c spread)     587 82.5% $   366.14 $   0.62 $  0.97 $ -1.00   0.97 $   8.50  4.55
+Taker HOLDOUT(train=70%) ML>70% (1.0c spread)     449 82.4% $   277.97 $   0.62 $  0.96 $ -1.00   0.96 $   5.06  4.52
+
+In-sample vs holdout comparison (per ML threshold):
+  Threshold      IS Win%    IS Avg   OOS Win%   OOS Avg  Verdict
+  >55%            85.6% $   4.60     82.1% $   0.62  HOLDS
+  >60%            88.8% $   4.30     82.0% $   0.61  HOLDS
+  >65%            92.7% $   3.12     82.5% $   0.62  PARTIAL (degraded but positive)
+  >70%            94.4% $   3.99     82.4% $   0.62  PARTIAL (degraded but positive)
+
+Best out-of-sample bucket: Taker HOLDOUT(train=70%) ML>55% (1.0c spread)
+  → 866 trades at 82.1% win rate, $0.62 avg PnL/trade, R:R 0.97
+  → HOLDOUT VALIDATES the in-sample edge — step 2 (small live test) is justified.
 
 --- ACTIONABLE RECOMMENDATIONS ---
 
-1. SLIPPAGE: Slippage <=10% improves PnL to $149.22 vs $74.32. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
+1. SLIPPAGE: Slippage <=10% improves PnL to $141.12 vs $60.40. Consider adjusting LIVE_MAX_SLIPPAGE_PCT.
 
-2. ML FILTER: ML filter (>55%) achieves 89.4% win rate. Consider adding model confidence gate.
+2. ML FILTER: ML filter (>55%) achieves 89.7% win rate. Consider adding model confidence gate.
 
 ======================================================================

@@ -9,6 +9,9 @@ def generate_report(
     importances: dict,
     skip_analysis: list[dict],
     backtest_results: list,
+    taker_results: list | None = None,
+    taker_holdout_results: list | None = None,
+    holdout_meta: dict | None = None,
 ) -> str:
     """Generate a full report as a string."""
     lines = []
@@ -107,16 +110,174 @@ def generate_report(
         lines.append("\n--- STRATEGY COMPARISON ---")
         lines.append(
             f"{'Strategy':35s} {'Trades':>7s} {'Win%':>6s} {'PnL':>10s} "
-            f"{'Avg PnL':>8s} {'MaxDD':>8s} {'PF':>6s}"
+            f"{'Avg PnL':>8s} {'AvgW':>7s} {'AvgL':>7s} {'R:R':>6s} "
+            f"{'MaxDD':>8s} {'PF':>6s}"
         )
-        lines.append("-" * 85)
+        lines.append("-" * 110)
         for r in backtest_results:
             if r.trades_taken > 0:
+                rr_str = "inf" if r.avg_rr == float("inf") else f"{r.avg_rr:5.2f}"
                 lines.append(
                     f"{r.strategy:35s} {r.trades_taken:7d} {r.win_rate:5.1%} "
-                    f"${r.total_pnl:9.2f} ${r.avg_pnl:7.2f} ${r.max_drawdown:7.2f} "
+                    f"${r.total_pnl:9.2f} ${r.avg_pnl:7.2f} ${r.avg_winner:6.2f} "
+                    f"${r.avg_loser:6.2f} {rr_str:>6s} ${r.max_drawdown:7.2f} "
                     f"{r.profit_factor:5.2f}"
                 )
+
+    # 5b. Taker Execution Counterfactual
+    if taker_results:
+        lines.append("\n--- TAKER EXECUTION COUNTERFACTUAL ---")
+        lines.append(
+            "Simulates what would have happened if every directional cycle had been"
+        )
+        lines.append(
+            "executed as a taker at T-30 (mid + half-spread) instead of as a passive"
+        )
+        lines.append(
+            "limit. PnL is normalized to $1 per trade. Scored with the gate model"
+        )
+        lines.append(
+            "(no execution features) to avoid bias from adversely-selected fills."
+        )
+        lines.append("")
+        lines.append(
+            f"{'Strategy':35s} {'Trades':>7s} {'Win%':>6s} {'PnL':>10s} "
+            f"{'Avg PnL':>8s} {'AvgW':>7s} {'AvgL':>7s} {'R:R':>6s} "
+            f"{'MaxDD':>8s} {'PF':>6s}"
+        )
+        lines.append("-" * 110)
+        for r in taker_results:
+            if r.trades_taken > 0:
+                rr_str = "inf" if r.avg_rr == float("inf") else f"{r.avg_rr:5.2f}"
+                lines.append(
+                    f"{r.strategy:35s} {r.trades_taken:7d} {r.win_rate:5.1%} "
+                    f"${r.total_pnl:9.2f} ${r.avg_pnl:7.2f} ${r.avg_winner:6.2f} "
+                    f"${r.avg_loser:6.2f} {rr_str:>6s} ${r.max_drawdown:7.2f} "
+                    f"{r.profit_factor:5.2f}"
+                )
+
+        # Compare best taker bucket against actual baseline
+        baseline = next(
+            (r for r in backtest_results if r.strategy == "Baseline (actual)"),
+            None,
+        )
+        ml_taker = [r for r in taker_results if "ML>" in r.strategy and r.trades_taken > 0]
+        if baseline and ml_taker:
+            best_taker = max(ml_taker, key=lambda r: r.total_pnl)
+            lines.append("")
+            lines.append(
+                f"Best in-sample taker bucket: {best_taker.strategy}"
+            )
+            lines.append(
+                f"  → {best_taker.trades_taken} trades at {best_taker.win_rate:.1%} "
+                f"win rate, ${best_taker.avg_pnl:.2f} avg PnL/trade, R:R {best_taker.avg_rr:.2f}"
+            )
+            lines.append(
+                f"  → vs. baseline: {baseline.trades_taken} trades at "
+                f"{baseline.win_rate:.1%}, ${baseline.avg_pnl:.2f} avg PnL/trade"
+            )
+            lines.append(
+                "  ⚠ In-sample only — see HOLDOUT section below for the credibility check."
+            )
+
+    # 5c. Taker Counterfactual — Temporal Holdout (step 1.5)
+    if taker_holdout_results:
+        lines.append("\n--- TAKER COUNTERFACTUAL — TEMPORAL HOLDOUT ---")
+        if holdout_meta:
+            lines.append(
+                f"Trained gate model on first {int(holdout_meta['train_frac']*100)}% "
+                f"of decided trades ({holdout_meta['train_decided']} rows), then scored"
+            )
+            lines.append(
+                f"only cycles after the split timestamp "
+                f"({holdout_meta['split_timestamp'][:19]}):"
+            )
+            lines.append(
+                f"  • {holdout_meta['test_decided']} held-out decided trades"
+            )
+            lines.append(
+                f"  • {holdout_meta['holdout_skipped']} held-out skipped cycles"
+            )
+            lines.append(
+                f"  • {holdout_meta['holdout_directional']} directional cycles in the holdout window"
+            )
+            lines.append("")
+        lines.append(
+            f"{'Strategy':45s} {'Trades':>7s} {'Win%':>6s} {'PnL':>10s} "
+            f"{'Avg PnL':>8s} {'AvgW':>7s} {'AvgL':>7s} {'R:R':>6s} "
+            f"{'MaxDD':>8s} {'PF':>6s}"
+        )
+        lines.append("-" * 120)
+        for r in taker_holdout_results:
+            if r.trades_taken > 0:
+                rr_str = "inf" if r.avg_rr == float("inf") else f"{r.avg_rr:5.2f}"
+                lines.append(
+                    f"{r.strategy:45s} {r.trades_taken:7d} {r.win_rate:5.1%} "
+                    f"${r.total_pnl:9.2f} ${r.avg_pnl:7.2f} ${r.avg_winner:6.2f} "
+                    f"${r.avg_loser:6.2f} {rr_str:>6s} ${r.max_drawdown:7.2f} "
+                    f"{r.profit_factor:5.2f}"
+                )
+
+        # Side-by-side comparison: in-sample vs holdout at each threshold
+        if taker_results:
+            lines.append("")
+            lines.append("In-sample vs holdout comparison (per ML threshold):")
+            lines.append(
+                f"  {'Threshold':12s} {'IS Win%':>9s} {'IS Avg':>9s}  "
+                f"{'OOS Win%':>9s} {'OOS Avg':>9s}  {'Verdict':s}"
+            )
+            for thr in [55, 60, 65, 70]:
+                in_row = next(
+                    (r for r in taker_results if f"ML>{thr}%" in r.strategy and r.trades_taken > 0),
+                    None,
+                )
+                oos_row = next(
+                    (r for r in taker_holdout_results if f"ML>{thr}%" in r.strategy and r.trades_taken > 0),
+                    None,
+                )
+                if in_row and oos_row:
+                    win_drop = in_row.win_rate - oos_row.win_rate
+                    if oos_row.avg_pnl > 0 and abs(win_drop) < 0.10:
+                        verdict = "HOLDS"
+                    elif oos_row.avg_pnl > 0:
+                        verdict = "PARTIAL (degraded but positive)"
+                    else:
+                        verdict = "COLLAPSES"
+                    lines.append(
+                        f"  {'>'+str(thr)+'%':12s} {in_row.win_rate:8.1%} ${in_row.avg_pnl:7.2f}  "
+                        f"{oos_row.win_rate:8.1%} ${oos_row.avg_pnl:7.2f}  {verdict}"
+                    )
+
+            # Overall verdict
+            ml_holdout = [
+                r for r in taker_holdout_results
+                if "ML>" in r.strategy and r.trades_taken > 0
+            ]
+            if ml_holdout:
+                best_oos = max(ml_holdout, key=lambda r: r.total_pnl)
+                lines.append("")
+                lines.append(
+                    f"Best out-of-sample bucket: {best_oos.strategy}"
+                )
+                lines.append(
+                    f"  → {best_oos.trades_taken} trades at {best_oos.win_rate:.1%} "
+                    f"win rate, ${best_oos.avg_pnl:.2f} avg PnL/trade, R:R "
+                    f"{best_oos.avg_rr if best_oos.avg_rr != float('inf') else 'inf'}"
+                )
+                if best_oos.avg_pnl > 0.5:
+                    lines.append(
+                        "  → HOLDOUT VALIDATES the in-sample edge — step 2 (small live test) is justified."
+                    )
+                elif best_oos.avg_pnl > 0:
+                    lines.append(
+                        "  → HOLDOUT PARTIALLY VALIDATES — edge survives but is smaller than in-sample. "
+                        "Use a higher ML threshold for step 2."
+                    )
+                else:
+                    lines.append(
+                        "  → HOLDOUT FAILS — in-sample edge does not generalize. "
+                        "Do NOT proceed to step 2 without further investigation."
+                    )
 
     # 6. Actionable Recommendations
     lines.append("\n--- ACTIONABLE RECOMMENDATIONS ---")

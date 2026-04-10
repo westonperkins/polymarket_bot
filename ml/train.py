@@ -25,7 +25,11 @@ except ImportError:
 
 from ml.data import pull_raw_data, clean_data, get_data_summary
 from ml.features import build_features, FEATURE_COLS, GATE_FEATURE_COLS
-from ml.backtest import run_all_backtests
+from ml.backtest import (
+    run_all_backtests,
+    simulate_taker_execution,
+    simulate_taker_holdout,
+)
 from ml.report import generate_report
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -229,9 +233,36 @@ def main():
     logger.info("\n4. Running backtests...")
     backtest_results = run_all_backtests(decided, model, FEATURE_COLS)
 
+    # Taker execution counterfactual (step 1) — uses the gate model so the
+    # simulation isn't biased by adversely-selected fill features.
+    logger.info("\n4b. Simulating taker execution counterfactual (in-sample)...")
+    taker_results = simulate_taker_execution(decided, skipped, gate_model)
+    if taker_results:
+        logger.info(f"   Generated {len(taker_results)} in-sample taker rows")
+
+    # Step 1.5: temporal holdout — train fresh model on first 70% of decided,
+    # score only the last 30% window. Tells us if the in-sample numbers leak.
+    logger.info("\n4c. Running taker counterfactual on temporal holdout...")
+    taker_holdout_results, holdout_meta = simulate_taker_holdout(
+        decided, skipped, train_frac=0.7
+    )
+    if taker_holdout_results:
+        logger.info(
+            f"   Holdout: {holdout_meta['train_decided']} train decided / "
+            f"{holdout_meta['test_decided']} test decided / "
+            f"{holdout_meta['holdout_directional']} directional cycles in holdout"
+        )
+    elif holdout_meta.get("error"):
+        logger.warning(f"   Holdout skipped: {holdout_meta['error']}")
+
     # Generate report
     logger.info("\n5. Generating report...")
-    report = generate_report(summary, cv_results, importances, skip_analysis, backtest_results)
+    report = generate_report(
+        summary, cv_results, importances, skip_analysis, backtest_results,
+        taker_results=taker_results,
+        taker_holdout_results=taker_holdout_results,
+        holdout_meta=holdout_meta,
+    )
 
     with open(OUTPUT_DIR / "report.txt", "w") as f:
         f.write(report)

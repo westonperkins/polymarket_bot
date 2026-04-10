@@ -71,6 +71,7 @@ if config.TRADING_MODE == "live":
     from live_trading.executor import Executor, validate_live_credentials
     from live_trading.risk import RiskManager
     from live_trading.live_simulator import LiveSimulator
+    from live_trading import taker_monitor
 
     # Refuse to start without valid credentials
     creds_ok, creds_err = validate_live_credentials()
@@ -874,23 +875,149 @@ async def on_signal_window(
                     db.insert_signals(conn, trade_id=skip_trade_id, **clean)
                 pending_limit_orders.pop(market.slug, None)
             else:
-                # ML gate passed + R:R acceptable — place the limit order
-                logger.info(
-                    f"✅ ML GATE CONFIRMED: {gbm_side} P(win)={ml_prob:.1%} R:R={expected_rr:.1f}:1 "
-                    f"(min {min_rr}:1) — placing limit order ${limit_price:.2f} x {num_shares:.0f} shares"
+                # ── ML gate passed + R:R acceptable ─────────────────────
+                # Step 2 taker path: when TAKER_MODE_ENABLED, fire a marketable
+                # FAK at the current mid + slippage budget instead of posting a
+                # passive limit. Falls back to the limit path if the safety
+                # monitor has tripped or the taker order can't be placed.
+                taker_halted, taker_halt_reason = (
+                    taker_monitor.is_halted() if config.TRADING_MODE == "live" else (False, None)
                 )
-                order_id = simulator._executor.place_limit_order(
-                    token_id=token_id,
-                    price=limit_price,
-                    size=num_shares,
+                use_taker = (
+                    config.TAKER_MODE_ENABLED
+                    and not taker_halted
+                    and config.TRADING_MODE == "live"
                 )
-                if order_id:
-                    gbm_prediction["order_id"] = order_id
-                    gbm_prediction["fak_confirmed"] = True
-                    dashboard.status_message = f"LIMIT ORDER: {gbm_side} {num_shares:.0f} @ ${limit_price:.2f} (ML P(win)={ml_prob:.1%})"
-                else:
-                    logger.warning(f"Limit order placement failed after ML gate confirmation")
-                    pending_limit_orders.pop(market.slug, None)
+
+                taker_fired = False
+                if use_taker:
+                    current_mid = odds.up_price if gbm_side == "Up" else odds.down_price
+                    taker_max_price = round(
+                        min(0.99, current_mid + config.TAKER_MODE_MAX_SLIPPAGE_CENTS / 100.0),
+                        2,
+                    )
+                    taker_dollars = round(
+                        num_shares * current_mid * config.TAKER_MODE_SIZE_MULT, 2
+                    )
+
+                    if taker_dollars < 1.0:
+                        logger.info(
+                            f"⏭️  TAKER skipped: dollar amount ${taker_dollars:.2f} below $1 minimum"
+                        )
+                        pending_limit_orders.pop(market.slug, None)
+                        taker_fired = True  # don't fall through to limit
+                    else:
+                        logger.info(
+                            f"🎯 TAKER FIRE: {gbm_side} P(win)={ml_prob:.1%} R:R={expected_rr:.1f}:1 "
+                            f"| ${taker_dollars:.2f} max=${taker_max_price:.2f} (mid=${current_mid:.3f})"
+                        )
+                        order_response = simulator._executor.place_market_order(
+                            token_id=token_id,
+                            amount=taker_dollars,
+                            max_price=taker_max_price,
+                        )
+                        if order_response is not None:
+                            fill_cost = float(order_response.get("_fill_cost", taker_dollars))
+                            fill_shares = float(order_response.get("_fill_shares", 0))
+                            effective_price = fill_cost / fill_shares if fill_shares > 0 else 0
+                            slippage_pct = (
+                                ((effective_price - current_mid) / current_mid * 100)
+                                if current_mid > 0 else 0
+                            )
+                            real_payout_rate = (
+                                (fill_shares - fill_cost) / fill_cost if fill_cost > 0 else 0.0
+                            )
+                            potential_win = fill_shares - fill_cost
+                            potential_loss = fill_cost
+                            rr_ratio = (
+                                round(potential_win / potential_loss, 2)
+                                if potential_loss > 0 else 0
+                            )
+
+                            taker_trade_id = db.insert_trade(
+                                conn,
+                                market_id=market.slug,
+                                side=gbm_side,
+                                entry_odds=current_mid,
+                                position_size=fill_cost,
+                                payout_rate=real_payout_rate,
+                                confidence_level="taker",
+                                outcome="pending",
+                                pnl=0.0,
+                                portfolio_balance_after=simulator._tracked_balance,
+                                risk_reward_ratio=rr_ratio,
+                            )
+                            signal_data["fill_price_per_share"] = effective_price
+                            signal_data["fill_slippage_pct"] = slippage_pct
+                            signal_data["ml_win_prob"] = ml_prob
+                            clean_signals = {
+                                k: v for k, v in signal_data.items() if not k.startswith("_")
+                            }
+                            db.insert_signals(conn, trade_id=taker_trade_id, **clean_signals)
+                            taker_monitor.register_trade(taker_trade_id)
+                            pending_trades[market.slug] = taker_trade_id
+                            pending_limit_orders.pop(market.slug, None)
+
+                            slip_emoji = (
+                                "🟢" if slippage_pct <= 5
+                                else "🟡" if slippage_pct <= 15
+                                else "🔴"
+                            )
+                            logger.info(
+                                f"{slip_emoji} TAKER FILL: ${effective_price:.3f}/share "
+                                f"(mid was ${current_mid:.3f}) slippage={slippage_pct:+.1f}% | "
+                                f"R:R={rr_ratio}:1 (win +${potential_win:.2f} / lose -${potential_loss:.2f})"
+                            )
+                            dashboard.status_message = (
+                                f"TAKER FILL: {gbm_side} ${fill_cost:.2f} @ ${effective_price:.3f} "
+                                f"(P(win)={ml_prob:.1%})"
+                            )
+                            taker_fired = True
+                        else:
+                            err = (simulator._executor._last_order_error or "").lower()
+                            logger.warning(
+                                f"Taker order failed: {err or 'unknown error'} — "
+                                f"falling back to limit path"
+                            )
+
+                if taker_halted and config.TAKER_MODE_ENABLED:
+                    logger.warning(
+                        f"⚠️  Taker mode HALTED ({taker_halt_reason}) — falling back to limit path"
+                    )
+
+                if not taker_fired:
+                    # Either taker mode is off, or it failed to fire — use the
+                    # existing passive limit path.
+                    logger.info(
+                        f"✅ ML GATE CONFIRMED: {gbm_side} P(win)={ml_prob:.1%} R:R={expected_rr:.1f}:1 "
+                        f"(min {min_rr}:1) — placing limit order ${limit_price:.2f} x {num_shares:.0f} shares"
+                    )
+                    order_id = simulator._executor.place_limit_order(
+                        token_id=token_id,
+                        price=limit_price,
+                        size=num_shares,
+                    )
+                    if order_id:
+                        gbm_prediction["order_id"] = order_id
+                        gbm_prediction["fak_confirmed"] = True
+                        dashboard.status_message = f"LIMIT ORDER: {gbm_side} {num_shares:.0f} @ ${limit_price:.2f} (ML P(win)={ml_prob:.1%})"
+                    else:
+                        logger.warning(f"Limit order placement failed after ML gate confirmation")
+                        pending_limit_orders.pop(market.slug, None)
+
+        # ── Suppress legacy FAK when taker mode is active ───────────────
+        # The taker path above already placed (or chose not to place) the trade
+        # via the ML gate. Suppress the ensemble FAK at line ~enter_trade so we
+        # don't double-fire on the same cycle.
+        if config.TAKER_MODE_ENABLED and config.TRADING_MODE == "live" and decision.side is not None:
+            signal_data["_predicted_side"] = decision.side
+            decision = EnsembleDecision(
+                side=None, confidence="skip",
+                momentum_vote=decision.momentum_vote,
+                reversion_vote=decision.reversion_vote,
+                structure_vote=decision.structure_vote,
+                reason=f"Taker mode active (would have FAK'd {decision.side} {decision.confidence})",
+            )
 
         # ── FAK disabled — record prediction but don't place order ──────
         # When FAK is disabled, null out the ensemble decision so enter_trade()
@@ -1046,6 +1173,17 @@ async def _resolve_in_background(market: MarketInfo, trade_id: int | None):
                         await notify_win(trade_id, pnl, bal, rr)
                     elif trade_data["outcome"] == "loss":
                         await notify_loss(trade_id, pnl, bal, rr)
+
+                    # Feed taker trades back into the safety monitor
+                    if config.TRADING_MODE == "live" and taker_monitor.is_taker_trade(trade_id):
+                        won = trade_data["outcome"] == "win"
+                        taker_monitor.record_resolution(trade_id, pnl, won)
+                        s = taker_monitor.stats()
+                        logger.info(
+                            f"📊 TAKER MONITOR: {s['trades']} resolved, "
+                            f"win_rate={s['win_rate']:.1%}, avg_pnl=${s['avg_pnl']:.2f}, "
+                            f"open={s['open']}, halted={s['halted']}"
+                        )
                 dashboard.status_message = (
                     f"RESOLVED: {winning_side} won — "
                     f"balance=${portfolio.balance:,.2f} ({portfolio.pnl_pct:+.2f}%)"

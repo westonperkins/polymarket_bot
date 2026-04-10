@@ -7,7 +7,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from ml.features import build_features, FEATURE_COLS
+from ml.features import build_features, FEATURE_COLS, GATE_FEATURE_COLS
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,9 @@ class BacktestResult:
     max_drawdown: float
     profit_factor: float  # gross wins / gross losses
     avg_pnl: float
+    avg_winner: float  # mean PnL of winning trades
+    avg_loser: float   # mean PnL of losing trades (negative)
+    avg_rr: float      # avg_winner / |avg_loser| — reward-to-risk ratio
     description: str
 
 
@@ -61,13 +64,18 @@ def run_all_backtests(decided: pd.DataFrame, model, feature_cols: list) -> list[
 
 def _baseline(df: pd.DataFrame) -> BacktestResult:
     """Actual bot performance."""
-    wins = df[df["outcome"] == "win"]["pnl"].sum()
-    losses = abs(df[df["outcome"] == "loss"]["pnl"].sum())
+    win_rows = df[df["pnl"] > 0]["pnl"]
+    loss_rows = df[df["pnl"] < 0]["pnl"]
+    wins_sum = win_rows.sum()
+    losses_sum = abs(loss_rows.sum())
     pnl = df["pnl"].sum()
     n = len(df)
     wr = (df["outcome"] == "win").mean() if n > 0 else 0
     dd = _max_drawdown(df["pnl"].values)
-    pf = wins / losses if losses > 0 else float("inf")
+    pf = wins_sum / losses_sum if losses_sum > 0 else float("inf")
+    avg_w = float(win_rows.mean()) if len(win_rows) > 0 else 0.0
+    avg_l = float(loss_rows.mean()) if len(loss_rows) > 0 else 0.0
+    rr = (avg_w / abs(avg_l)) if avg_l < 0 else float("inf")
 
     return BacktestResult(
         strategy="Baseline (actual)",
@@ -75,6 +83,9 @@ def _baseline(df: pd.DataFrame) -> BacktestResult:
         win_rate=round(wr, 3), total_pnl=round(pnl, 2),
         max_drawdown=round(dd, 2), profit_factor=round(pf, 2),
         avg_pnl=round(pnl / n, 2) if n > 0 else 0,
+        avg_winner=round(avg_w, 2),
+        avg_loser=round(avg_l, 2),
+        avg_rr=round(rr, 2) if rr != float("inf") else float("inf"),
         description="Actual bot performance",
     )
 
@@ -190,23 +201,216 @@ def _compute_result(
         return BacktestResult(
             strategy=name, trades_taken=0, trades_skipped=n_skipped,
             win_rate=0, total_pnl=0, max_drawdown=0, profit_factor=0,
-            avg_pnl=0, description=desc,
+            avg_pnl=0, avg_winner=0, avg_loser=0, avg_rr=0,
+            description=desc,
         )
 
     wr = (taken["outcome"] == "win").mean()
     pnl = taken["pnl"].sum()
-    wins = taken[taken["pnl"] > 0]["pnl"].sum()
-    losses = abs(taken[taken["pnl"] < 0]["pnl"].sum())
+    win_rows = taken[taken["pnl"] > 0]["pnl"]
+    loss_rows = taken[taken["pnl"] < 0]["pnl"]
+    wins_sum = win_rows.sum()
+    losses_sum = abs(loss_rows.sum())
     dd = _max_drawdown(taken["pnl"].values)
-    pf = wins / losses if losses > 0 else float("inf")
+    pf = wins_sum / losses_sum if losses_sum > 0 else float("inf")
+    avg_w = float(win_rows.mean()) if len(win_rows) > 0 else 0.0
+    avg_l = float(loss_rows.mean()) if len(loss_rows) > 0 else 0.0
+    rr = (avg_w / abs(avg_l)) if avg_l < 0 else float("inf")
 
     return BacktestResult(
         strategy=name, trades_taken=n, trades_skipped=n_skipped,
         win_rate=round(wr, 3), total_pnl=round(pnl, 2),
         max_drawdown=round(dd, 2), profit_factor=round(pf, 2),
         avg_pnl=round(pnl / n, 2) if n > 0 else 0,
+        avg_winner=round(avg_w, 2),
+        avg_loser=round(avg_l, 2),
+        avg_rr=round(rr, 2) if rr != float("inf") else float("inf"),
         description=desc,
     )
+
+
+def _dedupe_columns(d: pd.DataFrame) -> pd.DataFrame:
+    """Drop duplicate column labels left over from the trades+signals SQL join."""
+    return d.loc[:, ~d.columns.duplicated()].copy()
+
+
+def _build_directional_set(
+    decided: pd.DataFrame, skipped: pd.DataFrame
+) -> pd.DataFrame:
+    """Combine decided + skipped into the set of cycles we can simulate.
+
+    A cycle is included only if the bot or ensemble had a direction (Up/Down)
+    and market_outcome is known. Adds a `chosen_side` column.
+    """
+    frames = []
+    if len(decided) > 0:
+        d = _dedupe_columns(decided)
+        d["chosen_side"] = d["side"]
+        frames.append(d)
+    if len(skipped) > 0:
+        s = _dedupe_columns(skipped)
+        s["chosen_side"] = s["final_vote"] if "final_vote" in s.columns else None
+        frames.append(s)
+    if not frames:
+        return pd.DataFrame()
+
+    combined = pd.concat(frames, ignore_index=True)
+    combined = combined[combined["chosen_side"].isin(["Up", "Down"])]
+    if "market_outcome" not in combined.columns:
+        return pd.DataFrame()
+    combined = combined[combined["market_outcome"].notna()]
+    combined = combined[combined["market_outcome"].isin(["Up", "Down"])]
+    return combined
+
+
+def _simulate_taker_core(
+    combined: pd.DataFrame,
+    model,
+    feature_cols: list,
+    half_spread_cents: float,
+    label_prefix: str,
+) -> list[BacktestResult]:
+    """Score the combined opportunity set with `model`, simulate taker fills,
+    and return BacktestResult rows for each ML threshold bucket.
+    """
+    if len(combined) == 0:
+        return []
+
+    half_spread = half_spread_cents / 100.0
+
+    df = build_features(combined)
+    X = df[feature_cols].values
+    df["sim_model_prob"] = model.predict_proba(X)[:, 1]
+
+    up_odds = pd.to_numeric(df.get("up_odds"), errors="coerce")
+    down_odds = pd.to_numeric(df.get("down_odds"), errors="coerce")
+    is_up = df["chosen_side"] == "Up"
+    mid = np.where(is_up, up_odds, down_odds)
+    fill = np.clip(mid + half_spread, 0.01, 0.99)
+    won = (df["market_outcome"] == df["chosen_side"]).values
+    sim_pnl = np.where(won, (1.0 - fill) / fill, -1.0)
+
+    df["sim_fill"] = fill
+    df["pnl"] = sim_pnl
+    df["outcome"] = np.where(won, "win", "loss")
+    df = df[pd.notna(mid)]
+    if len(df) == 0:
+        return []
+
+    results = []
+    label_suffix = f"({half_spread_cents:.1f}c spread)"
+
+    results.append(_compute_result(
+        df, 0,
+        f"{label_prefix} all dir {label_suffix}",
+        f"{label_prefix}: taker fill on every directional cycle",
+    ))
+
+    for threshold in [0.55, 0.60, 0.65, 0.70]:
+        subset = df[df["sim_model_prob"] >= threshold]
+        n_skipped = len(df) - len(subset)
+        results.append(_compute_result(
+            subset, n_skipped,
+            f"{label_prefix} ML>{int(threshold*100)}% {label_suffix}",
+            f"{label_prefix}: taker fill gated by P(win) >= {threshold}",
+        ))
+
+    return results
+
+
+def simulate_taker_execution(
+    decided: pd.DataFrame,
+    skipped: pd.DataFrame,
+    gate_model,
+    half_spread_cents: float = 1.0,
+) -> list[BacktestResult]:
+    """In-sample taker counterfactual: scores every directional cycle with the
+    full gate model (trained on all decided trades) and reports per-threshold
+    PnL. Generous baseline — see simulate_taker_holdout for the held-out version.
+    """
+    combined = _build_directional_set(decided, skipped)
+    return _simulate_taker_core(
+        combined, gate_model, GATE_FEATURE_COLS, half_spread_cents, "Taker"
+    )
+
+
+def simulate_taker_holdout(
+    decided: pd.DataFrame,
+    skipped: pd.DataFrame,
+    half_spread_cents: float = 1.0,
+    train_frac: float = 0.7,
+) -> tuple[list[BacktestResult], dict]:
+    """Out-of-sample taker counterfactual.
+
+    Splits decided trades temporally at `train_frac`, trains a fresh gate model
+    on the train slice only, and runs the taker simulation on cycles in the
+    holdout window (test decided + skipped after the split timestamp).
+
+    This is the credibility test for simulate_taker_execution: if the holdout
+    PnL collapses, the in-sample numbers were leaking. If it holds, the model
+    has real signal and step 2 is justified at the threshold the holdout
+    confirms.
+
+    Returns (results, meta) where meta has split timestamp, sample sizes, etc.
+    """
+    import xgboost as xgb
+
+    if "timestamp" not in decided.columns or len(decided) < 50:
+        return [], {"error": "not enough decided trades for a temporal holdout"}
+
+    d = _dedupe_columns(decided).sort_values("timestamp").reset_index(drop=True)
+    split_idx = int(len(d) * train_frac)
+    train_decided = d.iloc[:split_idx].copy()
+    test_decided = d.iloc[split_idx:].copy()
+    split_ts = d.iloc[split_idx]["timestamp"]
+
+    if len(train_decided) < 30 or len(test_decided) < 10:
+        return [], {"error": "split produced too few train/test rows"}
+
+    # Train fresh gate model on train slice only
+    train_features = build_features(train_decided)
+    X_train = train_features[GATE_FEATURE_COLS].values
+    y_train = train_features["y"].values
+
+    n_pos = int(y_train.sum())
+    n_neg = len(y_train) - n_pos
+    spw = (n_neg / n_pos) if n_pos > 0 else 1.0
+
+    holdout_model = xgb.XGBClassifier(
+        n_estimators=200,
+        max_depth=4,
+        learning_rate=0.05,
+        min_child_weight=10,
+        scale_pos_weight=spw,
+        eval_metric="logloss",
+        use_label_encoder=False,
+        verbosity=0,
+    )
+    holdout_model.fit(X_train, y_train)
+
+    # Holdout opportunity set: test decided + skipped after the split
+    if len(skipped) > 0 and "timestamp" in skipped.columns:
+        s = _dedupe_columns(skipped)
+        holdout_skipped = s[s["timestamp"] >= split_ts]
+    else:
+        holdout_skipped = skipped
+
+    holdout_set = _build_directional_set(test_decided, holdout_skipped)
+
+    label = f"Taker HOLDOUT(train={int(train_frac*100)}%)"
+    results = _simulate_taker_core(
+        holdout_set, holdout_model, GATE_FEATURE_COLS, half_spread_cents, label
+    )
+
+    meta = {
+        "train_decided": len(train_decided),
+        "test_decided": len(test_decided),
+        "holdout_skipped": int(len(holdout_skipped)) if len(holdout_skipped) > 0 else 0,
+        "holdout_directional": len(holdout_set),
+        "split_timestamp": str(split_ts),
+        "train_frac": train_frac,
+    }
+    return results, meta
 
 
 def _max_drawdown(pnl_series: np.ndarray) -> float:

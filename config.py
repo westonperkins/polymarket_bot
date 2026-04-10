@@ -136,3 +136,19 @@ ML_GATE_ENABLED = os.environ.get("ML_GATE_ENABLED", "true").lower() == "true"
 ML_CONFIDENCE_THRESHOLD = float(os.environ.get("ML_CONFIDENCE_THRESHOLD", "0.55"))
 ML_MODEL_PATH = os.environ.get("ML_MODEL_PATH", "ml/output/gate_model.json")           # stop if balance drops below X% of starting
 
+# ── Taker Mode (step 2 validation of the taker counterfactual) ────────
+# When enabled, the ML gate at T-30 routes to a marketable FAK instead of a
+# passive limit. Designed for live small-sample validation of the simulated
+# holdout in ml/backtest.py:simulate_taker_holdout. Off by default.
+TAKER_MODE_ENABLED = os.environ.get("TAKER_MODE_ENABLED", "false").lower() == "true"
+# Position sizing multiplier vs. the GBM-computed share count.
+TAKER_MODE_SIZE_MULT = float(os.environ.get("TAKER_MODE_SIZE_MULT", "0.5"))
+# Cap on slippage (cents per share) when crossing the spread.
+TAKER_MODE_MAX_SLIPPAGE_CENTS = float(os.environ.get("TAKER_MODE_MAX_SLIPPAGE_CENTS", "3"))
+# Number of resolved taker trades before the auto-halt logic starts checking.
+TAKER_MODE_HALT_AFTER_N = int(os.environ.get("TAKER_MODE_HALT_AFTER_N", "30"))
+# Halt if rolling win rate over last N taker trades drops below this floor.
+TAKER_MODE_MIN_WIN_RATE = float(os.environ.get("TAKER_MODE_MIN_WIN_RATE", "0.65"))
+# Halt if rolling avg PnL per taker trade drops below this dollar floor.
+TAKER_MODE_MIN_AVG_PNL = float(os.environ.get("TAKER_MODE_MIN_AVG_PNL", "0.20"))
+
