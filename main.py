@@ -1012,6 +1012,114 @@ async def on_signal_window(
                     )
                     pending_limit_orders.pop(market.slug, None)
 
+        # ── Standalone taker path (no GBM prediction needed) ────────────
+        # When the T-120 GBM didn't produce a prediction (e.g. fair value said
+        # no_edge) but the ML gate passed on the ensemble's direction at T-30,
+        # we can still fire a taker order using T-30 data directly.
+        if (
+            config.TAKER_MODE_ENABLED
+            and config.TRADING_MODE == "live"
+            and not gbm_prediction
+            and ml_prob is not None
+            and ml_prob >= config.ML_CONFIDENCE_THRESHOLD
+            and ml_eval_side is not None
+            and market.slug not in pending_trades
+        ):
+            taker_halted, taker_halt_reason = taker_monitor.is_halted()
+            if taker_halted:
+                logger.warning(
+                    f"⚠️  Taker mode HALTED ({taker_halt_reason}) — skipping"
+                )
+            else:
+                side = ml_eval_side
+                token_id = (
+                    market.clob_token_id_up if side == "Up"
+                    else market.clob_token_id_down
+                )
+                current_mid = odds.up_price if side == "Up" else odds.down_price
+                taker_max_price = round(
+                    min(0.99, current_mid + config.TAKER_MODE_MAX_SLIPPAGE_CENTS / 100.0),
+                    2,
+                )
+                wallet_balance = simulator._executor.get_balance()
+                taker_dollars = round(
+                    wallet_balance * config.RISK_MEDIUM_CONFIDENCE * config.TAKER_MODE_SIZE_MULT,
+                    2,
+                )
+
+                if taker_dollars < 1.0:
+                    logger.info(
+                        f"⏭️  TAKER skipped: dollar amount ${taker_dollars:.2f} below $1 minimum"
+                    )
+                else:
+                    logger.info(
+                        f"🎯 TAKER FIRE (standalone): {side} P(win)={ml_prob:.1%} "
+                        f"| ${taker_dollars:.2f} max=${taker_max_price:.2f} (mid=${current_mid:.3f})"
+                    )
+                    order_response = simulator._executor.place_market_order(
+                        token_id=token_id,
+                        amount=taker_dollars,
+                        max_price=taker_max_price,
+                    )
+                    if order_response is not None:
+                        fill_cost = float(order_response.get("_fill_cost", taker_dollars))
+                        fill_shares = float(order_response.get("_fill_shares", 0))
+                        effective_price = fill_cost / fill_shares if fill_shares > 0 else 0
+                        slippage_pct = (
+                            ((effective_price - current_mid) / current_mid * 100)
+                            if current_mid > 0 else 0
+                        )
+                        real_payout_rate = (
+                            (fill_shares - fill_cost) / fill_cost if fill_cost > 0 else 0.0
+                        )
+                        potential_win = fill_shares - fill_cost
+                        potential_loss = fill_cost
+                        rr_ratio = (
+                            round(potential_win / potential_loss, 2)
+                            if potential_loss > 0 else 0
+                        )
+
+                        taker_trade_id = db.insert_trade(
+                            conn,
+                            market_id=market.slug,
+                            side=side,
+                            entry_odds=current_mid,
+                            position_size=fill_cost,
+                            payout_rate=real_payout_rate,
+                            confidence_level="taker",
+                            outcome="pending",
+                            pnl=0.0,
+                            portfolio_balance_after=simulator._tracked_balance,
+                            risk_reward_ratio=rr_ratio,
+                        )
+                        signal_data["fill_price_per_share"] = effective_price
+                        signal_data["fill_slippage_pct"] = slippage_pct
+                        signal_data["ml_win_prob"] = ml_prob
+                        clean_signals = {
+                            k: v for k, v in signal_data.items() if not k.startswith("_")
+                        }
+                        db.insert_signals(conn, trade_id=taker_trade_id, **clean_signals)
+                        taker_monitor.register_trade(taker_trade_id)
+                        pending_trades[market.slug] = taker_trade_id
+
+                        slip_emoji = (
+                            "🟢" if slippage_pct <= 5
+                            else "🟡" if slippage_pct <= 15
+                            else "🔴"
+                        )
+                        logger.info(
+                            f"{slip_emoji} TAKER FILL: ${effective_price:.3f}/share "
+                            f"(mid was ${current_mid:.3f}) slippage={slippage_pct:+.1f}% | "
+                            f"R:R={rr_ratio}:1 (win +${potential_win:.2f} / lose -${potential_loss:.2f})"
+                        )
+                        dashboard.status_message = (
+                            f"TAKER FILL: {side} ${fill_cost:.2f} @ ${effective_price:.3f} "
+                            f"(P(win)={ml_prob:.1%})"
+                        )
+                    else:
+                        err = (simulator._executor._last_order_error or "").lower()
+                        logger.warning(f"Taker order failed: {err or 'unknown error'}")
+
         # ── Suppress legacy FAK when taker mode is active ───────────────
         # The taker path above already placed (or chose not to place) the trade
         # via the ML gate. Suppress the ensemble FAK at line ~enter_trade so we
