@@ -121,7 +121,9 @@ class TimingEngine:
             await self.on_market_discovered(market)
 
         # ── Step 2a: Limit entry window (T-120) if enabled ─────────────
-        if config.LIMIT_ORDER_ENABLED and self.on_limit_entry_window:
+        # Also fires when taker mode is on — the T-120 GBM prediction is
+        # needed at T-30 for both the limit and taker execution paths.
+        if (config.LIMIT_ORDER_ENABLED or config.TAKER_MODE_ENABLED) and self.on_limit_entry_window:
             await self._wait_until_limit_entry(market)
             if not self.running:
                 return
