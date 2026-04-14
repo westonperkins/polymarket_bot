@@ -813,7 +813,7 @@ async def on_signal_window(
         #   P(win) > 60% → min R:R 0.75:1
         #   P(win) > 55% → min R:R 1.0:1
         #   P(win) ≤ 55% → skip
-        if gbm_prediction and config.LIMIT_ORDER_ENABLED and config.TRADING_MODE == "live":
+        if gbm_prediction and (config.LIMIT_ORDER_ENABLED or config.TAKER_MODE_ENABLED) and config.TRADING_MODE == "live":
             gbm_side = gbm_prediction.get("gbm_side")
             token_id = gbm_prediction["token_id"]
             limit_price = gbm_prediction["limit_price"]
@@ -985,9 +985,9 @@ async def on_signal_window(
                         f"⚠️  Taker mode HALTED ({taker_halt_reason}) — falling back to limit path"
                     )
 
-                if not taker_fired:
-                    # Either taker mode is off, or it failed to fire — use the
-                    # existing passive limit path.
+                if not taker_fired and config.LIMIT_ORDER_ENABLED:
+                    # Taker mode is off (or halted) and limits are enabled — use
+                    # the existing passive limit path.
                     logger.info(
                         f"✅ ML GATE CONFIRMED: {gbm_side} P(win)={ml_prob:.1%} R:R={expected_rr:.1f}:1 "
                         f"(min {min_rr}:1) — placing limit order ${limit_price:.2f} x {num_shares:.0f} shares"
@@ -1004,6 +1004,13 @@ async def on_signal_window(
                     else:
                         logger.warning(f"Limit order placement failed after ML gate confirmation")
                         pending_limit_orders.pop(market.slug, None)
+                elif not taker_fired:
+                    # Taker failed/skipped and limits are disabled — nothing to do
+                    logger.info(
+                        f"⏭️  ML gate passed ({gbm_side} P(win)={ml_prob:.1%}) but taker "
+                        f"{'halted' if taker_halted else 'failed'} and LIMIT_ORDER_ENABLED=false — skipping"
+                    )
+                    pending_limit_orders.pop(market.slug, None)
 
         # ── Suppress legacy FAK when taker mode is active ───────────────
         # The taker path above already placed (or chose not to place) the trade

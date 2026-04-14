@@ -4,7 +4,7 @@ POLYMARKET BOT — ML ANALYSIS REPORT
 
 --- DATA OVERVIEW ---
 Total resolved trades: 557
-Total skipped cycles: 4005
+Total skipped cycles: 4852
 Wins: 248 | Losses: 309
 Win rate: 44.5%
 Date range: 2026-03-24T03:49:32.968950+00:00 to 2026-04-06T00:09:45.507526+00:00
@@ -56,11 +56,11 @@ Signals with >20% missing data:
       has_fair_value                      importance=0.0000
 
 --- SKIP VERIFICATION ---
-Skips with known outcome: 3422
-Skips where ensemble had a direction: 2607 (would have won 2093/2607 = 80.3%)
+Skips with known outcome: 4266
+Skips where ensemble had a direction: 3451 (would have won 2737/3451 = 79.3%)
 
 By skip reason:
-  no_consensus             : 1858 skips, 1179 would have won (63.5%)
+  no_consensus             : 2702 skips, 1823 would have won (67.5%)
   empty_book               :  570 skips, 527 would have won (92.5%)
   ml_gate                  :  513 skips, 284 would have won (55.4%)
   rr_too_low               :  283 skips,   0 would have won (0.0%)
@@ -73,8 +73,8 @@ By skip reason:
   unfilled_fak_confirmed   :    4 skips,   0 would have won (0.0%)
   fak_disagrees            :    3 skips,   0 would have won (0.0%)
 
-Average model P(win) on skips: 0.672
-High-confidence skips (model >60%): 2312 — THESE ARE MISSED OPPORTUNITIES
+Average model P(win) on skips: 0.681
+High-confidence skips (model >60%): 2993 — THESE ARE MISSED OPPORTUNITIES
 
 --- STRATEGY COMPARISON ---
 Strategy                             Trades   Win%        PnL  Avg PnL    AvgW    AvgL    R:R    MaxDD     PF
@@ -106,14 +106,14 @@ limit. PnL is normalized to $1 per trade. Scored with the gate model
 
 Strategy                             Trades   Win%        PnL  Avg PnL    AvgW    AvgL    R:R    MaxDD     PF
 --------------------------------------------------------------------------------------------------------------
-Taker all dir (1.0c spread)            3098 74.4% $  5750.86 $   1.86 $  2.84 $ -1.00   2.84 $  67.99  8.25
-Taker ML>55% (1.0c spread)              824 85.6% $  3792.29 $   4.60 $  5.55 $ -1.00   5.55 $   4.00 32.87
-Taker ML>60% (1.0c spread)              632 88.8% $  2716.95 $   4.30 $  4.97 $ -1.00   4.97 $   2.06 39.27
-Taker ML>65% (1.0c spread)              465 92.7% $  1450.48 $   3.12 $  3.44 $ -1.00   3.44 $   2.00 43.66
-Taker ML>70% (1.0c spread)              341 94.4% $  1359.22 $   3.99 $  4.28 $ -1.00   4.28 $   2.00 72.54
+Taker all dir (1.0c spread)            3942 74.8% $  6173.87 $   1.57 $  2.43 $ -1.00   2.43 $  67.99  7.22
+Taker ML>55% (1.0c spread)             1051 85.7% $  3949.15 $   3.76 $  4.55 $ -1.00   4.55 $   4.00 27.33
+Taker ML>60% (1.0c spread)              811 88.2% $  2837.64 $   3.50 $  4.10 $ -1.00   4.10 $   3.00 30.56
+Taker ML>65% (1.0c spread)              603 91.5% $  1547.17 $   2.57 $  2.90 $ -1.00   2.90 $   2.00 31.34
+Taker ML>70% (1.0c spread)              423 93.4% $  1418.03 $   3.35 $  3.66 $ -1.00   3.66 $   2.00 51.64
 
 Best in-sample taker bucket: Taker ML>55% (1.0c spread)
-  → 824 trades at 85.6% win rate, $4.60 avg PnL/trade, R:R 5.55
+  → 1051 trades at 85.7% win rate, $3.76 avg PnL/trade, R:R 4.55
   → vs. baseline: 557 trades at 44.5%, $0.11 avg PnL/trade
   ⚠ In-sample only — see HOLDOUT section below for the credibility check.
 
@@ -121,26 +121,26 @@ Best in-sample taker bucket: Taker ML>55% (1.0c spread)
 Trained gate model on first 70% of decided trades (389 rows), then scored
 only cycles after the split timestamp (2026-03-31T02:19:30):
   • 168 held-out decided trades
-  • 2399 held-out skipped cycles
-  • 1946 directional cycles in the holdout window
+  • 3246 held-out skipped cycles
+  • 2790 directional cycles in the holdout window
 
 Strategy                                       Trades   Win%        PnL  Avg PnL    AvgW    AvgL    R:R    MaxDD     PF
 ------------------------------------------------------------------------------------------------------------------------
-Taker HOLDOUT(train=70%) all dir (1.0c spread)    1946 75.4% $   946.68 $   0.49 $  0.97 $ -1.00   0.97 $  39.60  2.98
-Taker HOLDOUT(train=70%) ML>55% (1.0c spread)     866 82.1% $   532.72 $   0.62 $  0.97 $ -1.00   0.97 $  13.48  4.44
-Taker HOLDOUT(train=70%) ML>60% (1.0c spread)     715 82.0% $   438.75 $   0.61 $  0.97 $ -1.00   0.97 $  11.91  4.40
-Taker HOLDOUT(train=70%) ML>65% (1.0c spread)     587 82.5% $   366.14 $   0.62 $  0.97 $ -1.00   0.97 $   8.50  4.55
-Taker HOLDOUT(train=70%) ML>70% (1.0c spread)     449 82.4% $   277.97 $   0.62 $  0.96 $ -1.00   0.96 $   5.06  4.52
+Taker HOLDOUT(train=70%) all dir (1.0c spread)    2790 75.7% $  1369.70 $   0.49 $  0.97 $ -1.00   0.97 $  39.60  3.02
+Taker HOLDOUT(train=70%) ML>55% (1.0c spread)    1239 82.7% $   772.99 $   0.62 $  0.96 $ -1.00   0.96 $  13.48  4.61
+Taker HOLDOUT(train=70%) ML>60% (1.0c spread)    1033 82.8% $   645.20 $   0.62 $  0.96 $ -1.00   0.96 $  11.91  4.62
+Taker HOLDOUT(train=70%) ML>65% (1.0c spread)     840 83.0% $   526.75 $   0.63 $  0.96 $ -1.00   0.96 $   8.50  4.68
+Taker HOLDOUT(train=70%) ML>70% (1.0c spread)     644 84.0% $   413.73 $   0.64 $  0.96 $ -1.00   0.96 $   5.06  5.02
 
 In-sample vs holdout comparison (per ML threshold):
   Threshold      IS Win%    IS Avg   OOS Win%   OOS Avg  Verdict
-  >55%            85.6% $   4.60     82.1% $   0.62  HOLDS
-  >60%            88.8% $   4.30     82.0% $   0.61  HOLDS
-  >65%            92.7% $   3.12     82.5% $   0.62  PARTIAL (degraded but positive)
-  >70%            94.4% $   3.99     82.4% $   0.62  PARTIAL (degraded but positive)
+  >55%            85.7% $   3.76     82.7% $   0.62  HOLDS
+  >60%            88.2% $   3.50     82.8% $   0.62  HOLDS
+  >65%            91.5% $   2.57     83.0% $   0.63  HOLDS
+  >70%            93.4% $   3.35     84.0% $   0.64  HOLDS
 
 Best out-of-sample bucket: Taker HOLDOUT(train=70%) ML>55% (1.0c spread)
-  → 866 trades at 82.1% win rate, $0.62 avg PnL/trade, R:R 0.97
+  → 1239 trades at 82.7% win rate, $0.62 avg PnL/trade, R:R 0.96
   → HOLDOUT VALIDATES the in-sample edge — step 2 (small live test) is justified.
 
 --- ACTIONABLE RECOMMENDATIONS ---
