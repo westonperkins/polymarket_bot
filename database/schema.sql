@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS trades (
     entry_odds DOUBLE PRECISION,
     position_size DOUBLE PRECISION,
     payout_rate DOUBLE PRECISION,
-    confidence_level TEXT NOT NULL CHECK (confidence_level IN ('high', 'medium', 'skip')),
+    confidence_level TEXT NOT NULL CHECK (confidence_level IN ('high', 'medium', 'skip', 'taker')),
     outcome TEXT NOT NULL DEFAULT 'pending' CHECK (outcome IN ('win', 'loss', 'skip', 'pending')),
     pnl DOUBLE PRECISION DEFAULT 0.0,
     portfolio_balance_after DOUBLE PRECISION,
@@ -60,6 +60,21 @@ BEGIN
     ) THEN
         ALTER TABLE trades ADD COLUMN risk_reward_ratio DOUBLE PRECISION;
     END IF;
+END $$;
+
+-- Migration: widen confidence_level CHECK to allow 'taker' for step 2 trades.
+-- The original constraint only accepted 'high'/'medium'/'skip', which caused
+-- every taker insert to fail the check and wedge the transaction.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'trades' AND constraint_name LIKE '%confidence_level%check%'
+    ) THEN
+        ALTER TABLE trades DROP CONSTRAINT IF EXISTS trades_confidence_level_check;
+    END IF;
+    ALTER TABLE trades ADD CONSTRAINT trades_confidence_level_check
+        CHECK (confidence_level IN ('high', 'medium', 'skip', 'taker'));
 END $$;
 
 CREATE TABLE IF NOT EXISTS signals (
