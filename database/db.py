@@ -66,6 +66,20 @@ class ConnectionManager:
         # Quick health check
         try:
             self._conn.cursor().execute("SELECT 1")
+        except psycopg2.errors.InFailedSqlTransaction:
+            # Previous statement aborted the transaction and nothing rolled
+            # back. Reset the connection state so subsequent queries don't
+            # cascade-fail with the same error.
+            logger.warning("Database transaction aborted — rolling back")
+            try:
+                self._conn.rollback()
+            except Exception as e:
+                logger.warning(f"Rollback failed: {type(e).__name__}: {e} — reconnecting")
+                try:
+                    self._conn.close()
+                except Exception:
+                    pass
+                self._connect()
         except _RECOVERABLE:
             logger.warning("Database connection lost, reconnecting...")
             try:
