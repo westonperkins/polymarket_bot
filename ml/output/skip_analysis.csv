@@ -12797,3 +12797,945 @@ Name: 5407, dtype: object",no_consensus,Up,Up,True,0.759,0.695,18.0
 "trade_id      5953
 trade_id    5953.0
 Name: 5408, dtype: object",no_consensus,Up,Up,True,0.668,0.515,18.0
+"trade_id      5957
+trade_id    5957.0
+Name: 5412, dtype: object",no_edge,,Up,,0.699,0.485,19.0
+"trade_id      5958
+trade_id    5958.0
+Name: 5413, dtype: object",no_consensus,Up,Up,True,0.843,0.485,19.0
+"trade_id      5960
+trade_id    5960.0
+Name: 5415, dtype: object",ml_gate,,Up,,0.594,0.495,19.0
+"trade_id      5961
+trade_id    5961.0
+Name: 5416, dtype: object",no_consensus,Up,Up,True,0.872,0.495,19.0
+"trade_id      5962
+trade_id    5962.0
+Name: 5417, dtype: object",ml_gate,,Down,,0.895,0.515,19.0
+"trade_id      5963
+trade_id    5963.0
+Name: 5418, dtype: object",no_consensus,Down,Down,True,0.702,0.515,19.0
+"trade_id      5964
+trade_id    5964.0
+Name: 5419, dtype: object",rr_too_low,,Up,,0.803,0.515,19.0
+"trade_id      5965
+trade_id    5965.0
+Name: 5420, dtype: object",no_consensus,Down,Up,False,0.746,0.515,19.0
+"trade_id      5966
+trade_id    5966.0
+Name: 5421, dtype: object",ml_gate,,Down,,0.838,0.495,19.0
+"trade_id      5967
+trade_id    5967.0
+Name: 5422, dtype: object",no_consensus,Up,Down,False,0.734,0.535,19.0
+"trade_id      5968
+trade_id    5968.0
+Name: 5423, dtype: object",ml_gate,,Up,,0.807,0.515,20.0
+"trade_id      5969
+trade_id    5969.0
+Name: 5424, dtype: object",no_consensus,Up,Up,True,0.804,0.575,20.0
+"trade_id      5970
+trade_id    5970.0
+Name: 5425, dtype: object",ml_gate,,Up,,0.828,0.495,20.0
+"trade_id      5971
+trade_id    5971.0
+Name: 5426, dtype: object",no_consensus,Up,Up,True,0.716,0.455,20.0
+"trade_id      5972
+trade_id    5972.0
+Name: 5427, dtype: object",ml_gate,,Up,,0.711,0.485,20.0
+"trade_id      5973
+trade_id    5973.0
+Name: 5428, dtype: object",no_consensus,Up,Up,True,0.771,0.485,20.0
+"trade_id      5974
+trade_id    5974.0
+Name: 5429, dtype: object",ml_gate,,Down,,0.663,0.495,20.0
+"trade_id      5975
+trade_id    5975.0
+Name: 5430, dtype: object",no_consensus,Down,Down,True,0.649,0.515,20.0
+"trade_id      5976
+trade_id    5976.0
+Name: 5431, dtype: object",ml_gate,,Down,,0.762,0.525,20.0
+"trade_id      5977
+trade_id    5977.0
+Name: 5432, dtype: object",no_consensus,Down,Down,True,0.846,0.525,20.0
+"trade_id      5978
+trade_id    5978.0
+Name: 5433, dtype: object",ml_gate,,Up,,0.784,0.515,20.0
+"trade_id      5979
+trade_id    5979.0
+Name: 5434, dtype: object",no_consensus,Down,Up,False,0.847,0.515,20.0
+"trade_id      5980
+trade_id    5980.0
+Name: 5435, dtype: object",ml_gate,,Down,,0.816,0.515,20.0
+"trade_id      5981
+trade_id    5981.0
+Name: 5436, dtype: object",no_consensus,Down,Down,True,0.776,0.515,20.0
+"trade_id      5982
+trade_id    5982.0
+Name: 5437, dtype: object",rr_too_low,,Up,,0.71,0.495,20.0
+"trade_id      5986
+trade_id    5986.0
+Name: 5440, dtype: object",no_consensus,Up,Up,True,0.845,0.505,17.0
+"trade_id      5987
+trade_id    5987.0
+Name: 5441, dtype: object",no_consensus,Down,Down,True,0.801,0.505,17.0
+"trade_id      5988
+trade_id    5988.0
+Name: 5442, dtype: object",no_consensus,Down,Down,True,0.479,0.505,17.0
+"trade_id      5989
+trade_id    5989.0
+Name: 5443, dtype: object",no_consensus,Up,Up,True,0.709,0.505,17.0
+"trade_id      5990
+trade_id    5990.0
+Name: 5444, dtype: object",no_consensus,Up,Up,True,0.802,0.505,17.0
+"trade_id      5991
+trade_id    5991.0
+Name: 5445, dtype: object",no_consensus,Down,Down,True,0.891,0.495,17.0
+"trade_id      5992
+trade_id    5992.0
+Name: 5446, dtype: object",no_consensus,Up,Up,True,0.532,0.515,17.0
+"trade_id      5993
+trade_id    5993.0
+Name: 5447, dtype: object",no_consensus,Down,Up,False,0.943,0.505,18.0
+"trade_id      5994
+trade_id    5994.0
+Name: 5448, dtype: object",no_consensus,Down,Down,True,0.835,0.525,18.0
+"trade_id      5995
+trade_id    5995.0
+Name: 5449, dtype: object",no_consensus,Up,Up,True,0.69,0.505,18.0
+"trade_id      5996
+trade_id    5996.0
+Name: 5450, dtype: object",no_consensus,Down,Down,True,0.878,0.505,18.0
+"trade_id      5997
+trade_id    5997.0
+Name: 5451, dtype: object",no_consensus,Up,Up,True,0.755,0.655,18.0
+"trade_id      5998
+trade_id    5998.0
+Name: 5452, dtype: object",no_consensus,Up,Up,True,0.839,0.505,18.0
+"trade_id      5999
+trade_id    5999.0
+Name: 5453, dtype: object",no_consensus,Up,Up,True,0.835,0.505,18.0
+"trade_id      6000
+trade_id    6000.0
+Name: 5454, dtype: object",no_consensus,Up,Up,True,0.941,0.505,18.0
+"trade_id      6001
+trade_id    6001.0
+Name: 5455, dtype: object",no_consensus,Down,Up,False,0.888,0.505,18.0
+"trade_id      6002
+trade_id    6002.0
+Name: 5456, dtype: object",no_consensus,Up,Up,True,0.597,0.465,18.0
+"trade_id      6003
+trade_id    6003.0
+Name: 5457, dtype: object",no_consensus,Up,Up,True,0.713,0.505,18.0
+"trade_id      6004
+trade_id    6004.0
+Name: 5458, dtype: object",no_consensus,Down,Down,True,0.674,0.505,19.0
+"trade_id      6005
+trade_id    6005.0
+Name: 5459, dtype: object",no_consensus,Down,Down,True,0.295,0.475,19.0
+"trade_id      6006
+trade_id    6006.0
+Name: 5460, dtype: object",no_consensus,Up,Up,True,0.893,0.495,19.0
+"trade_id      6007
+trade_id    6007.0
+Name: 5461, dtype: object",no_consensus,Down,Up,False,0.736,0.485,19.0
+"trade_id      6008
+trade_id    6008.0
+Name: 5462, dtype: object",no_consensus,Up,Up,True,0.829,0.505,19.0
+"trade_id      6009
+trade_id    6009.0
+Name: 5463, dtype: object",no_consensus,Up,Down,False,0.732,0.495,19.0
+"trade_id      6010
+trade_id    6010.0
+Name: 5464, dtype: object",no_consensus,Down,Up,False,0.882,0.495,19.0
+"trade_id      6011
+trade_id    6011.0
+Name: 5465, dtype: object",no_consensus,Up,Up,True,0.77,0.475,19.0
+"trade_id      6012
+trade_id    6012.0
+Name: 5466, dtype: object",no_consensus,Down,Up,False,0.641,0.485,19.0
+"trade_id      6013
+trade_id    6013.0
+Name: 5467, dtype: object",no_consensus,Up,Down,False,0.747,0.475,19.0
+"trade_id      6014
+trade_id    6014.0
+Name: 5468, dtype: object",no_consensus,Down,Down,True,0.491,0.475,20.0
+"trade_id      6015
+trade_id    6015.0
+Name: 5469, dtype: object",no_consensus,Down,Down,True,0.704,0.475,20.0
+"trade_id      6016
+trade_id    6016.0
+Name: 5470, dtype: object",no_consensus,Up,Up,True,0.745,0.505,20.0
+"trade_id      6017
+trade_id    6017.0
+Name: 5471, dtype: object",no_consensus,Down,Down,True,0.859,0.475,20.0
+"trade_id      6018
+trade_id    6018.0
+Name: 5472, dtype: object",no_consensus,Down,Down,True,0.856,0.505,20.0
+"trade_id      6019
+trade_id    6019.0
+Name: 5473, dtype: object",no_consensus,Down,Down,True,0.606,0.505,20.0
+"trade_id      6020
+trade_id    6020.0
+Name: 5474, dtype: object",no_consensus,Down,Down,True,0.667,0.515,20.0
+"trade_id      6021
+trade_id    6021.0
+Name: 5475, dtype: object",no_consensus,Up,Down,False,0.421,0.555,20.0
+"trade_id      6022
+trade_id    6022.0
+Name: 5476, dtype: object",no_consensus,Up,Up,True,0.469,0.525,20.0
+"trade_id      6023
+trade_id    6023.0
+Name: 5477, dtype: object",no_consensus,Down,Up,False,0.858,0.535,20.0
+"trade_id      6024
+trade_id    6024.0
+Name: 5478, dtype: object",no_consensus,Up,Up,True,0.557,0.505,21.0
+"trade_id      6025
+trade_id    6025.0
+Name: 5479, dtype: object",no_consensus,Down,Down,True,0.732,0.505,21.0
+"trade_id      6026
+trade_id    6026.0
+Name: 5480, dtype: object",no_consensus,Down,Down,True,0.848,0.505,21.0
+"trade_id      6027
+trade_id    6027.0
+Name: 5481, dtype: object",no_consensus,Up,Up,True,0.574,0.535,21.0
+"trade_id      6028
+trade_id    6028.0
+Name: 5482, dtype: object",no_consensus,Up,Up,True,0.872,0.505,21.0
+"trade_id      6029
+trade_id    6029.0
+Name: 5483, dtype: object",no_consensus,Down,Down,True,0.888,0.545,21.0
+"trade_id      6030
+trade_id    6030.0
+Name: 5484, dtype: object",no_consensus,Down,Down,True,0.523,0.505,21.0
+"trade_id      6031
+trade_id    6031.0
+Name: 5485, dtype: object",no_consensus,Up,Up,True,0.949,0.505,21.0
+"trade_id      6032
+trade_id    6032.0
+Name: 5486, dtype: object",no_consensus,Down,Down,True,0.86,0.535,21.0
+"trade_id      6033
+trade_id    6033.0
+Name: 5487, dtype: object",no_consensus,Up,Down,False,0.338,0.52,21.0
+"trade_id      6034
+trade_id    6034.0
+Name: 5488, dtype: object",no_consensus,Down,Down,True,0.537,0.505,22.0
+"trade_id      6035
+trade_id    6035.0
+Name: 5489, dtype: object",no_consensus,Down,Down,True,0.786,0.525,22.0
+"trade_id      6036
+trade_id    6036.0
+Name: 5490, dtype: object",no_consensus,Down,Down,True,0.794,0.515,22.0
+"trade_id      6037
+trade_id    6037.0
+Name: 5491, dtype: object",no_consensus,Down,Up,False,0.879,0.505,22.0
+"trade_id      6038
+trade_id    6038.0
+Name: 5492, dtype: object",no_consensus,Down,Down,True,0.57,0.375,22.0
+"trade_id      6039
+trade_id    6039.0
+Name: 5493, dtype: object",no_consensus,Up,Up,True,0.767,0.505,22.0
+"trade_id      6040
+trade_id    6040.0
+Name: 5494, dtype: object",no_consensus,Down,Down,True,0.473,0.395,22.0
+"trade_id      6041
+trade_id    6041.0
+Name: 5495, dtype: object",no_consensus,Up,Up,True,0.709,0.455,23.0
+"trade_id      6042
+trade_id    6042.0
+Name: 5496, dtype: object",no_consensus,Up,Down,False,0.333,0.505,23.0
+"trade_id      6043
+trade_id    6043.0
+Name: 5497, dtype: object",no_consensus,Up,Up,True,0.806,0.505,23.0
+"trade_id      6044
+trade_id    6044.0
+Name: 5498, dtype: object",no_consensus,Down,Down,True,0.58,0.525,23.0
+"trade_id      6045
+trade_id    6045.0
+Name: 5499, dtype: object",no_consensus,Up,Up,True,0.727,0.505,23.0
+"trade_id      6046
+trade_id    6046.0
+Name: 5500, dtype: object",no_consensus,Down,Down,True,0.715,0.505,23.0
+"trade_id      6047
+trade_id    6047.0
+Name: 5501, dtype: object",no_consensus,Down,Down,True,0.596,0.485,23.0
+"trade_id      6048
+trade_id    6048.0
+Name: 5502, dtype: object",no_consensus,Down,Down,True,0.785,0.495,23.0
+"trade_id      6049
+trade_id    6049.0
+Name: 5503, dtype: object",no_consensus,Up,Up,True,0.883,0.505,23.0
+"trade_id      6050
+trade_id    6050.0
+Name: 5504, dtype: object",no_consensus,Down,Down,True,0.748,0.525,0.0
+"trade_id      6051
+trade_id    6051.0
+Name: 5505, dtype: object",no_consensus,Down,Down,True,0.455,0.615,0.0
+"trade_id      6052
+trade_id    6052.0
+Name: 5506, dtype: object",no_consensus,Down,Down,True,0.886,0.505,0.0
+"trade_id      6053
+trade_id    6053.0
+Name: 5507, dtype: object",no_consensus,Up,Up,True,0.582,0.515,0.0
+"trade_id      6054
+trade_id    6054.0
+Name: 5508, dtype: object",no_consensus,Up,Up,True,0.704,0.505,0.0
+"trade_id      6055
+trade_id    6055.0
+Name: 5509, dtype: object",no_consensus,Up,Down,False,0.568,0.505,0.0
+"trade_id      6056
+trade_id    6056.0
+Name: 5510, dtype: object",no_consensus,Down,Down,True,0.748,0.505,0.0
+"trade_id      6057
+trade_id    6057.0
+Name: 5511, dtype: object",no_consensus,Down,Up,False,0.529,0.495,0.0
+"trade_id      6058
+trade_id    6058.0
+Name: 5512, dtype: object",no_consensus,Down,Down,True,0.723,0.505,0.0
+"trade_id      6059
+trade_id    6059.0
+Name: 5513, dtype: object",no_consensus,Down,Down,True,0.77,0.495,1.0
+"trade_id      6060
+trade_id    6060.0
+Name: 5514, dtype: object",no_consensus,Up,Up,True,0.7,0.505,1.0
+"trade_id      6061
+trade_id    6061.0
+Name: 5515, dtype: object",no_consensus,Down,Down,True,0.618,0.515,1.0
+"trade_id      6062
+trade_id    6062.0
+Name: 5516, dtype: object",no_consensus,Down,Up,False,0.797,0.525,1.0
+"trade_id      6063
+trade_id    6063.0
+Name: 5517, dtype: object",no_consensus,Down,Down,True,0.579,0.445,1.0
+"trade_id      6064
+trade_id    6064.0
+Name: 5518, dtype: object",no_consensus,Up,Up,True,0.6,0.515,1.0
+"trade_id      6065
+trade_id    6065.0
+Name: 5519, dtype: object",no_consensus,Up,Up,True,0.821,0.515,1.0
+"trade_id      6066
+trade_id    6066.0
+Name: 5520, dtype: object",no_consensus,Down,Down,True,0.546,0.505,1.0
+"trade_id      6067
+trade_id    6067.0
+Name: 5521, dtype: object",no_consensus,Down,Down,True,0.582,0.505,1.0
+"trade_id      6068
+trade_id    6068.0
+Name: 5522, dtype: object",no_consensus,Down,Down,True,0.632,0.635,1.0
+"trade_id      6069
+trade_id    6069.0
+Name: 5523, dtype: object",no_consensus,Up,Up,True,0.697,0.525,1.0
+"trade_id      6070
+trade_id    6070.0
+Name: 5524, dtype: object",no_consensus,Up,Up,True,0.66,0.505,2.0
+"trade_id      6071
+trade_id    6071.0
+Name: 5525, dtype: object",no_consensus,Down,Down,True,0.652,0.505,2.0
+"trade_id      6072
+trade_id    6072.0
+Name: 5526, dtype: object",no_consensus,Down,Up,False,0.827,0.505,2.0
+"trade_id      6073
+trade_id    6073.0
+Name: 5527, dtype: object",no_consensus,Down,Down,True,0.857,0.515,2.0
+"trade_id      6074
+trade_id    6074.0
+Name: 5528, dtype: object",no_consensus,Down,Up,False,0.713,0.505,2.0
+"trade_id      6075
+trade_id    6075.0
+Name: 5529, dtype: object",no_consensus,Down,Down,True,0.843,0.515,2.0
+"trade_id      6076
+trade_id    6076.0
+Name: 5530, dtype: object",no_consensus,Up,Up,True,0.827,0.505,2.0
+"trade_id      6077
+trade_id    6077.0
+Name: 5531, dtype: object",no_consensus,Down,Down,True,0.725,0.485,2.0
+"trade_id      6078
+trade_id    6078.0
+Name: 5532, dtype: object",no_consensus,Up,Down,False,0.471,0.505,2.0
+"trade_id      6079
+trade_id    6079.0
+Name: 5533, dtype: object",no_consensus,Up,Up,True,0.778,0.495,2.0
+"trade_id      6080
+trade_id    6080.0
+Name: 5534, dtype: object",no_consensus,Up,Up,True,0.403,0.505,2.0
+"trade_id      6081
+trade_id    6081.0
+Name: 5535, dtype: object",no_consensus,Down,Down,True,0.833,0.505,3.0
+"trade_id      6082
+trade_id    6082.0
+Name: 5536, dtype: object",no_consensus,Up,Down,False,0.748,0.505,3.0
+"trade_id      6083
+trade_id    6083.0
+Name: 5537, dtype: object",no_consensus,Up,Up,True,0.521,0.495,3.0
+"trade_id      6084
+trade_id    6084.0
+Name: 5538, dtype: object",no_consensus,Up,Up,True,0.786,0.505,3.0
+"trade_id      6085
+trade_id    6085.0
+Name: 5539, dtype: object",no_consensus,Up,Up,True,0.558,0.505,3.0
+"trade_id      6086
+trade_id    6086.0
+Name: 5540, dtype: object",no_consensus,Up,Up,True,0.654,0.505,3.0
+"trade_id      6087
+trade_id    6087.0
+Name: 5541, dtype: object",no_consensus,Down,Up,False,0.895,0.585,3.0
+"trade_id      6088
+trade_id    6088.0
+Name: 5542, dtype: object",no_consensus,Up,Down,False,0.671,0.475,3.0
+"trade_id      6089
+trade_id    6089.0
+Name: 5543, dtype: object",no_consensus,Up,Down,False,0.461,0.495,3.0
+"trade_id      6090
+trade_id    6090.0
+Name: 5544, dtype: object",no_consensus,Down,Down,True,0.635,0.495,3.0
+"trade_id      6091
+trade_id    6091.0
+Name: 5545, dtype: object",no_consensus,Down,Down,True,0.863,0.495,3.0
+"trade_id      6092
+trade_id    6092.0
+Name: 5546, dtype: object",no_consensus,Down,Up,False,0.779,0.495,4.0
+"trade_id      6093
+trade_id    6093.0
+Name: 5547, dtype: object",no_consensus,Up,Up,True,0.46,0.535,4.0
+"trade_id      6094
+trade_id    6094.0
+Name: 5548, dtype: object",no_consensus,Down,Up,False,0.482,0.515,4.0
+"trade_id      6095
+trade_id    6095.0
+Name: 5549, dtype: object",no_consensus,Up,Up,True,0.809,0.505,4.0
+"trade_id      6096
+trade_id    6096.0
+Name: 5550, dtype: object",no_consensus,Up,Up,True,0.76,0.475,4.0
+"trade_id      6097
+trade_id    6097.0
+Name: 5551, dtype: object",no_consensus,Up,Up,True,0.855,0.505,4.0
+"trade_id      6098
+trade_id    6098.0
+Name: 5552, dtype: object",no_consensus,Up,Up,True,0.717,0.495,4.0
+"trade_id      6099
+trade_id    6099.0
+Name: 5553, dtype: object",no_consensus,Down,Down,True,0.646,0.495,4.0
+"trade_id      6100
+trade_id    6100.0
+Name: 5554, dtype: object",no_consensus,Up,Up,True,0.747,0.495,4.0
+"trade_id      6101
+trade_id    6101.0
+Name: 5555, dtype: object",no_consensus,Down,Up,False,0.875,0.485,4.0
+"trade_id      6102
+trade_id    6102.0
+Name: 5556, dtype: object",no_consensus,Down,Down,True,0.733,0.505,5.0
+"trade_id      6103
+trade_id    6103.0
+Name: 5557, dtype: object",no_consensus,Down,Down,True,0.589,0.595,5.0
+"trade_id      6104
+trade_id    6104.0
+Name: 5558, dtype: object",no_consensus,Down,Up,False,0.662,0.535,5.0
+"trade_id      6105
+trade_id    6105.0
+Name: 5559, dtype: object",no_consensus,Up,Up,True,0.795,0.505,5.0
+"trade_id      6106
+trade_id    6106.0
+Name: 5560, dtype: object",no_consensus,Down,Down,True,0.821,0.505,5.0
+"trade_id      6107
+trade_id    6107.0
+Name: 5561, dtype: object",no_consensus,Up,Up,True,0.763,0.505,5.0
+"trade_id      6108
+trade_id    6108.0
+Name: 5562, dtype: object",no_consensus,Down,Down,True,0.749,0.505,5.0
+"trade_id      6109
+trade_id    6109.0
+Name: 5563, dtype: object",no_consensus,Down,Up,False,0.681,0.52,5.0
+"trade_id      6110
+trade_id    6110.0
+Name: 5564, dtype: object",no_consensus,Down,Up,False,0.861,0.505,5.0
+"trade_id      6111
+trade_id    6111.0
+Name: 5565, dtype: object",no_consensus,Down,Down,True,0.853,0.505,5.0
+"trade_id      6112
+trade_id    6112.0
+Name: 5566, dtype: object",no_consensus,Up,Up,True,0.685,0.515,6.0
+"trade_id      6113
+trade_id    6113.0
+Name: 5567, dtype: object",no_consensus,Down,Down,True,0.715,0.505,6.0
+"trade_id      6114
+trade_id    6114.0
+Name: 5568, dtype: object",no_consensus,Up,Up,True,0.535,0.495,6.0
+"trade_id      6115
+trade_id    6115.0
+Name: 5569, dtype: object",no_consensus,Up,Up,True,0.615,0.495,6.0
+"trade_id      6116
+trade_id    6116.0
+Name: 5570, dtype: object",no_consensus,Up,Up,True,0.696,0.495,6.0
+"trade_id      6117
+trade_id    6117.0
+Name: 5571, dtype: object",no_consensus,Up,Up,True,0.935,0.495,6.0
+"trade_id      6118
+trade_id    6118.0
+Name: 5572, dtype: object",no_consensus,Up,Up,True,0.8,0.495,6.0
+"trade_id      6119
+trade_id    6119.0
+Name: 5573, dtype: object",no_consensus,Up,Up,True,0.768,0.495,6.0
+"trade_id      6120
+trade_id    6120.0
+Name: 5574, dtype: object",no_consensus,Down,Up,False,0.575,0.485,6.0
+"trade_id      6121
+trade_id    6121.0
+Name: 5575, dtype: object",no_consensus,Up,Up,True,0.874,0.505,7.0
+"trade_id      6122
+trade_id    6122.0
+Name: 5576, dtype: object",no_consensus,Up,Up,True,0.814,0.465,7.0
+"trade_id      6123
+trade_id    6123.0
+Name: 5577, dtype: object",no_consensus,Down,Down,True,0.733,0.475,7.0
+"trade_id      6124
+trade_id    6124.0
+Name: 5578, dtype: object",no_consensus,Down,Up,False,0.905,0.485,7.0
+"trade_id      6125
+trade_id    6125.0
+Name: 5579, dtype: object",no_consensus,Up,Up,True,0.472,0.495,7.0
+"trade_id      6126
+trade_id    6126.0
+Name: 5580, dtype: object",no_consensus,Down,Down,True,0.621,0.515,7.0
+"trade_id      6127
+trade_id    6127.0
+Name: 5581, dtype: object",no_consensus,Up,Up,True,0.658,0.585,7.0
+"trade_id      6128
+trade_id    6128.0
+Name: 5582, dtype: object",no_consensus,Down,Down,True,0.705,0.495,7.0
+"trade_id      6129
+trade_id    6129.0
+Name: 5583, dtype: object",no_consensus,Up,Up,True,0.687,0.495,7.0
+"trade_id      6130
+trade_id    6130.0
+Name: 5584, dtype: object",no_consensus,Up,Up,True,0.766,0.495,7.0
+"trade_id      6131
+trade_id    6131.0
+Name: 5585, dtype: object",no_consensus,Down,Up,False,0.57,0.485,8.0
+"trade_id      6132
+trade_id    6132.0
+Name: 5586, dtype: object",no_consensus,Up,Up,True,0.86,0.495,8.0
+"trade_id      6133
+trade_id    6133.0
+Name: 5587, dtype: object",no_consensus,Down,Down,True,0.831,0.505,8.0
+"trade_id      6134
+trade_id    6134.0
+Name: 5588, dtype: object",no_consensus,Down,Down,True,0.891,0.485,8.0
+"trade_id      6135
+trade_id    6135.0
+Name: 5589, dtype: object",no_consensus,Up,Up,True,0.548,0.495,8.0
+"trade_id      6136
+trade_id    6136.0
+Name: 5590, dtype: object",no_consensus,Up,Up,True,0.858,0.505,8.0
+"trade_id      6137
+trade_id    6137.0
+Name: 5591, dtype: object",no_consensus,Up,Up,True,0.577,0.495,8.0
+"trade_id      6138
+trade_id    6138.0
+Name: 5592, dtype: object",no_consensus,Down,Down,True,0.532,0.47,8.0
+"trade_id      6139
+trade_id    6139.0
+Name: 5593, dtype: object",no_consensus,Up,Up,True,0.844,0.485,8.0
+"trade_id      6140
+trade_id    6140.0
+Name: 5594, dtype: object",no_consensus,Up,Up,True,0.775,0.445,8.0
+"trade_id      6141
+trade_id    6141.0
+Name: 5595, dtype: object",no_consensus,Down,Up,False,0.815,0.505,8.0
+"trade_id      6142
+trade_id    6142.0
+Name: 5596, dtype: object",no_consensus,Down,Down,True,0.591,0.475,9.0
+"trade_id      6143
+trade_id    6143.0
+Name: 5597, dtype: object",no_consensus,Up,Up,True,0.566,0.475,9.0
+"trade_id      6144
+trade_id    6144.0
+Name: 5598, dtype: object",no_consensus,Up,Up,True,0.727,0.425,9.0
+"trade_id      6145
+trade_id    6145.0
+Name: 5599, dtype: object",no_consensus,Up,Up,True,0.739,0.495,9.0
+"trade_id      6146
+trade_id    6146.0
+Name: 5600, dtype: object",no_consensus,Down,Down,True,0.779,0.495,9.0
+"trade_id      6147
+trade_id    6147.0
+Name: 5601, dtype: object",no_consensus,Down,Down,True,0.845,0.515,9.0
+"trade_id      6148
+trade_id    6148.0
+Name: 5602, dtype: object",no_consensus,Down,Up,False,0.717,0.515,9.0
+"trade_id      6149
+trade_id    6149.0
+Name: 5603, dtype: object",no_consensus,Down,Up,False,0.785,0.505,9.0
+"trade_id      6150
+trade_id    6150.0
+Name: 5604, dtype: object",no_consensus,Up,Up,True,0.826,0.505,9.0
+"trade_id      6151
+trade_id    6151.0
+Name: 5605, dtype: object",no_consensus,Down,Down,True,0.932,0.505,10.0
+"trade_id      6152
+trade_id    6152.0
+Name: 5606, dtype: object",no_consensus,Down,Down,True,0.852,0.505,10.0
+"trade_id      6153
+trade_id    6153.0
+Name: 5607, dtype: object",no_consensus,Up,Up,True,0.86,0.495,10.0
+"trade_id      6154
+trade_id    6154.0
+Name: 5608, dtype: object",no_consensus,Up,Up,True,0.865,0.505,10.0
+"trade_id      6155
+trade_id    6155.0
+Name: 5609, dtype: object",no_consensus,Down,Down,True,0.526,0.505,10.0
+"trade_id      6156
+trade_id    6156.0
+Name: 5610, dtype: object",no_consensus,Up,Up,True,0.75,0.485,10.0
+"trade_id      6157
+trade_id    6157.0
+Name: 5611, dtype: object",no_consensus,Down,Down,True,0.483,0.515,10.0
+"trade_id      6158
+trade_id    6158.0
+Name: 5612, dtype: object",no_consensus,Down,Down,True,0.735,0.565,10.0
+"trade_id      6159
+trade_id    6159.0
+Name: 5613, dtype: object",no_consensus,Up,Up,True,0.773,0.505,10.0
+"trade_id      6160
+trade_id    6160.0
+Name: 5614, dtype: object",no_consensus,Up,Up,True,0.871,0.505,10.0
+"trade_id      6161
+trade_id    6161.0
+Name: 5615, dtype: object",no_consensus,Up,Down,False,0.836,0.505,10.0
+"trade_id      6162
+trade_id    6162.0
+Name: 5616, dtype: object",no_consensus,Up,Up,True,0.802,0.505,11.0
+"trade_id      6163
+trade_id    6163.0
+Name: 5617, dtype: object",no_consensus,Up,Down,False,0.321,0.505,11.0
+"trade_id      6164
+trade_id    6164.0
+Name: 5618, dtype: object",no_consensus,Up,Up,True,0.838,0.495,11.0
+"trade_id      6165
+trade_id    6165.0
+Name: 5619, dtype: object",no_consensus,Up,Up,True,0.887,0.505,11.0
+"trade_id      6166
+trade_id    6166.0
+Name: 5620, dtype: object",no_consensus,Up,Up,True,0.568,0.495,11.0
+"trade_id      6167
+trade_id    6167.0
+Name: 5621, dtype: object",no_consensus,Up,Up,True,0.611,0.495,11.0
+"trade_id      6168
+trade_id    6168.0
+Name: 5622, dtype: object",no_consensus,Up,Down,False,0.345,0.485,11.0
+"trade_id      6169
+trade_id    6169.0
+Name: 5623, dtype: object",no_consensus,Up,Up,True,0.54,0.495,11.0
+"trade_id      6170
+trade_id    6170.0
+Name: 5624, dtype: object",no_consensus,Up,Up,True,0.656,0.485,11.0
+"trade_id      6171
+trade_id    6171.0
+Name: 5625, dtype: object",no_consensus,Up,Down,False,0.61,0.495,12.0
+"trade_id      6172
+trade_id    6172.0
+Name: 5626, dtype: object",no_consensus,Up,Up,True,0.866,0.495,12.0
+"trade_id      6173
+trade_id    6173.0
+Name: 5627, dtype: object",no_consensus,Up,Up,True,0.475,0.375,12.0
+"trade_id      6174
+trade_id    6174.0
+Name: 5628, dtype: object",no_consensus,Up,Up,True,0.78,0.475,12.0
+"trade_id      6175
+trade_id    6175.0
+Name: 5629, dtype: object",no_consensus,Up,Up,True,0.574,0.495,12.0
+"trade_id      6176
+trade_id    6176.0
+Name: 5630, dtype: object",no_consensus,Down,Down,True,0.813,0.495,12.0
+"trade_id      6177
+trade_id    6177.0
+Name: 5631, dtype: object",no_consensus,Down,Down,True,0.86,0.475,12.0
+"trade_id      6178
+trade_id    6178.0
+Name: 5632, dtype: object",no_consensus,Up,Up,True,0.848,0.475,12.0
+"trade_id      6179
+trade_id    6179.0
+Name: 5633, dtype: object",no_consensus,Up,Up,True,0.844,0.485,12.0
+"trade_id      6180
+trade_id    6180.0
+Name: 5634, dtype: object",no_consensus,Down,Down,True,0.661,0.485,13.0
+"trade_id      6181
+trade_id    6181.0
+Name: 5635, dtype: object",no_consensus,Up,Up,True,0.851,0.485,13.0
+"trade_id      6182
+trade_id    6182.0
+Name: 5636, dtype: object",no_consensus,Up,Up,True,0.86,0.465,13.0
+"trade_id      6183
+trade_id    6183.0
+Name: 5637, dtype: object",no_consensus,Up,Up,True,0.783,0.485,13.0
+"trade_id      6184
+trade_id    6184.0
+Name: 5638, dtype: object",no_consensus,Down,Down,True,0.519,0.47,13.0
+"trade_id      6185
+trade_id    6185.0
+Name: 5639, dtype: object",no_consensus,Up,Up,True,0.855,0.495,13.0
+"trade_id      6186
+trade_id    6186.0
+Name: 5640, dtype: object",no_consensus,Up,Up,True,0.594,0.515,13.0
+"trade_id      6187
+trade_id    6187.0
+Name: 5641, dtype: object",no_consensus,Down,Up,False,0.928,0.495,13.0
+"trade_id      6188
+trade_id    6188.0
+Name: 5642, dtype: object",no_consensus,Up,Up,True,0.774,0.465,13.0
+"trade_id      6189
+trade_id    6189.0
+Name: 5643, dtype: object",no_consensus,Down,Down,True,0.834,0.535,14.0
+"trade_id      6190
+trade_id    6190.0
+Name: 5644, dtype: object",no_consensus,Down,Down,True,0.356,0.495,14.0
+"trade_id      6191
+trade_id    6191.0
+Name: 5645, dtype: object",no_consensus,Up,Up,True,0.887,0.505,14.0
+"trade_id      6192
+trade_id    6192.0
+Name: 5646, dtype: object",no_consensus,Up,Up,True,0.801,0.485,14.0
+"trade_id      6193
+trade_id    6193.0
+Name: 5647, dtype: object",no_consensus,Up,Up,True,0.774,0.485,14.0
+"trade_id      6194
+trade_id    6194.0
+Name: 5648, dtype: object",no_consensus,Up,Up,True,0.734,0.485,14.0
+"trade_id      6195
+trade_id    6195.0
+Name: 5649, dtype: object",no_consensus,Down,Down,True,0.616,0.495,14.0
+"trade_id      6196
+trade_id    6196.0
+Name: 5650, dtype: object",no_consensus,Up,Up,True,0.841,0.495,14.0
+"trade_id      6197
+trade_id    6197.0
+Name: 5651, dtype: object",no_consensus,Down,Down,True,0.644,0.495,15.0
+"trade_id      6198
+trade_id    6198.0
+Name: 5652, dtype: object",no_consensus,Up,Up,True,0.779,0.495,15.0
+"trade_id      6199
+trade_id    6199.0
+Name: 5653, dtype: object",no_consensus,Up,Up,True,0.9,0.685,15.0
+"trade_id      6200
+trade_id    6200.0
+Name: 5654, dtype: object",no_consensus,Up,Down,False,0.533,0.505,15.0
+"trade_id      6201
+trade_id    6201.0
+Name: 5655, dtype: object",no_consensus,Down,Up,False,0.917,0.495,15.0
+"trade_id      6202
+trade_id    6202.0
+Name: 5656, dtype: object",no_consensus,Down,Down,True,0.862,0.505,15.0
+"trade_id      6203
+trade_id    6203.0
+Name: 5657, dtype: object",no_consensus,Up,Down,False,0.719,0.505,15.0
+"trade_id      6204
+trade_id    6204.0
+Name: 5658, dtype: object",no_consensus,Up,Up,True,0.952,0.505,15.0
+"trade_id      6205
+trade_id    6205.0
+Name: 5659, dtype: object",no_consensus,Up,Down,False,0.638,0.505,15.0
+"trade_id      6206
+trade_id    6206.0
+Name: 5660, dtype: object",no_consensus,Up,Up,True,0.878,0.505,16.0
+"trade_id      6207
+trade_id    6207.0
+Name: 5661, dtype: object",no_consensus,Up,Down,False,0.6,0.495,16.0
+"trade_id      6208
+trade_id    6208.0
+Name: 5662, dtype: object",no_consensus,Up,Up,True,0.656,0.495,16.0
+"trade_id      6209
+trade_id    6209.0
+Name: 5663, dtype: object",no_consensus,Down,Up,False,0.69,0.505,16.0
+"trade_id      6210
+trade_id    6210.0
+Name: 5664, dtype: object",no_consensus,Down,Down,True,0.805,0.495,16.0
+"trade_id      6211
+trade_id    6211.0
+Name: 5665, dtype: object",no_consensus,Down,Up,False,0.788,0.485,16.0
+"trade_id      6212
+trade_id    6212.0
+Name: 5666, dtype: object",no_consensus,Up,Down,False,0.384,0.495,16.0
+"trade_id      6213
+trade_id    6213.0
+Name: 5667, dtype: object",no_consensus,Down,Down,True,0.807,0.495,16.0
+"trade_id      6214
+trade_id    6214.0
+Name: 5668, dtype: object",no_consensus,Down,Down,True,0.81,0.515,16.0
+"trade_id      6215
+trade_id    6215.0
+Name: 5669, dtype: object",no_consensus,Up,Up,True,0.675,0.505,16.0
+"trade_id      6216
+trade_id    6216.0
+Name: 5670, dtype: object",no_consensus,Down,Up,False,0.708,0.505,17.0
+"trade_id      6217
+trade_id    6217.0
+Name: 5671, dtype: object",no_consensus,Down,Down,True,0.679,0.505,17.0
+"trade_id      6218
+trade_id    6218.0
+Name: 5672, dtype: object",no_consensus,Down,Down,True,0.533,0.505,17.0
+"trade_id      6219
+trade_id    6219.0
+Name: 5673, dtype: object",no_consensus,Down,Up,False,0.794,0.505,17.0
+"trade_id      6220
+trade_id    6220.0
+Name: 5674, dtype: object",no_consensus,Down,Down,True,0.884,0.505,17.0
+"trade_id      6221
+trade_id    6221.0
+Name: 5675, dtype: object",no_consensus,Up,Up,True,0.725,0.505,17.0
+"trade_id      6222
+trade_id    6222.0
+Name: 5676, dtype: object",no_consensus,Up,Up,True,0.844,0.505,17.0
+"trade_id      6223
+trade_id    6223.0
+Name: 5677, dtype: object",no_consensus,Down,Down,True,0.907,0.425,17.0
+"trade_id      6224
+trade_id    6224.0
+Name: 5678, dtype: object",no_consensus,Down,Up,False,0.844,0.505,17.0
+"trade_id      6225
+trade_id    6225.0
+Name: 5679, dtype: object",no_consensus,Up,Down,False,0.525,0.505,17.0
+"trade_id      6226
+trade_id    6226.0
+Name: 5680, dtype: object",no_consensus,Up,Down,False,0.531,0.505,17.0
+"trade_id      6227
+trade_id    6227.0
+Name: 5681, dtype: object",no_consensus,Down,Down,True,0.73,0.505,18.0
+"trade_id      6228
+trade_id    6228.0
+Name: 5682, dtype: object",no_consensus,Down,Down,True,0.724,0.505,18.0
+"trade_id      6229
+trade_id    6229.0
+Name: 5683, dtype: object",no_consensus,Down,Up,False,0.904,0.505,18.0
+"trade_id      6230
+trade_id    6230.0
+Name: 5684, dtype: object",no_consensus,Up,Up,True,0.638,0.515,18.0
+"trade_id      6231
+trade_id    6231.0
+Name: 5685, dtype: object",no_consensus,Down,Down,True,0.591,0.505,18.0
+"trade_id      6232
+trade_id    6232.0
+Name: 5686, dtype: object",no_consensus,Up,Up,True,0.689,0.505,18.0
+"trade_id      6233
+trade_id    6233.0
+Name: 5687, dtype: object",no_consensus,Up,Up,True,0.772,0.505,18.0
+"trade_id      6234
+trade_id    6234.0
+Name: 5688, dtype: object",no_consensus,Up,Up,True,0.818,0.505,18.0
+"trade_id      6235
+trade_id    6235.0
+Name: 5689, dtype: object",no_consensus,Down,Down,True,0.775,0.505,18.0
+"trade_id      6236
+trade_id    6236.0
+Name: 5690, dtype: object",no_consensus,Down,Down,True,0.812,0.505,18.0
+"trade_id      6237
+trade_id    6237.0
+Name: 5691, dtype: object",no_consensus,Down,Down,True,0.487,0.505,18.0
+"trade_id      6238
+trade_id    6238.0
+Name: 5692, dtype: object",no_consensus,Down,Up,False,0.576,0.415,19.0
+"trade_id      6239
+trade_id    6239.0
+Name: 5693, dtype: object",no_consensus,Up,Up,True,0.856,0.505,19.0
+"trade_id      6240
+trade_id    6240.0
+Name: 5694, dtype: object",no_consensus,Down,Down,True,0.471,0.485,19.0
+"trade_id      6241
+trade_id    6241.0
+Name: 5695, dtype: object",no_consensus,Up,Up,True,0.857,0.505,19.0
+"trade_id      6242
+trade_id    6242.0
+Name: 5696, dtype: object",no_consensus,Up,Up,True,0.764,0.505,19.0
+"trade_id      6243
+trade_id    6243.0
+Name: 5697, dtype: object",no_consensus,Down,Up,False,0.881,0.495,19.0
+"trade_id      6244
+trade_id    6244.0
+Name: 5698, dtype: object",no_consensus,Up,Down,False,0.692,0.495,19.0
+"trade_id      6245
+trade_id    6245.0
+Name: 5699, dtype: object",no_consensus,Up,Up,True,0.766,0.645,19.0
+"trade_id      6246
+trade_id    6246.0
+Name: 5700, dtype: object",no_consensus,Up,Up,True,0.673,0.495,20.0
+"trade_id      6247
+trade_id    6247.0
+Name: 5701, dtype: object",no_consensus,Down,Down,True,0.831,0.495,20.0
+"trade_id      6248
+trade_id    6248.0
+Name: 5702, dtype: object",no_consensus,Down,Down,True,0.494,0.505,20.0
+"trade_id      6249
+trade_id    6249.0
+Name: 5703, dtype: object",no_consensus,Down,Down,True,0.464,0.515,20.0
+"trade_id      6250
+trade_id    6250.0
+Name: 5704, dtype: object",no_consensus,Up,Up,True,0.548,0.535,20.0
+"trade_id      6251
+trade_id    6251.0
+Name: 5705, dtype: object",no_consensus,Down,Up,False,0.908,0.505,20.0
+"trade_id      6252
+trade_id    6252.0
+Name: 5706, dtype: object",no_consensus,Up,Up,True,0.698,0.515,20.0
+"trade_id      6253
+trade_id    6253.0
+Name: 5707, dtype: object",no_consensus,Down,Up,False,0.83,0.595,20.0
+"trade_id      6254
+trade_id    6254.0
+Name: 5708, dtype: object",no_consensus,Up,Up,True,0.645,0.525,20.0
+"trade_id      6255
+trade_id    6255.0
+Name: 5709, dtype: object",no_consensus,Down,Up,False,0.744,0.495,21.0
+"trade_id      6256
+trade_id    6256.0
+Name: 5710, dtype: object",no_consensus,Down,Down,True,0.864,0.505,21.0
+"trade_id      6257
+trade_id    6257.0
+Name: 5711, dtype: object",no_consensus,Down,Up,False,0.781,0.505,21.0
+"trade_id      6258
+trade_id    6258.0
+Name: 5712, dtype: object",no_consensus,Down,Down,True,0.894,0.495,21.0
+"trade_id      6259
+trade_id    6259.0
+Name: 5713, dtype: object",no_consensus,Down,Up,False,0.688,0.665,21.0
+"trade_id      6260
+trade_id    6260.0
+Name: 5714, dtype: object",no_consensus,Up,Up,True,0.746,0.505,21.0
+"trade_id      6261
+trade_id    6261.0
+Name: 5715, dtype: object",no_consensus,Down,Down,True,0.742,0.505,21.0
+"trade_id      6262
+trade_id    6262.0
+Name: 5716, dtype: object",no_consensus,Down,Down,True,0.663,0.505,21.0
+"trade_id      6263
+trade_id    6263.0
+Name: 5717, dtype: object",no_consensus,Up,Up,True,0.788,0.495,21.0
+"trade_id      6264
+trade_id    6264.0
+Name: 5718, dtype: object",no_consensus,Up,Down,False,0.75,0.495,21.0
+"trade_id      6265
+trade_id    6265.0
+Name: 5719, dtype: object",no_consensus,Up,Up,True,0.781,0.505,22.0
+"trade_id      6266
+trade_id    6266.0
+Name: 5720, dtype: object",no_consensus,Down,Up,False,0.552,0.485,22.0
+"trade_id      6267
+trade_id    6267.0
+Name: 5721, dtype: object",no_consensus,Down,Down,True,0.812,0.505,22.0
+"trade_id      6268
+trade_id    6268.0
+Name: 5722, dtype: object",no_consensus,Down,Down,True,0.78,0.505,22.0
+"trade_id      6269
+trade_id    6269.0
+Name: 5723, dtype: object",no_consensus,Up,Up,True,0.733,0.505,22.0
+"trade_id      6270
+trade_id    6270.0
+Name: 5724, dtype: object",no_consensus,Down,Down,True,0.868,0.505,22.0
+"trade_id      6271
+trade_id    6271.0
+Name: 5725, dtype: object",no_consensus,Down,Down,True,0.639,0.505,22.0
+"trade_id      6272
+trade_id    6272.0
+Name: 5726, dtype: object",no_consensus,Down,Down,True,0.745,0.435,22.0
+"trade_id      6273
+trade_id    6273.0
+Name: 5727, dtype: object",no_consensus,Down,Down,True,0.656,0.395,23.0
+"trade_id      6274
+trade_id    6274.0
+Name: 5728, dtype: object",no_consensus,Down,Down,True,0.71,0.525,23.0
