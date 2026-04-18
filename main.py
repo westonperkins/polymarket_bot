@@ -890,7 +890,19 @@ async def on_signal_window(
                 )
 
                 taker_fired = False
-                if use_taker:
+                # Only fire the taker when the T-120 GBM and T-30 ensemble
+                # agree on direction. The GBM can go stale in 90 seconds —
+                # firing on a GBM side the ensemble contradicts is the root
+                # cause of the extreme-underdog fills that lost 14/14 earlier.
+                ensemble_side = decision.side  # fresh T-30 signal
+                gbm_ensemble_agree = (ensemble_side == gbm_side) if ensemble_side else False
+                if use_taker and not gbm_ensemble_agree:
+                    logger.info(
+                        f"⏭️  TAKER skipped: GBM={gbm_side} vs ensemble={ensemble_side or 'None'} disagree"
+                    )
+                    pending_limit_orders.pop(market.slug, None)
+                    taker_fired = True  # suppress limit fallback too
+                elif use_taker:
                     current_mid = odds.up_price if gbm_side == "Up" else odds.down_price
                     taker_max_price = round(
                         min(0.99, current_mid + config.TAKER_MODE_MAX_SLIPPAGE_CENTS / 100.0),
